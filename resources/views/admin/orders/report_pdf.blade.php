@@ -1,0 +1,81 @@
+@extends('layouts.pdf')
+
+@section('content')
+<div style="margin-bottom: 20px;">
+    <h3 style="text-align: center; text-transform: uppercase; margin-bottom: 5px;">Orders Report</h3>
+    <div style="text-align: center; font-size: 11px; color: #64748b;">
+        <strong>Generated:</strong> {{ now()->format('M d, Y, h:i A') }}
+        @if(isset($start) && isset($end))
+            | <strong>Period:</strong> {{ $start }} to {{ $end }}
+        @endif
+    </div>
+</div>
+
+<table style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th style="width: 5%; text-align: center;">#</th>
+            <th style="width: 20%;">Customer</th>
+            <th style="width: 20%;">Product</th>
+            <th style="width: 10%; text-align: center;">Qty</th>
+            <th style="width: 15%; text-align: right;">Price</th>
+            <th style="width: 15%; text-align: right;">Total</th>
+            <th style="width: 15%;">Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php 
+            $totalAmount = 0; 
+            $totalTax = 0;
+            $count = 0;
+        @endphp
+        @forelse($orders as $index => $order)
+            @php 
+                $lineTotal = $order->price * $order->quantity;
+                $totalAmount += $lineTotal;
+                $count++;
+            @endphp
+            <tr>
+                <td style="text-align: center;">{{ $index + 1 }}</td>
+                <td>
+                    {{ $order->customer->name ?? 'Unknown' }}
+                    <div style="font-size: 9px; color: #666;">{{ $order->customer->email ?? '' }}</div>
+                </td>
+                <td>{{ $order->product_name }}</td>
+                <td style="text-align: center;">{{ $order->quantity }}</td>
+                <td style="text-align: right;">{{ number_format($order->price) }} Rwf</td>
+                <td style="text-align: right;">{{ number_format($lineTotal) }} Rwf</td>
+                <td>{{ \Carbon\Carbon::parse($order->created_at)->format('Y-m-d') }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7" style="text-align:center; padding: 20px;">No orders found for this report.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
+<div class="summary-box">
+    <div class="summary-row" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-weight: bold; text-align: center;">ORDERS SUMMARY</div>
+    <div class="summary-row">
+        <span class="summary-label">Total Orders:</span>
+        <span class="summary-val">{{ $count }}</span>
+    </div>
+    <div class="summary-row">
+        <span class="summary-label">Subtotal:</span>
+        <span class="summary-val">{{ number_format($totalAmount) }} Rwf</span>
+    </div>
+    @php
+        // Calculating approximate tax if needed, user asked for accurate calculations with tax
+        $estimatedTax = $totalAmount * 0.18; 
+    @endphp
+    <div class="summary-row">
+        <span class="summary-label">Tax (18%):</span>
+        <span class="summary-val">{{ number_format($estimatedTax) }} Rwf</span>
+    </div>
+    <div class="summary-row total-highlight">
+        <span class="summary-label">Total Revenue (Inc. Tax):</span>
+        <span class="summary-val">{{ number_format($totalAmount + $estimatedTax) }} Rwf</span>
+    </div>
+</div>
+@endsection
