@@ -285,6 +285,19 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 .btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
+/* Pagination */
+.pagination-wrapper { margin-top: 20px; display: flex; justify-content: center; }
+.pagination-wrapper nav { display: flex; gap: 5px; }
+.pagination-wrapper .pagination { display: flex; gap: 5px; list-style: none; padding: 0; margin: 0; }
+.pagination-wrapper .page-link {
+    padding: 8px 14px; border-radius: 8px; background: var(--surface); border: 1px solid var(--header-border);
+    color: var(--text-primary); font-weight: 600; font-size: 13px; text-decoration: none;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-width: 38px;
+}
+.pagination-wrapper .page-link:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2); }
+.pagination-wrapper .page-item.active .page-link { background: var(--primary); color: white; border-color: var(--primary); }
+.pagination-wrapper .page-item.disabled .page-link { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
 @media (max-width: 1024px) {
     .main-content { margin-left: 0; width: 100%; padding: 15px; }
     .product-manager-layout { grid-template-columns: 1fr; }
@@ -294,9 +307,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 <div class="main-content">
     
     @php
-        $totalRevenue = $orders->sum(fn($o) => $o->quantity * $o->price);
-        $pendingCount = $orders->where('status', 'pending')->count();
-        $totalOrders = $orders->count();
+        $totalRevenue = $totalStats['total_revenue'] ?? 0;
+        $pendingCount = $totalStats['pending_count'] ?? 0;
+        $totalOrders  = $totalStats['total_orders'] ?? 0;
     @endphp
 
     <div class="stats-row">
@@ -328,6 +341,17 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                     <button class="btn-primary" onclick="openProductModal()" style="background: var(--info);">
                         <i class="fas fa-boxes"></i> Manage Products
                     </button>
+
+                    <form method="GET" action="{{ route('admin.orders.index') }}" style="margin-left: 5px;">
+                        <select name="per_page" onchange="this.form.submit()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--header-border); font-size: 12px; background: var(--surface); color: var(--text-primary); cursor: pointer; font-weight: 600;">
+                            <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5 Rows</option>
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 Rows</option>
+                            <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15 Rows</option>
+                        </select>
+                         <!-- Persist other filters if they exist -->
+                        @if(request('start_date')) <input type="hidden" name="start_date" value="{{ request('start_date') }}"> @endif
+                        @if(request('end_date')) <input type="hidden" name="end_date" value="{{ request('end_date') }}"> @endif
+                    </form>
 
                     <div style="display: flex; align-items: center; gap: 8px; background: var(--surface); padding: 5px 12px; border-radius: 8px; border: 1px solid var(--header-border); margin-left: auto;">
                         <label style="font-size: 11px; font-weight: 600; color: var(--text-muted);">From:</label>
@@ -367,11 +391,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                             <td>
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">
-                                        {{ substr($order->customer->name ?? 'U', 0, 1) }}
+                                        {{ substr($order->user->name ?? 'U', 0, 1) }}
                                     </div>
                                     <div>
-                                        <div style="font-weight: 600; color: var(--text-primary);">{{ $order->customer->name ?? 'Guest' }}</div>
-                                        <div style="font-size: 11px; color: var(--text-muted);">{{ $order->customer->email ?? '' }}</div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">{{ $order->user->name ?? 'Guest' }}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted);">{{ $order->user->email ?? '' }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -403,6 +427,13 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination Links -->
+            @if($orders instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                <div class="pagination-wrapper">
+                    {{ $orders->links('pagination::bootstrap-4') }}
+                </div>
+            @endif
         </div>
     </div>
 </div>

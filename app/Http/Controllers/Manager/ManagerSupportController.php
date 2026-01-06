@@ -21,12 +21,12 @@ class ManagerSupportController extends Controller
         // Search Intelligence
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('subject', 'LIKE', "%{$search}%")
-                  ->orWhere('ticket_no', 'LIKE', "%{$search}%")
-                  ->orWhereHas('customer', function($cq) use ($search) {
-                      $cq->where('name', 'LIKE', "%{$search}%");
-                  });
+                    ->orWhere('ticket_no', 'LIKE', "%{$search}%")
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('name', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
@@ -39,10 +39,10 @@ class ManagerSupportController extends Controller
 
         // Performance Metrics
         $stats = [
-            'total'       => Ticket::count(),
-            'open'        => Ticket::where('status', 'open')->count(),
-            'processing'  => Ticket::where('status', 'in-progress')->count(),
-            'resolved'    => Ticket::where('status', 'closed')->count(),
+            'total' => Ticket::count(),
+            'open' => Ticket::where('status', 'open')->count(),
+            'processing' => Ticket::where('status', 'in_progress')->count(),
+            'resolved' => Ticket::where('status', 'closed')->count(),
         ];
 
         return view('manager.support.index', compact('tickets', 'stats'));
@@ -63,8 +63,8 @@ class ManagerSupportController extends Controller
         $reply = new TicketReply();
         $reply->ticket_id = $ticket->id;
         $reply->is_staff_reply = true;
-        $reply->user_id        = Auth::id();
-        $reply->message   = $request->message;
+        $reply->user_id = Auth::id();
+        $reply->message = $request->message;
 
         if ($request->hasFile('attachment')) {
             $path = $request->file('attachment')->store('replies', 'public');
@@ -75,13 +75,13 @@ class ManagerSupportController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'success'    => true,
-                'message'    => 'Reply sent successfully',
-                'reply'      => [
+                'success' => true,
+                'message' => 'Reply sent successfully',
+                'reply' => [
                     'is_staff_reply' => $reply->is_staff_reply,
-                    'message'        => $reply->message,
-                    'attachment'     => $reply->attachment ? asset('storage/'.$reply->attachment) : null,
-                    'created_at'     => $reply->created_at->format('M d, Y h:i A'),
+                    'message' => $reply->message,
+                    'attachment' => $reply->attachment ? asset('storage/' . $reply->attachment) : null,
+                    'created_at' => $reply->created_at->format('M d, Y h:i A'),
                 ]
             ]);
         }
@@ -95,7 +95,7 @@ class ManagerSupportController extends Controller
     public function changeStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:open,in-progress,closed'
+            'status' => 'required|in:open,in_progress,closed'
         ]);
 
         $ticket = Ticket::findOrFail($id);
@@ -104,16 +104,16 @@ class ManagerSupportController extends Controller
         $ticket->update(['status' => $request->status]);
 
         TicketLog::create([
-            'ticket_id'  => $ticket->id,
-            'old_status' => $oldStatus,
-            'new_status' => $request->status,
-            'changed_by' => Auth::user()->name ?? 'Manager'
+            'ticket_id' => $ticket->id,
+            'user_id' => Auth::id(),
+            'action' => 'Status Updated',
+            'description' => "Status changed from {$oldStatus} to {$request->status}"
         ]);
 
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'status'  => $ticket->status,
+                'status' => $ticket->status,
                 'message' => 'Status updated successfully'
             ]);
         }
@@ -127,23 +127,23 @@ class ManagerSupportController extends Controller
     public function ajaxTicket($id)
     {
         $ticket = Ticket::with(['customer', 'category', 'replies'])->findOrFail($id);
-        
+
         return response()->json([
-            'id'          => $ticket->id,
-            'ticket_no'   => $ticket->ticket_no,
-            'subject'     => $ticket->subject,
+            'id' => $ticket->id,
+            'ticket_no' => $ticket->ticket_no,
+            'subject' => $ticket->subject,
             'description' => $ticket->description,
-            'status'      => $ticket->status,
-            'priority'    => $ticket->priority ?? 'normal',
-            'customer'    => $ticket->customer,
-            'category'    => $ticket->category,
-            'attachment'  => $ticket->attachment,
-            'created_at'  => $ticket->created_at->format('M d, Y'),
-            'replies'     => $ticket->replies->map(function($r) {
+            'status' => $ticket->status,
+            'priority' => $ticket->priority ?? 'normal',
+            'customer' => $ticket->customer,
+            'category' => $ticket->category,
+            'attachment' => $ticket->attachment,
+            'created_at' => $ticket->created_at->format('M d, Y'),
+            'replies' => $ticket->replies->map(function ($r) {
                 return [
                     'is_staff_reply' => $r->is_staff_reply,
-                    'message'    => $r->message,
-                    'attachment' => $r->attachment ? asset('storage/'.$r->attachment) : null,
+                    'message' => $r->message,
+                    'attachment' => $r->attachment ? asset('storage/' . $r->attachment) : null,
                     'created_at' => $r->created_at->format('M d, Y h:i A'),
                 ];
             })

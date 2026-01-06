@@ -157,9 +157,12 @@
                             </select>
                         </td>
                         <td>
-                            <span class="status-badge status-{{ $task->status }}">
-                                {{ ucfirst($task->status) }}
-                            </span>
+                            <select class="status-select status-{{ $task->status }}" onchange="updateStatus({{ $task->id }}, this.value)" style="border:none; background:transparent; font-weight:700; cursor:pointer; padding:5px; border-radius:12px;">
+                                <option value="pending" {{ $task->status == 'pending' ? 'selected' : '' }} style="color:black">Pending</option>
+                                <option value="confirmed" {{ $task->status == 'confirmed' ? 'selected' : '' }} style="color:black">In Progress</option>
+                                <option value="completed" {{ $task->status == 'completed' ? 'selected' : '' }} style="color:black">Completed</option>
+                                <option value="cancelled" {{ $task->status == 'cancelled' ? 'selected' : '' }} style="color:black">Cancelled</option>
+                            </select>
                         </td>
                         <td>
                             <div class="progress-cell">
@@ -887,5 +890,46 @@ window.addEventListener('click', function(e) {
         closeReportModal();
     }
 });
+
+function updateStatus(id, newStatus) {
+    fetch(`/admin/appointments/${id}`, {
+        method: 'PUT',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            showAlert('success', 'Status updated successfully!');
+            // Update the progress bar visually
+            const select = document.querySelector(`select[onchange="updateStatus(${id}, this.value)"]`);
+            if (select) {
+                const row = select.closest('tr');
+                const progressBar = row.querySelector('.progress-fill');
+                const progressText = row.querySelector('.progress-text');
+                
+                let progress = 0;
+                if (newStatus === 'completed') progress = 100;
+                else if (newStatus === 'confirmed') progress = 50;
+                
+                if (progressBar) progressBar.style.width = progress + '%';
+                if (progressText) progressText.textContent = progress + '%';
+                
+                // Update select class for color
+                select.className = `status-select status-${newStatus}`;
+            }
+        } else {
+            showAlert('error', d.message || 'Error updating status');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        showAlert('error', 'Failed to update status');
+    });
+}
 </script>
 

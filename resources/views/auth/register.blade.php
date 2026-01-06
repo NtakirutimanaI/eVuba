@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <div class="container">
   <!-- LEFT SIDE -->
   <div class="left">
@@ -39,17 +41,29 @@
           @enderror
         </div>
 
-        <div class="input-group">
+        <div class="input-group" x-data="{ show: false }">
           <label for="password">Password</label>
-          <input id="password" type="password" name="password" required placeholder="Create password">
+          <div style="position: relative;">
+            <input id="password" :type="show ? 'text' : 'password'" name="password" required
+              placeholder="Create password" style="padding-right: 40px;">
+            <button type="button" @click="show = !show" class="toggle-btn">
+              <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
           @error('password')
             <div style="color:red;font-size:12px;">{{ $message }}</div>
           @enderror
         </div>
 
-        <div class="input-group">
+        <div class="input-group" x-data="{ show: false }">
           <label for="password_confirmation">Confirm Password</label>
-          <input id="password_confirmation" type="password" name="password_confirmation" required placeholder="Confirm password">
+          <div style="position: relative;">
+            <input id="password_confirmation" :type="show ? 'text' : 'password'" name="password_confirmation" required
+              placeholder="Confirm password" style="padding-right: 40px;">
+            <button type="button" @click="show = !show" class="toggle-btn">
+              <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
         </div>
 
         <button type="submit">Create Account</button>
@@ -74,8 +88,20 @@
 </div>
 
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-  body { background: #f2f2f2; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
 
   .container {
     width: 900px;
@@ -84,7 +110,7 @@
     border-radius: 18px;
     display: flex;
     overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
   }
 
   /* LEFT SIDE STYLES */
@@ -98,10 +124,12 @@
     flex-direction: column;
     text-align: center;
     color: #fff;
-    background: linear-gradient(180deg, rgba(22,62,170,0.85), rgba(1,19,49,0.85));
+    background: linear-gradient(180deg, rgba(22, 62, 170, 0.85), rgba(1, 19, 49, 0.85));
   }
 
-  .overlay { display: none; }
+  .overlay {
+    display: none;
+  }
 
   .left-content-wrapper {
     position: relative;
@@ -144,11 +172,35 @@
     justify-content: center;
   }
 
-  .right h2 { font-size: 26px; margin-bottom: 6px; font-weight: 700; }
-  .right p { color: #666; margin-bottom: 20px; font-size: 14px; }
-  .input-group { margin-bottom: 16px; }
-  .input-group label { display: block; font-size: 12px; margin-bottom: 4px; }
-  .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+  .right h2 {
+    font-size: 26px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .right p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .input-group input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+  }
 
   button {
     width: 100%;
@@ -162,7 +214,10 @@
     margin-bottom: 12px;
     transition: 0.3s;
   }
-  button:hover { background: #333; }
+
+  button:hover {
+    background: #333;
+  }
 
   .google {
     background: #fff;
@@ -184,7 +239,9 @@
     color: #999;
     position: relative;
   }
-  .divider::before, .divider::after {
+
+  .divider::before,
+  .divider::after {
     content: '';
     height: 1px;
     background-color: #ddd;
@@ -192,20 +249,85 @@
     top: 50%;
     width: 40%;
   }
-  .divider::before { left: 0; }
-  .divider::after { right: 0; }
 
-  .toggle { text-align: center; font-size: 12px; margin-top: 10px; }
-  .toggle a { color: #6c63ff; font-weight: 600; text-decoration: none; }
-  .toggle a:hover { text-decoration: underline; }
+  .divider::before {
+    left: 0;
+  }
 
-  .back-btn { text-align: center; margin-top: 12px; }
-  .back-btn a { text-decoration: none; color: #6c63ff; font-weight: 600; }
-  .back-btn a:hover { text-decoration: underline; }
+  .divider::after {
+    right: 0;
+  }
+
+  .toggle {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  .toggle a {
+    color: #6c63ff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .toggle a:hover {
+    text-decoration: underline;
+  }
+
+  .back-btn {
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .back-btn a {
+    text-decoration: none;
+    color: #6c63ff;
+    font-weight: 600;
+  }
+
+  .back-btn a:hover {
+    text-decoration: underline;
+  }
 
   @media(max-width: 900px) {
-    .container { flex-direction: column; height: auto; width: 95%; }
-    .left { min-height: 350px; padding: 30px 20px; border-radius: 18px 18px 0 0; }
-    .right { padding: 30px 20px; }
+    .container {
+      flex-direction: column;
+      height: auto;
+      width: 95%;
+    }
+
+    .left {
+      min-height: 350px;
+      padding: 30px 20px;
+      border-radius: 18px 18px 0 0;
+    }
+
+    .right {
+      padding: 30px 20px;
+    }
+  }
+
+  .toggle-btn {
+      position: absolute !important;
+      right: 12px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      background: transparent !important;
+      border: none !important;
+      width: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      color: #777 !important;
+      cursor: pointer !important;
+      font-size: 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      height: auto !important;
+      z-index: 10;
+  }
+  .toggle-btn:hover {
+      background: transparent !important;
+      color: #333 !important;
   }
 </style>

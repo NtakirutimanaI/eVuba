@@ -106,7 +106,7 @@ Route::middleware('auth')->group(function () {
 });
 // Route to handle profile photo upload or update
 Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])
-     ->name('profile.photo');
+    ->name('profile.photo');
 
 
 
@@ -118,7 +118,7 @@ Route::get('/services', [WebServiceController::class, 'index'])
 
 
 
-    use App\Http\Controllers\SubscribeController;
+use App\Http\Controllers\SubscribeController;
 Route::post('subscribers/store', [SubscribeController::class, 'store'])->name('subscribe.store');
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/subscribers', [SubscribeController::class, 'index'])->name('subscribers.index');
@@ -135,7 +135,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
-Route::middleware('guest')->group(function() {
+Route::middleware('guest')->group(function () {
     Route::get('forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
     Route::post('forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
     Route::get('reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
@@ -169,8 +169,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/employees/{id}/message', [AdminEmployeeController::class, 'sendMessage'])->name('employees.sendMessage');
 
     // Update permissions
-   Route::post('/settings/update-permissions', [AdminSettingsController::class, 'updatePermissions'])
-    ->name('settings.update-permissions');
+    Route::post('/settings/update-permissions', [AdminSettingsController::class, 'updatePermissions'])
+        ->name('settings.update-permissions');
 
 
     // Users CRUD + Reports
@@ -211,7 +211,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 // Roles & Permissions routes moved to main admin group or unified here
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::patch('roles/{id}', [RoleController::class, 'update'])->name('admin.roles.update');
-    
+
     // Management routes
     Route::post('roles/store', [RoleController::class, 'storeRole'])->name('admin.roles.storeRole');
     Route::delete('roles/destroy/{id}', [RoleController::class, 'destroyRole'])->name('admin.roles.destroyRole');
@@ -223,16 +223,16 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 // ------------------ Manager Routes ------------------
 Route::prefix('manager')->name('manager.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
-    
+
     // Team Orchestration
     Route::resource('team', TeamController::class);
-    
+
     // Client Intelligence
     Route::resource('customer', ManagerCustomerController::class);
-    
+
     // Tactical Operations
     Route::resource('tasks', ManagerTaskController::class);
-    
+
     // Historical Appointments (Legacy reference, keeping for compatibility if needed)
     Route::get('/appointments-legacy', [ManagerControlAppointmentController::class, 'index'])->name('appointments.legacy');
 });
@@ -243,12 +243,12 @@ Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(functi
     Route::get('/tasks', [EmployeeTaskController::class, 'index'])->name('tasks');
     Route::post('/tasks/{id}/status', [EmployeeTaskController::class, 'updateStatus'])->name('tasks.updateStatus');
     Route::get('/tasks/{id}/details', [EmployeeTaskController::class, 'getDetails'])->name('tasks.details');
-    
+
     Route::get('/reports', [EmployeeReportController::class, 'index'])->name('reports');
     Route::post('/reports', [EmployeeReportController::class, 'store'])->name('reports.store');
     Route::get('/reports/{id}/details', [EmployeeReportController::class, 'getDetails'])->name('reports.details');
     Route::resource('reports', EmployeeReportController::class)->except(['index', 'store']);
-    
+
     Route::get('/appointments', [EmployeeAppointmentController::class, 'index'])->name('appointments.index');
     Route::post('/appointments/help', [EmployeeAppointmentController::class, 'help'])->name('appointments.help');
     Route::get('/appointments/{id}/details', [EmployeeAppointmentController::class, 'getDetails'])->name('appointments.details');
@@ -259,7 +259,7 @@ Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(functi
     Route::post('/support/reply', [EmployeeSupportController::class, 'reply'])->name('support.reply');
     Route::get('/support/history/{id}', [EmployeeSupportController::class, 'history'])->name('support.history');
 
-    Route::get('/performance', [EmployeePerformanceController::class, 'index'])->name('performance.index');
+
 
     Route::resource('tasks', EmployeeTaskController::class)->except(['index']);
     Route::resource('bookings', EmployeeBookingController::class);
@@ -283,7 +283,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(functi
     Route::resource('bookings', CustomerBookingController::class)->except(['index']);
     Route::resource('support', CustomerSupportController::class)->except(['index']);
     Route::get('/appointments/{appointment}', [CustomerAppointmentController::class, 'show'])
-    ->name('appointments.show');
+        ->name('appointments.show');
 
 });
 
@@ -322,7 +322,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 // Manager
 Route::prefix('manager')->name('manager.')->middleware(['auth'])->group(function () {
-    
+
     // Appointments routes
     Route::get('/appointments', [ManagerControlAppointmentController::class, 'index'])
         ->name('appointments');
@@ -392,7 +392,7 @@ Route::prefix('manager')->name('manager.')->middleware(['auth'])->group(function
 });
 
 Route::prefix('manager')->name('manager.')->middleware(['auth'])->group(function () {
-    
+
     // Resource routes for services
     Route::resource('services', ManagerServiceController::class);
 
@@ -427,7 +427,7 @@ Route::patch('manager/bookings/{booking}/reschedule', [ManagerBookingController:
 
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
-    Route::resource('services',ServiceController::class);
+    Route::resource('services', ServiceController::class);
 });
 Route::patch('admin/services/{service}/publish', [ServiceController::class, 'publish'])->name('admin.services.publish');
 use App\Http\Controllers\Admin\AdminBookingController;
@@ -523,24 +523,24 @@ Route::prefix('admin/stockout')->name('admin.stockout.')->middleware(['auth'])->
 // StockOut Reports
 Route::get('/admin/stockout/report/pdf', [App\Http\Controllers\Admin\AdminStockOutController::class, 'reportPdf'])->name('admin.stockout.report.pdf');
 Route::get('/admin/stockout/report/excel', [App\Http\Controllers\Admin\AdminStockOutController::class, 'reportExcel'])->name('admin.stockout.report.excel');
-Route::prefix('admin')->name('admin.')->group(function() {
+Route::prefix('admin')->name('admin.')->group(function () {
     // Other stockout routes...
     Route::get('stockout/available', [AdminStockOutController::class, 'available'])->name('stockout.available');
 });
 // Example route
 
 Route::get('/admin/stockout/stock-overview', [AdminStockOutController::class, 'stockOverview'])
-     ->name('admin.stockout.stockOverview');
+    ->name('admin.stockout.stockOverview');
 
 Route::get('/admin/stockout/daily-transactions', [AdminStockOutController::class, 'dailyTransactions'])
-     ->name('admin.stockout.dailyTransactions');
+    ->name('admin.stockout.dailyTransactions');
 
 
 
 
 // Manager StockOut Overview
 Route::get('/manager/stockout/stock-overview', [ManagerStockOutController::class, 'stockOverview'])
-     ->name('manager.stockout.stockOverview');
+    ->name('manager.stockout.stockOverview');
 
 
 
@@ -617,7 +617,7 @@ Route::delete('admin/stock_in/{id}', [\App\Http\Controllers\Admin\AdminStockInCo
 Route::put('admin/stock_in/{id}', [\App\Http\Controllers\Admin\AdminStockInController::class, 'update'])
     ->name('admin.stock_in.update');
 
-    //Manager
+//Manager
 Route::delete('manager/stock_in/{id}', [\App\Http\Controllers\Manager\ManagerStockInController::class, 'destroy'])
     ->name('manager.stock_in.destroy');
 Route::put('manager/stock_in/{id}', [\App\Http\Controllers\Manager\ManagerStockInController::class, 'update'])
@@ -676,7 +676,7 @@ Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])
     ->name('admin.products.destroy');
 
 // Product routes
-Route::prefix('admin')->name('admin.')->group(function() {
+Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::post('/products/store', [AdminOrderController::class, 'storeProduct'])->name('products.store');
 
@@ -698,7 +698,7 @@ Route::prefix('manager')->group(function () {
     Route::post('products/{id}/toggle-status', [ManagerOrderController::class, 'toggleProductStatus'])->name('admin.products.toggleStatus');
 });
 // Product routes
-Route::prefix('manager')->name('manager.')->group(function() {
+Route::prefix('manager')->name('manager.')->group(function () {
 
     Route::post('/products/store', [ManagerOrderController::class, 'storeProduct'])->name('products.store');
 
@@ -713,19 +713,19 @@ use App\Http\Controllers\Customer\CustomerProductController;
 
 // Inside the 'customer' middleware/group if you have one
 Route::get('products/{id}', [CustomerProductController::class, 'show'])
-     ->name('customer.products.show');
+    ->name('customer.products.show');
 
 Route::match(['put', 'patch'], 'admin/orders/{id}', [AdminOrderController::class, 'update'])
-     ->name('admin.orders.update');
+    ->name('admin.orders.update');
 Route::match(['put', 'patch'], 'orders/{id}', [ManagerOrderController::class, 'updateStatus'])
-     ->name('manager.orders.update');
+    ->name('manager.orders.update');
 
 
 // Route already defined above with correct method
 
 // Optional: You may also want a route for viewing all orders
 Route::get('/admin/orders', [AdminOrderController::class, 'index'])
-     ->name('admin.orders.index');
+    ->name('admin.orders.index');
 
 
 // CUSTOMER SUPPORT
@@ -748,18 +748,18 @@ Route::prefix('customer')->middleware(['auth'])->name('customer.')->group(functi
 });
 ///
 // ------------------ Admin Support Routes ------------------
-Route::prefix('admin/support')->name('admin.support.')->middleware(['auth'])->group(function() {
+Route::prefix('admin/support')->name('admin.support.')->middleware(['auth'])->group(function () {
     Route::get('/', [AdminSupportController::class, 'index'])->name('index');
     Route::post('/status/{id}', [AdminSupportController::class, 'updateStatus'])->name('status');
     Route::post('/reply/{id}', [AdminSupportController::class, 'reply'])->name('reply');
     Route::post('/category/store', [AdminSupportController::class, 'storeCategory'])->name('category.store');
     Route::delete('/category/{id}', [AdminSupportController::class, 'destroyCategory'])->name('category.destroy');
     Route::post('/assign/{id}', [AdminSupportController::class, 'assignTicket'])->name('assign');
-    
+
     // AJAX Helpers
     Route::get('/ticket/{id}', [AdminSupportController::class, 'ajaxTicket'])->name('ajax-ticket');
     Route::get('/logs/{id}', [AdminSupportController::class, 'ajaxLogs'])->name('ajax-logs');
-    
+
     // Reports
     Route::get('/report/pdf', [AdminSupportController::class, 'exportPdf'])->name('report.pdf');
     Route::get('/report/excel', [AdminSupportController::class, 'exportExcel'])->name('report.excel');
@@ -822,13 +822,13 @@ Route::post('/manager/invoice/store', [ManagerInvoiceController::class, 'store']
     ->name('manager.invoice.store');
 
 
-    //
+//
 use App\Http\Controllers\Admin\AdminInvoiceController;
 // In routes/web.php
 Route::prefix('admin')->name('admin.')->group(function () {
     // Custom route for stock_out URL
     Route::get('stock_out/invoice', [AdminInvoiceController::class, 'create'])->name('stockout.invoice.create');
-    
+
     // Save invoice with payment
     Route::post('stock_out/invoice/save', [AdminInvoiceController::class, 'saveInvoice'])->name('stockout.invoice.save');
 
@@ -841,7 +841,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 // ------------------ Admin Announcement Routes ------------------
-Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function() {
+Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
     Route::get('/announcements', [App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('announcements.store');
     Route::put('/announcements/{id}', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcements.update');
@@ -869,7 +869,7 @@ use App\Http\Controllers\SendMessageController;
 
 Route::post('/contact/send', [SendMessageController::class, 'send'])->name('contact.send');
 
-Route::prefix('admin')->middleware(['auth'])->group(function() {
+Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::get('messages', [SendMessageController::class, 'index'])->name('admin.messages.index');
     Route::get('messages/ajax/{id}', [SendMessageController::class, 'ajaxDetails'])->name('admin.messages.ajax-details');
@@ -884,4 +884,4 @@ Route::prefix('admin')->middleware(['auth'])->group(function() {
 
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

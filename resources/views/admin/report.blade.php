@@ -12,7 +12,8 @@
     }
 
     .report-wrapper {
-        margin-left: 242px; /* Sidebar (222px) + Gap (20px) */
+        margin-left: 242px;
+        /* Sidebar (222px) + Gap (20px) */
         padding: 30px;
         transition: all 0.3s ease;
     }
@@ -44,7 +45,7 @@
         border: 1px solid var(--header-border);
         padding: 24px;
         border-radius: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         display: flex;
         align-items: center;
         gap: 20px;
@@ -93,7 +94,7 @@
 
     .module-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
     }
 
     .module-header {
@@ -148,12 +149,43 @@
         gap: 8px;
     }
 
-    .pdf-btn { background: #fee2e2; color: #dc2626; }
-    .excel-btn { background: #dcfce7; color: #16a34a; }
-    .view-btn { background: #e0e7ff; color: #4f46e5; }
+    /* High Specificity Overrides for Dark Mode */
+    html[data-theme="dark"] .report-wrapper .module-grid .module-card .module-body .btn-group .report-btn.pdf-btn {
+        background: #fee2e2 !important;
+        color: #dc2626 !important;
+    }
+
+    html[data-theme="dark"] .report-wrapper .module-grid .module-card .module-body .btn-group .report-btn.excel-btn {
+        background: #dcfce7 !important;
+        color: #16a34a !important;
+    }
+
+    html[data-theme="dark"] .report-wrapper .module-grid .module-card .module-body .btn-group .report-btn.view-btn {
+        background: #e0e7ff !important;
+        color: #4f46e5 !important;
+    }
+
+    /* Base Styles */
+    .pdf-btn {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .excel-btn {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .view-btn {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
 
     @media (max-width: 1024px) {
-        .report-wrapper { margin-left: 0; padding: 20px; }
+        .report-wrapper {
+            margin-left: 0;
+            padding: 20px;
+        }
     }
 </style>
 
@@ -161,9 +193,11 @@
     <div class="report-header">
         <div>
             <h1>Intelligence Reports</h1>
-            <p style="color: var(--text-muted); margin-top: 5px;">Generate and download comprehensive system reports.</p>
+            <p style="color: var(--text-muted); margin-top: 5px;">Generate and download comprehensive system reports.
+            </p>
         </div>
-        <div style="font-size: 14px; font-weight: 600; background: var(--surface); color: var(--text-primary); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--header-border);">
+        <div
+            style="font-size: 14px; font-weight: 600; background: var(--surface); color: var(--text-primary); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--header-border);">
             <i class="far fa-calendar-alt" style="margin-right: 8px;"></i> {{ date('F d, Y') }}
         </div>
     </div>
@@ -217,9 +251,11 @@
                 <h3>Sales & Financials</h3>
             </div>
             <div class="module-body">
-                <p>Detailed analysis of revenue, sales trends, and payment statuses across all products and services.</p>
+                <p>Detailed analysis of revenue, sales trends, and payment statuses across all products and services.
+                </p>
                 <div class="btn-group">
-                    <a href="{{ route('admin.orders.index') }}" class="report-btn view-btn"><i class="far fa-eye"></i> View</a>
+                    <a href="{{ route('admin.orders.index') }}" class="report-btn view-btn"><i class="far fa-eye"></i>
+                        View</a>
                     <a href="#" class="report-btn pdf-btn"><i class="far fa-file-pdf"></i> PDF</a>
                     <a href="#" class="report-btn excel-btn"><i class="far fa-file-excel"></i> Excel</a>
                 </div>
@@ -235,7 +271,8 @@
             <div class="module-body">
                 <p>Monitor stock levels, track low inventory, and audit stock-in/stock-out transactions.</p>
                 <div class="btn-group">
-                    <a href="{{ route('admin.stock_in.index') }}" class="report-btn view-btn"><i class="far fa-eye"></i> View</a>
+                    <a href="{{ route('admin.stock_in.index') }}" class="report-btn view-btn"><i class="far fa-eye"></i>
+                        View</a>
                     <a href="#" class="report-btn pdf-btn"><i class="far fa-file-pdf"></i> PDF</a>
                 </div>
             </div>
@@ -250,9 +287,12 @@
             <div class="module-body">
                 <p>Overview of customer growth, subscriber engagement, and employee performance metrics.</p>
                 <div class="btn-group">
-                    <a href="{{ route('admin.users.report') }}" class="report-btn view-btn"><i class="far fa-eye"></i> View</a>
-                    <a href="{{ route('admin.subscribers.export.pdf') }}" class="report-btn pdf-btn"><i class="far fa-file-pdf"></i> PDF</a>
-                    <a href="{{ route('admin.subscribers.export.excel') }}" class="report-btn excel-btn"><i class="far fa-file-excel"></i> Excel</a>
+                    <a href="{{ route('admin.users.report') }}" class="report-btn view-btn"><i class="far fa-eye"></i>
+                        View</a>
+                    <a href="{{ route('admin.subscribers.export.pdf') }}" class="report-btn pdf-btn"><i
+                            class="far fa-file-pdf"></i> PDF</a>
+                    <a href="{{ route('admin.subscribers.export.excel') }}" class="report-btn excel-btn"><i
+                            class="far fa-file-excel"></i> Excel</a>
                 </div>
             </div>
         </div>
@@ -266,7 +306,8 @@
             <div class="module-body">
                 <p>Analytics on support ticket resolution times, customer satisfaction, and active inquiries.</p>
                 <div class="btn-group">
-                    <a href="{{ route('admin.support.index') }}" class="report-btn view-btn"><i class="far fa-eye"></i> View</a>
+                    <a href="{{ route('admin.support.index') }}" class="report-btn view-btn"><i class="far fa-eye"></i>
+                        View</a>
                     <a href="#" class="report-btn pdf-btn"><i class="far fa-file-pdf"></i> PDF</a>
                 </div>
             </div>

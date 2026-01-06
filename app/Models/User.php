@@ -58,12 +58,12 @@ class User extends Authenticatable
     // ================= Casts =================
 
     protected $casts = [
-        'email_verified_at'      => 'datetime',
-        'last_login_at'          => 'datetime',
-        'last_seen_at'           => 'datetime',
-        'notification_enabled'   => 'boolean',
-        'email_notifications'    => 'boolean',
-        'password'               => 'hashed',
+        'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'last_seen_at' => 'datetime',
+        'notification_enabled' => 'boolean',
+        'email_notifications' => 'boolean',
+        'password' => 'hashed',
     ];
 
     // ================= Relationships =================
@@ -119,8 +119,8 @@ class User extends Authenticatable
     public function teams()
     {
         return $this->belongsToMany(Team::class, 'team_members', 'user_id', 'team_id')
-                    ->withPivot('role', 'position', 'department', 'email', 'phone')
-                    ->withTimestamps();
+            ->withPivot('role', 'position', 'department', 'email', 'phone')
+            ->withTimestamps();
     }
 
     public function teamMember()
@@ -129,7 +129,7 @@ class User extends Authenticatable
     }
 
     // ================= Tickets =================
-    
+
     public function announcements()
     {
         return $this->belongsToMany(Announcement::class, 'user_announcements');
@@ -152,9 +152,9 @@ class User extends Authenticatable
     public function performanceMetrics(): array
     {
         return [
-            'tasks_assigned'   => $this->tasks()->count(),
-            'tasks_completed'  => $this->tasks()->where('status', 'completed')->count(),
-            'tickets_handled'  => $this->tickets()->count(),
+            'tasks_assigned' => $this->tasks()->count(),
+            'tasks_completed' => $this->tasks()->where('status', 'completed')->count(),
+            'tickets_handled' => $this->tickets()->count(),
             'tickets_resolved' => $this->tickets()->where('status', 'resolved')->count(),
         ];
     }
@@ -171,14 +171,14 @@ class User extends Authenticatable
                 Employee::updateOrCreate(
                     ['id' => $user->id],
                     [
-                        'name'           => $user->name,
-                        'email'          => $user->email,
-                        'phone'          => $user->phone,
-                        'position'       => ucfirst($user->role),
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                        'position' => ucfirst($user->role),
                         'specialization' => null,
-                        'department'     => null,
-                        'created_at'     => $user->created_at,
-                        'updated_at'     => $user->updated_at,
+                        'department' => null,
+                        'created_at' => $user->created_at,
+                        'updated_at' => $user->updated_at,
                     ]
                 );
             }
@@ -188,10 +188,10 @@ class User extends Authenticatable
                 Customer::updateOrCreate(
                     ['id' => $user->id],
                     [
-                        'name'       => $user->name,
-                        'email'      => $user->email,
-                        'phone'      => $user->phone,
-                        'address'    => $user->address,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
                         'created_at' => $user->created_at,
                         'updated_at' => $user->updated_at,
                     ]
@@ -207,15 +207,15 @@ class User extends Authenticatable
                 $employee = Employee::find($user->id);
                 if ($employee) {
                     $employee->update([
-                        'name'  => $user->name,
+                        'name' => $user->name,
                         'email' => $user->email,
                         'phone' => $user->phone,
                         'position' => $employee->position ?? ucfirst($user->role),
                     ]);
                 } else {
                     Employee::create([
-                        'id'    => $user->id,
-                        'name'  => $user->name,
+                        'id' => $user->id,
+                        'name' => $user->name,
                         'email' => $user->email,
                         'phone' => $user->phone,
                         'position' => ucfirst($user->role),
@@ -227,16 +227,33 @@ class User extends Authenticatable
 
             // Customer sync
             if ($user->role === 'customer') {
-                Customer::updateOrCreate(
-                    ['id' => $user->id],
-                    [
-                        'name'       => $user->name,
-                        'email'      => $user->email,
-                        'phone'      => $user->phone,
-                        'address'    => $user->address,
+                // Try to find by ID first (Ideal 1:1 link)
+                $customer = Customer::find($user->id);
+
+                // If not found by ID, try to find by Email (handle existing mismatch)
+                if (!$customer) {
+                    $customer = Customer::where('email', $user->email)->first();
+                }
+
+                if ($customer) {
+                    $customer->update([
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
                         'updated_at' => now(),
-                    ]
-                );
+                    ]);
+                } else {
+                    Customer::create([
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
+                        'created_at' => $user->created_at,
+                        'updated_at' => now(),
+                    ]);
+                }
             } else {
                 Customer::where('id', $user->id)->delete();
             }

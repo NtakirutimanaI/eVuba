@@ -9,15 +9,15 @@
     <div class="pro-header">
         <div>
             <h1>Admin Dashboard</h1>
-            <p style="color: var(--secondary); margin: 5px 0 0;">Welcome back, {{ Auth::user()->name }}! Here's what's happening today.</p>
+            <p style="color: var(--secondary); margin: 5px 0 0;">Welcome back, {{ Auth::user()->name }}! Here's what's
+                happening today.</p>
         </div>
         <div style="display: flex; gap: 10px;">
-            <a href="{{ route('admin.reports') }}" class="action-btn" style="background: var(--surface); border: 1px solid var(--header-border); color: var(--text-primary); text-decoration:none;">
+            <a href="{{ route('admin.reports') }}" class="action-btn"
+                style="background: var(--surface); border: 1px solid var(--header-border); color: var(--text-primary); text-decoration:none;">
                 <i class="fas fa-file-export"></i> Reports
             </a>
-            <button class="action-btn btn-primary">
-                <i class="fas fa-plus"></i> New Project
-            </button>
+
         </div>
     </div>
 
@@ -31,7 +31,8 @@
                 <div class="metric-label">Total Revenue</div>
                 <div class="metric-value">{{ number_format($totalSalesAmount) }} RWF</div>
                 <div class="metric-trend {{ $salesGrowth >= 0 ? 'up' : 'down' }}">
-                    <i class="fas fa-arrow-{{ $salesGrowth >= 0 ? 'up' : 'down' }}"></i> {{ number_format(abs($salesGrowth), 1) }}% growth
+                    <i class="fas fa-arrow-{{ $salesGrowth >= 0 ? 'up' : 'down' }}"></i>
+                    {{ number_format(abs($salesGrowth), 1) }}% growth
                 </div>
             </div>
         </div>
@@ -70,7 +71,8 @@
                 <div class="metric-label">Low Stock Alerts</div>
                 <div class="metric-value">{{ $lowStockCount }}</div>
                 <div class="metric-trend {{ $lowStockCount > 0 ? 'down' : 'up' }}">
-                    <i class="fas fa-{{ $lowStockCount > 0 ? 'exclamation-triangle' : 'shield-alt' }}"></i> {{ $lowStockCount > 0 ? 'Action Required' : 'Optimal' }}
+                    <i class="fas fa-{{ $lowStockCount > 0 ? 'exclamation-triangle' : 'shield-alt' }}"></i>
+                    {{ $lowStockCount > 0 ? 'Action Required' : 'Optimal' }}
                 </div>
             </div>
         </div>
@@ -85,7 +87,7 @@
             </div>
             <div id="revenueChart" class="chart-container"></div>
         </div>
-        
+
         <div class="pro-card glass-panel analytical-card">
             <div class="card-header">
                 <h3><i class="fas fa-headset"></i> Support Intelligence</h3>
@@ -113,7 +115,7 @@
 
     {{-- Live Operations Data --}}
     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr 1fr; margin-top: 1.5rem;">
-        
+
         {{-- Recent Orders --}}
         <div class="pro-card glass-panel">
             <div class="card-header">
@@ -132,14 +134,21 @@
                     </thead>
                     <tbody>
                         @forelse($recentOrders as $order)
-                        <tr>
-                            <td><span style="font-family: monospace;">#{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</span></td>
-                            <td><span class="status-badge status-{{ $order->status }}">{{ ucfirst($order->status) }}</span></td>
-                            <td>{{ $order->customer->user->name ?? 'Guest' }}</td>
-                            <td style="font-size: 0.8rem; color: var(--secondary);">{{ $order->created_at->format('M d') }}</td>
-                        </tr>
+                            <tr>
+                                <td><span
+                                        style="font-family: monospace;">#{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</span>
+                                </td>
+                                <td><span
+                                        class="status-badge status-{{ $order->status }}">{{ ucfirst($order->status) }}</span>
+                                </td>
+                                <td>{{ $order->customer->user->name ?? 'Guest' }}</td>
+                                <td style="font-size: 0.8rem; color: var(--secondary);">
+                                    {{ $order->created_at->format('M d') }}</td>
+                            </tr>
                         @empty
-                        <tr><td colspan="4" style="text-align: center; color: var(--secondary);">No active orders.</td></tr>
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--secondary);">No active orders.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -153,17 +162,17 @@
             </div>
             <div class="activity-list">
                 @forelse($topProducts as $tp)
-                <div class="activity-item">
-                    <div class="item-visual" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                        <i class="fas fa-box"></i>
+                    <div class="activity-item">
+                        <div class="item-visual" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="item-info">
+                            <div class="item-title">{{ $tp->product->name ?? 'Unknown' }}</div>
+                            <div class="item-meta">{{ $tp->total_qty }} units distributed</div>
+                        </div>
                     </div>
-                    <div class="item-info">
-                        <div class="item-title">{{ $tp->product->name ?? 'Unknown' }}</div>
-                        <div class="item-meta">{{ $tp->total_qty }} units distributed</div>
-                    </div>
-                </div>
                 @empty
-                <div style="text-align: center; color: var(--secondary); padding: 20px;">No sales data yet.</div>
+                    <div style="text-align: center; color: var(--secondary); padding: 20px;">No sales data yet.</div>
                 @endforelse
             </div>
         </div>
@@ -175,18 +184,19 @@
             </div>
             <div class="activity-list">
                 @forelse($recentSupport as $ticket)
-                <div class="activity-item">
-                    <div class="item-visual" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                        <i class="fas fa-envelope"></i>
+                    <div class="activity-item">
+                        <div class="item-visual" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="item-info">
+                            <div class="item-title">{{ Str::limit($ticket->subject, 20) }}</div>
+                            <div class="item-meta">{{ $ticket->created_at->diffForHumans() }}</div>
+                        </div>
+                        @if($ticket->status == 'open') <span
+                        style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"></span> @endif
                     </div>
-                    <div class="item-info">
-                        <div class="item-title">{{ Str::limit($ticket->subject, 20) }}</div>
-                        <div class="item-meta">{{ $ticket->created_at->diffForHumans() }}</div>
-                    </div>
-                    @if($ticket->status == 'open') <span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"></span> @endif
-                </div>
                 @empty
-                <div style="text-align: center; color: var(--secondary); padding: 20px;">All quiet.</div>
+                    <div style="text-align: center; color: var(--secondary); padding: 20px;">All quiet.</div>
                 @endforelse
             </div>
         </div>
@@ -201,12 +211,14 @@
             </div>
             <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                 @foreach($recentUsers as $user)
-                <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-main); padding: 10px 15px; border-radius: 50px; border: 1px solid var(--glass-border);">
-                    <div style="width: 30px; height: 30px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                        {{ substr($user->name, 0, 1) }}
+                    <div
+                        style="display: flex; align-items: center; gap: 10px; background: var(--bg-main); padding: 10px 15px; border-radius: 50px; border: 1px solid var(--glass-border);">
+                        <div
+                            style="width: 30px; height: 30px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
+                            {{ substr($user->name, 0, 1) }}
+                        </div>
+                        <div style="font-size: 0.9rem; font-weight: 600;">{{ $user->name }}</div>
                     </div>
-                    <div style="font-size: 0.9rem; font-weight: 600;">{{ $user->name }}</div>
-                </div>
                 @endforeach
             </div>
         </div>
@@ -217,12 +229,14 @@
             </div>
             <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                 @foreach($recentEmployees as $emp)
-                <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-main); padding: 10px 15px; border-radius: 50px; border: 1px solid var(--glass-border);">
-                    <div style="width: 30px; height: 30px; background: #64748b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                        {{ substr($emp->name, 0, 1) }}
+                    <div
+                        style="display: flex; align-items: center; gap: 10px; background: var(--bg-main); padding: 10px 15px; border-radius: 50px; border: 1px solid var(--glass-border);">
+                        <div
+                            style="width: 30px; height: 30px; background: #64748b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
+                            {{ substr($emp->name, 0, 1) }}
+                        </div>
+                        <div style="font-size: 0.9rem; font-weight: 600;">{{ $emp->name }}</div>
                     </div>
-                    <div style="font-size: 0.9rem; font-weight: 600;">{{ $emp->name }}</div>
-                </div>
                 @endforeach
             </div>
         </div>
@@ -231,7 +245,7 @@
 
 <script>
     const getThemeMode = () => document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-    
+
     // Revenue Area Chart
     var revenueOptions = {
         theme: { mode: getThemeMode() },
@@ -358,12 +372,12 @@
     growthChart.render();
 
     // Listen for theme changes
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
+    const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
             if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
                 const newMode = getThemeMode();
                 const update = { theme: { mode: newMode } };
-                
+
                 revenueChart.updateOptions(update);
                 supportChart.updateOptions(update);
                 serviceChart.updateOptions(update);

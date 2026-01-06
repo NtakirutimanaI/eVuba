@@ -16,7 +16,7 @@
 
   <div class="evc-footer-column">
     <h3>Support</h3>
-    <p>Rwanda, Kigali,<br>Nyamirambo</p>
+    <p>Rwanda, Kigali,<br>Gasabo-Gisozi</p>
     <p>evubaconnect@gmail.com</p>
     <p>+250 786 325 291</p>
   </div>

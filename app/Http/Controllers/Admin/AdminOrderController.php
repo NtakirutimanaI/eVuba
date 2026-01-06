@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProductsOrdersExport; // We'll create this
@@ -18,12 +19,25 @@ class AdminOrderController extends Controller
     /**
      * Display all orders and products for the admin page
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all orders with related customer and product
-        $orders = Order::with(['customer', 'product'])
+        $perPage = $request->input('per_page', 5); // Default to 5
+        if (!in_array($perPage, [5, 10, 15])) {
+            $perPage = 5;
+        }
+
+        // Fetch accurate stats for all orders (not just the current page)
+        $totalStats = [
+            'total_revenue' => Order::where('status', '!=', 'cancelled')->sum(DB::raw('quantity * price')),
+            'pending_count' => Order::where('status', 'pending')->count(),
+            'total_orders'  => Order::count(),
+        ];
+
+        // Fetch all orders with related user (customer) and product
+        $orders = Order::with(['user', 'product'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
 
         // Fetch all products for the left section (display small cards)
         $products = Product::orderBy('created_at', 'desc')->get();
@@ -31,7 +45,7 @@ class AdminOrderController extends Controller
         // Fetch categories for product creation
         $categories = Category::all();
 
-        return view('admin.orders.index', compact('orders', 'products', 'categories'));
+        return view('admin.orders.index', compact('orders', 'products', 'categories', 'totalStats'));
     }
 
     /**

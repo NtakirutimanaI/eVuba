@@ -25,7 +25,7 @@ class AdminSupportController extends Controller
     public function index(Request $request)
     {
         $query = Ticket::with(['customer', 'category', 'assignedUser'])
-                         ->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
         if ($request->has('status') && $request->status != 'all') {
             $query->where('status', $request->status);
@@ -35,10 +35,10 @@ class AdminSupportController extends Controller
 
         // Compute stats using database aggregates
         $stats = [
-            'total'         => Ticket::count(),
-            'open'          => Ticket::where('status', 'open')->count(),
-            'in_progress'   => Ticket::where('status', 'in_progress')->count(),
-            'closed'        => Ticket::where('status', 'closed')->count(),
+            'total' => Ticket::count(),
+            'open' => Ticket::where('status', 'open')->count(),
+            'in_progress' => Ticket::where('status', 'in_progress')->count(),
+            'closed' => Ticket::where('status', 'closed')->count(),
             'high_priority' => Ticket::where('priority', 'high')->count(),
             // Cross-role support control (e.g. tracking tickets handled by different user types if applicable)
             'replies_count' => TicketReply::count(),
@@ -60,13 +60,13 @@ class AdminSupportController extends Controller
     public function storeCategory(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
         // Using SupportCategory model instead of generic Category
         SupportCategory::create([
-            'name'        => $request->name,
+            'name' => $request->name,
             'description' => $request->description,
         ]);
 
@@ -94,7 +94,7 @@ class AdminSupportController extends Controller
         $ticket->save();
 
         TicketLog::create([
-            'ticket_id'  => $ticket->id,
+            'ticket_id' => $ticket->id,
             'old_status' => $oldStatus,
             'new_status' => $ticket->status,
             'changed_by' => Auth::user()->name,
@@ -104,7 +104,7 @@ class AdminSupportController extends Controller
         if ($ticket->customer && $ticket->customer->user) {
             $ticket->customer->user->notify(new \App\Notifications\SystemAlert([
                 'title' => 'Ticket Status Updated',
-                'message' => 'The status of your ticket #'.$ticket->ticket_no.' has been changed to '.ucfirst($ticket->status).'.',
+                'message' => 'The status of your ticket #' . $ticket->ticket_no . ' has been changed to ' . ucfirst($ticket->status) . '.',
                 'icon' => 'fa-clipboard-check',
                 'action_url' => route('customer.support.index')
             ]));
@@ -123,24 +123,24 @@ class AdminSupportController extends Controller
     public function ajaxTicket($id)
     {
         $ticket = Ticket::with(['customer', 'category', 'assignedUser', 'replies'])
-                        ->findOrFail($id);
+            ->findOrFail($id);
 
         return response()->json([
-            'id'          => $ticket->id,
-            'ticket_no'   => $ticket->ticket_no,
-            'customer'    => $ticket->customer,
-            'category'    => $ticket->category,
-            'subject'     => $ticket->subject,
+            'id' => $ticket->id,
+            'ticket_no' => $ticket->ticket_no,
+            'customer' => $ticket->customer,
+            'category' => $ticket->category,
+            'subject' => $ticket->subject,
             'description' => $ticket->description,
-            'priority'    => $ticket->priority,
-            'assigned'    => $ticket->assignedUser,
-            'attachment'  => $ticket->attachment,
-            'status'      => $ticket->status,
-            'replies'     => $ticket->replies->map(function ($reply) {
+            'priority' => $ticket->priority,
+            'assigned' => $ticket->assignedUser,
+            'attachment' => $ticket->attachment,
+            'status' => $ticket->status,
+            'replies' => $ticket->replies->map(function ($reply) {
                 return [
-                    'is_staff_reply'  => $reply->is_staff_reply,
-                    'message'    => $reply->message,
-                    'attachment' => $reply->attachment ? asset('storage/'.$reply->attachment) : null,
+                    'is_staff_reply' => $reply->is_staff_reply,
+                    'message' => $reply->message,
+                    'attachment' => $reply->attachment ? asset('storage/' . $reply->attachment) : null,
                     'created_at' => $reply->created_at,
                 ];
             }),
@@ -153,8 +153,8 @@ class AdminSupportController extends Controller
     public function ajaxLogs($id)
     {
         $logs = TicketLog::where('ticket_id', $id)
-                         ->orderBy('created_at', 'desc')
-                         ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json($logs);
     }
@@ -190,7 +190,7 @@ class AdminSupportController extends Controller
             if ($ticket->customer && $ticket->customer->user) {
                 $ticket->customer->user->notify(new \App\Notifications\SystemAlert([
                     'title' => 'New Support Response',
-                    'message' => 'A support agent has replied to your ticket #'.$ticket->ticket_no.'.',
+                    'message' => 'A support agent has replied to your ticket #' . $ticket->ticket_no . '.',
                     'icon' => 'fa-reply',
                     'action_url' => route('customer.support.index')
                 ]));
@@ -199,13 +199,13 @@ class AdminSupportController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Reply sent successfully',
-                'attachment' => $reply->attachment ? asset('storage/'.$reply->attachment) : null,
+                'attachment' => $reply->attachment ? asset('storage/' . $reply->attachment) : null,
             ]);
         } catch (Exception $e) {
-            \Log::error('Reply Error: '.$e->getMessage());
+            \Log::error('Reply Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send reply. '.$e->getMessage(),
+                'message' => 'Failed to send reply. ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -216,31 +216,35 @@ class AdminSupportController extends Controller
     public function assignTicket(Request $request, $id)
     {
         $request->validate([
-            'customer_id' => 'required|exists:customers,id',
+            'assigned_to' => 'required|exists:users,id',
         ]);
 
         $ticket = Ticket::findOrFail($id);
         $oldStatus = $ticket->status;
 
-        $ticket->assigned_to = $request->customer_id;
+        $ticket->assigned_to = $request->assigned_to;
         $ticket->save();
 
         TicketLog::create([
-            'ticket_id'  => $ticket->id,
+            'ticket_id' => $ticket->id,
             'old_status' => $oldStatus,
             'new_status' => $oldStatus,
             'changed_by' => Auth::user()->name,
         ]);
 
         // Notify Assigned Agent
-        $agent = User::find($request->customer_id); // The field name in request is customer_id but it belongs to User
-        if ($agent) {
-            $agent->notify(new \App\Notifications\SystemAlert([
-                'title' => 'New Ticket Assigned',
-                'message' => 'You have been assigned to handle ticket #'.$ticket->ticket_no.'.',
-                'icon' => 'fa-user-tag',
-                'action_url' => route('admin.support.index')
-            ]));
+        try {
+            $agent = User::find($request->assigned_to);
+            if ($agent) {
+                $agent->notify(new \App\Notifications\SystemAlert([
+                    'title' => 'New Ticket Assigned',
+                    'message' => 'You have been assigned to handle ticket #' . $ticket->ticket_no . '.',
+                    'icon' => 'fa-user-tag',
+                    'action_url' => route('admin.support.index')
+                ]));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Notification Failed: ' . $e->getMessage());
         }
 
         if ($request->ajax()) {
@@ -260,8 +264,8 @@ class AdminSupportController extends Controller
     public function report(Request $request)
     {
         $tickets = Ticket::with(['customer', 'category', 'assignedUser'])
-                         ->orderBy('created_at', 'desc')
-                         ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('admin.support.report', compact('tickets'));
     }
@@ -274,12 +278,15 @@ class AdminSupportController extends Controller
         $query = Ticket::with(['assignedUser', 'category', 'customer']);
 
         // Filtering logic
-        if ($request->filled('start_date')) $query->whereDate('created_at', '>=', $request->start_date);
-        if ($request->filled('end_date')) $query->whereDate('created_at', '<=', $request->end_date);
-        if ($request->filled('category_id')) $query->where('category_id', $request->category_id);
-        
+        if ($request->filled('start_date'))
+            $query->whereDate('created_at', '>=', $request->start_date);
+        if ($request->filled('end_date'))
+            $query->whereDate('created_at', '<=', $request->end_date);
+        if ($request->filled('category_id'))
+            $query->where('category_id', $request->category_id);
+
         if ($request->filled('role')) {
-            $query->whereHas('assignedUser', function($q) use ($request) {
+            $query->whereHas('assignedUser', function ($q) use ($request) {
                 $q->role($request->role);
             });
         }
@@ -289,9 +296,9 @@ class AdminSupportController extends Controller
         $end = $request->end_date;
 
         $pdf = Pdf::loadView('admin.support.tickets_pdf', compact('tickets', 'start', 'end'))
-                  ->setPaper('a4', 'portrait');
-        
-        return $pdf->download('support_report_'.now()->format('Ymd_His').'.pdf');
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download('support_report_' . now()->format('Ymd_His') . '.pdf');
     }
 
     /**
@@ -299,6 +306,6 @@ class AdminSupportController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        return Excel::download(new SupportTicketsExport($request->all()), 'support_report_'.now()->format('Ymd_His').'.xlsx');
+        return Excel::download(new SupportTicketsExport($request->all()), 'support_report_' . now()->format('Ymd_His') . '.xlsx');
     }
 }

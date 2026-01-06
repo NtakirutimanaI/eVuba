@@ -17,7 +17,7 @@ class ManagerOrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['customer', 'product']);
+        $query = Order::with(['user', 'product']);
 
         // Date Filtering
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -28,7 +28,7 @@ class ManagerOrderController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->whereHas('customer', function($cq) use ($search) {
+                $q->whereHas('user', function($cq) use ($search) {
                     $cq->where('name', 'LIKE', "%{$search}%");
                 })->orWhere('product_name', 'LIKE', "%{$search}%")
                   ->orWhere('status', 'LIKE', "%{$search}%");
