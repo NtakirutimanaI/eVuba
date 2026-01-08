@@ -16,7 +16,7 @@ class ManagerSupportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Ticket::with(['customer', 'category', 'replies'])->latest();
+        $query = Ticket::with(['customer', 'submitter', 'category', 'replies'])->latest();
 
         // Search Intelligence
         if ($request->filled('search')) {
@@ -126,7 +126,10 @@ class ManagerSupportController extends Controller
      */
     public function ajaxTicket($id)
     {
-        $ticket = Ticket::with(['customer', 'category', 'replies'])->findOrFail($id);
+        $ticket = Ticket::with(['customer', 'submitter', 'category', 'replies'])->findOrFail($id);
+
+        $requesterName = $ticket->customer->name ?? $ticket->submitter->name ?? 'Guest User';
+        $requesterEmail = $ticket->customer->email ?? $ticket->submitter->email ?? 'No email provided';
 
         return response()->json([
             'id' => $ticket->id,
@@ -136,6 +139,8 @@ class ManagerSupportController extends Controller
             'status' => $ticket->status,
             'priority' => $ticket->priority ?? 'normal',
             'customer' => $ticket->customer,
+            'requester_name' => $requesterName,
+            'requester_email' => $requesterEmail,
             'category' => $ticket->category,
             'attachment' => $ticket->attachment,
             'created_at' => $ticket->created_at->format('M d, Y'),

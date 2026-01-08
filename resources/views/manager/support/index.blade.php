@@ -138,7 +138,7 @@
                             </td>
                             <td>
                                 <div style="font-weight: 700; color: var(--dark);">
-                                    {{ optional($ticket->customer)->name ?? 'Guest User' }}</div>
+                                    {{ optional($ticket->customer)->name ?? optional($ticket->submitter)->name ?? 'Guest User' }}</div>
                                 <div style="font-size: 0.75rem; color: var(--secondary);">
                                     {{ optional($ticket->customer)->email ?? 'no-digital-trace' }}</div>
                             </td>
@@ -496,7 +496,8 @@
             document.getElementById('modal-subject').innerText = data.subject;
             document.getElementById('modal-ref-data').innerText = `REF: #${data.ticket_no} • Created ${data.created_at}`;
             document.getElementById('modal-description').innerText = data.description;
-            document.getElementById('modal-customer').innerHTML = `<strong>${data.customer?.name}</strong><br><span style="font-size:0.75rem; color:var(--secondary);">${data.customer?.email}</span>`;
+            // Updated to use requester fields from server
+            document.getElementById('modal-customer').innerHTML = `<strong>${data.requester_name}</strong><br><span style="font-size:0.75rem; color:var(--secondary);">${data.requester_email}</span>`;
             document.getElementById('modal-category').innerText = data.category?.name || 'General Inquiries';
             document.getElementById('modal-status').innerHTML = `<span class="status-badge status-${data.status.replace(' ', '-')}" style="font-size:0.7rem;">${data.status.toUpperCase()}</span>`;
             document.getElementById('mgr_reply_ticket_id').value = data.id;

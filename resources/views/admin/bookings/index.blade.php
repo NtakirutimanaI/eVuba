@@ -61,7 +61,7 @@
                     <i class="fas fa-calendar-check"></i>
                 </div>
                 <div class="stat-info">
-                    <div class="label">Scope Bookings</div>
+                    <div class="label">Total Bookings</div>
                     <div class="value">{{ $stats['total'] }}</div>
                     <div class="stat-trend up">
                         <i class="fas fa-filter"></i> Target Period
@@ -119,95 +119,7 @@
     </div>
 
     <!-- Professional Intelligence Report View -->
-    <div class="pro-card" style="margin-bottom: 2rem; border-left: 4px solid var(--primary);">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
-            <div>
-                <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem;">
-                    <i class="fas fa-chart-line text-primary"></i>
-                    Performance Intelligence Report
-                </h2>
-                <p style="color: var(--secondary); font-size: 0.85rem; margin-top: 0.5rem;">
-                    Period:
-                    <strong>{{ request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->format('M d, Y') : 'Earliest' }}</strong>
-                    to
-                    <strong>{{ request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->format('M d, Y') : 'Latest' }}</strong>
-                </p>
-            </div>
-            <button onclick="toggleReportMode()" class="action-btn"
-                style="background: rgba(99, 102, 241, 0.1); color: var(--primary); width: auto; padding: 0 1.25rem; font-size: 0.75rem; border: 1px solid rgba(99, 102, 241, 0.2);">
-                <i class="fas fa-expand-alt"></i> ANALYTICS VIEW
-            </button>
-        </div>
 
-        <div id="analyticsContent"
-            style="display: none; padding: 1.5rem; background: var(--bg-main); border-radius: 1rem; margin-bottom: 1.5rem;">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
-                <div class="report-block">
-                    <h4
-                        style="font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); margin-bottom: 1rem;">
-                        Service Velocity</h4>
-                    <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-                        <span style="font-size: 2rem; font-weight: 800;">{{ round($stats['total'] / 30, 1) }}</span>
-                        <span style="font-size: 0.85rem; color: var(--secondary);">/ avg day</span>
-                    </div>
-                    <div style="height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 1rem;">
-                        <div style="width: 65%; height: 100%; background: var(--primary); border-radius: 2px;"></div>
-                    </div>
-                </div>
-                <div class="report-block">
-                    <h4
-                        style="font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); margin-bottom: 1rem;">
-                        Order Attrition</h4>
-                    <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-                        <span
-                            style="font-size: 2rem; font-weight: 800; color: var(--danger);">{{ $stats['total'] > 0 ? round(($stats['cancelled'] / $stats['total']) * 100) : 0 }}%</span>
-                        <span style="font-size: 0.85rem; color: var(--secondary);">dropout rate</span>
-                    </div>
-                    <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 0.5rem;">Total Cancellations:
-                        {{ $stats['cancelled'] }}
-                    </p>
-                </div>
-                <div class="report-block">
-                    <h4
-                        style="font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); margin-bottom: 1rem;">
-                        Specialist Loading</h4>
-                    <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-                        <span
-                            style="font-size: 2rem; font-weight: 800;">{{ \App\Models\Booking::distinct('employee_id')->count() }}</span>
-                        <span style="font-size: 0.85rem; color: var(--secondary);">active experts</span>
-                    </div>
-                    <p style="font-size: 0.75rem; color: var(--success); margin-top: 0.5rem;">High Load Tolerance</p>
-                </div>
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 2rem; align-items: center;">
-            <div style="flex: 1;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600;">Overall Progress Execution</span>
-                    <span
-                        style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">{{ $stats['total'] > 0 ? round(($stats['completed'] / $stats['total']) * 100) : 0 }}%</span>
-                </div>
-                <div style="height: 8px; background: var(--bg-main); border-radius: 4px; overflow: hidden;">
-                    <div
-                        style="width: {{ $stats['total'] > 0 ? ($stats['completed'] / $stats['total']) * 100 : 0 }}%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--info));">
-                    </div>
-                </div>
-            </div>
-            <div style="display: flex; gap: 1rem;">
-                <span
-                    style="font-size: 0.75rem; color: var(--secondary); display: flex; align-items: center; gap: 0.25rem;">
-                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary);"></span>
-                    Confirmed
-                </span>
-                <span
-                    style="font-size: 0.75rem; color: var(--secondary); display: flex; align-items: center; gap: 0.25rem;">
-                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--bg-main);"></span>
-                    Backlog
-                </span>
-            </div>
-        </div>
-    </div>
 
     @if(session('success'))
         <div class="glass-card"

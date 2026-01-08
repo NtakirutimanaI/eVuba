@@ -271,7 +271,8 @@
                             <input type="hidden" name="start_date" id="form_start_date">
                             <input type="hidden" name="end_date" id="form_end_date">
                         </div>
-                        <button type="submit" class="action-btn" style="background: var(--bg-main); color: var(--secondary); border: 1px solid var(--glass-border);">
+                        <button type="submit" class="action-btn"
+                            style="background: var(--bg-main); color: var(--secondary); border: 1px solid var(--glass-border);">
                             <i class="fas fa-sync-alt"></i> REFRESH
                         </button>
                     </form>
@@ -694,7 +695,7 @@
     }, 4000);
 
     // Sync dates on form submit
-    document.querySelector('.ledger-controls').addEventListener('submit', function() {
+    document.querySelector('.ledger-controls').addEventListener('submit', function () {
         document.getElementById('form_start_date').value = document.getElementById('report_start').value;
         document.getElementById('form_end_date').value = document.getElementById('report_end').value;
     });

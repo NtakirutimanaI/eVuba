@@ -24,7 +24,7 @@ class AdminSupportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Ticket::with(['customer', 'category', 'assignedUser'])
+        $query = Ticket::with(['customer', 'submitter', 'category', 'assignedUser'])
             ->orderBy('created_at', 'desc');
 
         if ($request->has('status') && $request->status != 'all') {
@@ -110,7 +110,7 @@ class AdminSupportController extends Controller
             ]));
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Ticket status updated']);
         }
 
@@ -122,13 +122,18 @@ class AdminSupportController extends Controller
      */
     public function ajaxTicket($id)
     {
-        $ticket = Ticket::with(['customer', 'category', 'assignedUser', 'replies'])
+        $ticket = Ticket::with(['customer', 'submitter', 'category', 'assignedUser', 'replies'])
             ->findOrFail($id);
+
+        $requesterName = $ticket->customer->name ?? $ticket->submitter->name ?? 'Guest User';
+        $requesterEmail = $ticket->customer->email ?? $ticket->submitter->email ?? 'No email provided';
 
         return response()->json([
             'id' => $ticket->id,
             'ticket_no' => $ticket->ticket_no,
             'customer' => $ticket->customer,
+            'requester_name' => $requesterName,
+            'requester_email' => $requesterEmail,
             'category' => $ticket->category,
             'subject' => $ticket->subject,
             'description' => $ticket->description,

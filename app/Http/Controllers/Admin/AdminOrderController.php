@@ -10,6 +10,9 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\StockOut;
+use App\Models\Sale;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProductsOrdersExport; // We'll create this
@@ -30,7 +33,7 @@ class AdminOrderController extends Controller
         $totalStats = [
             'total_revenue' => Order::where('status', '!=', 'cancelled')->sum(DB::raw('quantity * price')),
             'pending_count' => Order::where('status', 'pending')->count(),
-            'total_orders'  => Order::count(),
+            'total_orders' => Order::count(),
         ];
 
         // Fetch all orders with related user (customer) and product
@@ -63,13 +66,22 @@ class AdminOrderController extends Controller
 
         // Update status as string to prevent data truncation
         $order->status = (string) $request->status;
+
+        // AUTO-SYNC: If status is 'approved', set payment_status to 'approved' (which displays as Paid)
+        // If status is 'completed', set payment_status to 'paid' (which displays as Paid)
+        if ($order->status === 'approved') {
+            $order->payment_status = 'approved';
+        } elseif ($order->status === 'completed') {
+            $order->payment_status = 'paid';
+        }
+
         $order->save();
 
         // Notify Customer
         if ($order->customer && $order->customer->user) {
             $order->customer->user->notify(new \App\Notifications\SystemAlert([
                 'title' => 'Order Status Updated',
-                'message' => 'Your order #'.$order->order_no.' is now '.ucfirst($order->status).'.',
+                'message' => 'Your order #' . $order->order_no . ' is now ' . ucfirst($order->status) . '.',
                 'icon' => 'fa-shopping-bag',
                 'action_url' => route('customer.orders.index')
             ]));
@@ -86,6 +98,15 @@ class AdminOrderController extends Controller
         Order::findOrFail($id)->delete();
 
         return redirect()->back()->with('success', 'Order deleted successfully!');
+    }
+
+    /**
+     * Show Order Details
+     */
+    public function show($id)
+    {
+        $order = Order::with('user', 'product')->findOrFail($id);
+        return view('admin.orders.show', compact('order'));
     }
 
     /**
@@ -118,7 +139,7 @@ class AdminOrderController extends Controller
             'status' => $status
         ]);
 
-        return redirect()->back()->with('success', 'Product '.($status === 'published' ? 'published' : 'created').' successfully!');
+        return redirect()->back()->with('success', 'Product ' . ($status === 'published' ? 'published' : 'created') . ' successfully!');
     }
 
     /**
@@ -181,40 +202,175 @@ class AdminOrderController extends Controller
         return redirect()->back()->with('success', 'Product deleted successfully!');
     }
     // Show the report page
-public function generateReport()
-{
-    $products = Product::with('category')->orderBy('created_at','desc')->get();
-    $orders = Order::with('customer')->orderBy('created_at','desc')->get();
+    public function generateReport()
+    {
+        $products = Product::with('category')->orderBy('created_at', 'desc')->get();
+        $orders = Order::with('customer')->orderBy('created_at', 'desc')->get();
 
-    return view('admin.orders.report', compact('products', 'orders'));
-}
+        return view('admin.orders.report', compact('products', 'orders'));
+    }
 
-// Generate PDF
-public function generateReportPDF(Request $request)
-{
-    $startDate = $request->query('start_date');
-    $endDate = $request->query('end_date');
+    // Generate PDF
+    public function generateReportPDF(Request $request)
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
 
-    $products = Product::with('category')->orderBy('created_at','desc')->get();
-    
-    $query = Order::with('customer')->orderBy('created_at','desc');
-    if ($startDate) $query->whereDate('created_at', '>=', $startDate);
-    if ($endDate) $query->whereDate('created_at', '<=', $endDate);
-    $orders = $query->get();
+        $products = Product::with('category')->orderBy('created_at', 'desc')->get();
 
-    $pdf = Pdf::loadView('admin.orders.report_pdf', compact('products', 'orders'))
-              ->setPaper('a4', 'landscape');
+        $query = Order::with('customer')->orderBy('created_at', 'desc');
+        if ($startDate)
+            $query->whereDate('created_at', '>=', $startDate);
+        if ($endDate)
+            $query->whereDate('created_at', '<=', $endDate);
+        $orders = $query->get();
 
-    return $pdf->download('eVubaConnect_Report_'.now()->format('Y-m-d_H:i').'.pdf');
-}
+        $pdf = Pdf::loadView('admin.orders.report_pdf', compact('products', 'orders'))
+            ->setPaper('a4', 'landscape');
 
-// Generate Excel
-public function generateReportExcel(Request $request)
-{
-    $startDate = $request->query('start_date');
-    $endDate = $request->query('end_date');
-    
-    return Excel::download(new ProductsOrdersExport($startDate, $endDate), 'eVubaConnect_Report_'.now()->format('Y-m-d_H:i').'.xlsx');
-}
+        return $pdf->download('eVubaConnect_Report_' . now()->format('Y-m-d_H:i') . '.pdf');
+    }
 
+    // Generate Excel
+    public function generateReportExcel(Request $request)
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        return Excel::download(new ProductsOrdersExport($startDate, $endDate), 'eVubaConnect_Report_' . now()->format('Y-m-d_H:i') . '.xlsx');
+    }
+
+    /**
+     * Approve Payment
+     */
+    /**
+     * Approve Payment & Deduct Stock
+     */
+    public function approvePayment($id)
+    {
+        $order = Order::with('product')->findOrFail($id);
+
+        // 1. Check Stock Availability
+        $totalStockIn = DB::table('stock_in')
+            ->where('product_id', $order->product_id)
+            ->sum('quantity');
+
+        $totalStockOut = StockOut::where('product_id', $order->product_id)
+            ->sum('quantity');
+
+        $availableStock = $totalStockIn - $totalStockOut;
+
+        if ($order->quantity > $availableStock) {
+            return redirect()->back()->with('error', "Insufficient stock! Available: $availableStock, Required: $order->quantity");
+        }
+
+        // 2. Find or Create Customer Profile for the User
+        // We link the stock out to a 'Customer' record. If the user doesn't have one, we create one.
+        $user = $order->user;
+        $customer = Customer::firstOrCreate(
+            ['email' => $user->email],
+            [
+                'name' => $user->name,
+                'phone' => 'N/A', // Or fetch from user profile if available
+                'address' => 'Created from Order #' . $order->id
+            ]
+        );
+
+        // 3. Calculate Unit Price (Weighted Average Cost)
+        $stockIns = DB::table('stock_in')
+            ->where('product_id', $order->product_id)
+            ->get();
+
+        $totalCost = $stockIns->sum(fn($s) => $s->unit_cost * $s->quantity);
+        $totalQty = $stockIns->sum('quantity');
+        $unitPrice = $totalQty ? $totalCost / $totalQty : 0;
+
+        // 4. Create Stock Out Record
+        StockOut::create([
+            'customer_id' => $customer->id,
+            'product_id' => $order->product_id,
+            'quantity' => $order->quantity,
+            'unit_price' => $unitPrice,
+            'total_price' => $order->quantity * $unitPrice,
+            'type' => 'sale',
+            'stock_out_date' => now(),
+            'note' => "Auto-generated from Order #{$order->id}",
+            'user_id' => Auth::id(), // Admin who approved it
+        ]);
+
+        // 5. Create Sale Record
+        Sale::create([
+            'customer_id' => $customer->id,
+            'product_id' => $order->product_id,
+            'quantity' => $order->quantity,
+            'unit_price' => $unitPrice,
+            'total_amount' => $order->quantity * $unitPrice,
+            'sale_date' => now(),
+            'user_id' => Auth::id(),
+        ]);
+
+        // 6. Update Order Status
+        $order->payment_status = 'approved';
+        $order->status = 'processing';
+        $order->save();
+
+        // 7. Notify User
+        if ($order->user) {
+            $order->user->notify(new \App\Notifications\SystemAlert([
+                'title' => 'Payment Verified',
+                'message' => 'Your payment for Order #' . $order->id . ' has been approved. Stock has been reserved.',
+                'icon' => 'fa-check-circle',
+                'action_url' => route('customer.orders.index')
+            ]));
+        }
+
+        return redirect()->back()->with('success', 'Payment approved and stock deducted successfully.');
+    }
+
+    /**
+     * Send Invoice (Mock)
+     */
+    public function sendInvoice($id)
+    {
+        $order = Order::with('user', 'product')->findOrFail($id);
+
+        try {
+            // Sending the Mailable
+            if ($order->user) {
+                \Illuminate\Support\Facades\Mail::to($order->user)->send(new \App\Mail\InvoicePaid($order));
+
+                // Also notify in-app
+                $order->user->notify(new \App\Notifications\SystemAlert([
+                    'title' => 'Invoice Generated',
+                    'message' => 'An invoice for Order #' . $order->id . ' has been sent to your email.',
+                    'icon' => 'fa-file-invoice-dollar',
+                    'action_url' => route('customer.orders.index')
+                ]));
+            }
+
+            return redirect()->back()->with('success', 'Invoice sent to customer.');
+
+        } catch (\Exception $e) {
+            // Fallback to just notification if mail fails
+            if ($order->user) {
+                $order->user->notify(new \App\Notifications\SystemAlert([
+                    'title' => 'Invoice Generated',
+                    'message' => 'An invoice for Order #' . $order->id . ' has been generated.',
+                    'icon' => 'fa-file-invoice-dollar',
+                    'action_url' => route('customer.orders.index')
+                ]));
+            }
+            return redirect()->back()->with('success', 'Invoice generated (Email simulation only - check logs if no mail received).');
+        }
+    }
+    /**
+     * Download Invoice for Admin
+     */
+    public function downloadInvoice($id)
+    {
+        $order = Order::with(['user', 'product'])->findOrFail($id);
+
+        $pdf = Pdf::loadView('customer.documents.invoice_pdf', compact('order'));
+        return $pdf->download('Invoice_' . ($order->transaction_ref ?? $order->order_no) . '.pdf');
+    }
 }

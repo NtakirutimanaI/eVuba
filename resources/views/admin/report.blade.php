@@ -279,23 +279,7 @@
         </div>
 
         <!-- User/Customer Report -->
-        <div class="module-card">
-            <div class="module-header">
-                <i class="fas fa-users-cog"></i>
-                <h3>User & Audience</h3>
-            </div>
-            <div class="module-body">
-                <p>Overview of customer growth, subscriber engagement, and employee performance metrics.</p>
-                <div class="btn-group">
-                    <a href="{{ route('admin.users.report') }}" class="report-btn view-btn"><i class="far fa-eye"></i>
-                        View</a>
-                    <a href="{{ route('admin.subscribers.export.pdf') }}" class="report-btn pdf-btn"><i
-                            class="far fa-file-pdf"></i> PDF</a>
-                    <a href="{{ route('admin.subscribers.export.excel') }}" class="report-btn excel-btn"><i
-                            class="far fa-file-excel"></i> Excel</a>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Support Metrics -->
         <div class="module-card">

@@ -98,19 +98,14 @@
     </div>
 
     {{-- Secondary Charts --}}
-    <div class="main-grid" style="margin-top: 1.5rem; grid-template-columns: 1fr 1fr;">
+    <div class="main-grid" style="margin-top: 1.5rem; grid-template-columns: 1fr;">
         <div class="pro-card glass-panel">
             <div class="card-header">
                 <h3><i class="fas fa-chart-pie"></i> Service Demographics</h3>
             </div>
             <div id="serviceChart" class="chart-container"></div>
         </div>
-        <div class="pro-card glass-panel">
-            <div class="card-header">
-                <h3><i class="fas fa-user-friends"></i> User Acquisition</h3>
-            </div>
-            <div id="growthChart" class="chart-container"></div>
-        </div>
+
     </div>
 
     {{-- Live Operations Data --}}
@@ -348,28 +343,7 @@
     var serviceChart = new ApexCharts(document.querySelector("#serviceChart"), serviceOptions);
     serviceChart.render();
 
-    // Growth Line Chart
-    var growthOptions = {
-        theme: { mode: getThemeMode() },
-        series: [{
-            name: 'New Customers',
-            data: @json($customersByMonth['data'])
-        }],
-        chart: {
-            type: 'line',
-            height: 350,
-            zoom: { enabled: false },
-            background: 'transparent'
-        },
-        dataLabels: { enabled: true },
-        stroke: { curve: 'smooth', width: 4 },
-        colors: ['#8b5cf6'],
-        xaxis: {
-            categories: @json($customersByMonth['labels']),
-        }
-    };
-    var growthChart = new ApexCharts(document.querySelector("#growthChart"), growthOptions);
-    growthChart.render();
+
 
     // Listen for theme changes
     const observer = new MutationObserver(function (mutations) {
@@ -381,7 +355,7 @@
                 revenueChart.updateOptions(update);
                 supportChart.updateOptions(update);
                 serviceChart.updateOptions(update);
-                growthChart.updateOptions(update);
+
             }
         });
     });

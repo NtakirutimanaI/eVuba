@@ -8,103 +8,12 @@
     <!-- Success/Error Feedback -->
     <div id="alertContainer"></div>
     
-    <div class="split-layout">
+    <div class="single-layout">
         
-        <!-- LEFT PANEL: Stock Out Form -->
-        <div class="left-panel glass-card slide-in-left">
-            <div class="panel-header">
-                <h3><i class="fas fa-arrow-circle-down"></i> Record Stock Out</h3>
-                <button class="btn-link-sm" onclick="openCustomerModal()" title="Quick Add Customer">
-                    <i class="fas fa-user-plus"></i>
-                </button>
-            </div>
-
-            <div id="formMessage" class="message-box"></div>
-
-            <form id="stockOutForm">
-                @csrf
-                
-                <div class="form-group">
-                    <label>Customer <span class="req">*</span></label>
-                    <div class="input-icon-wrapper">
-                        <i class="fas fa-user"></i>
-                        <select name="customer_id" id="customerSelect" required>
-                            <option value="">Select Customer...</option>
-                            @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Product <span class="req">*</span></label>
-                    <div class="input-icon-wrapper">
-                        <i class="fas fa-box"></i>
-                        <select name="product_id" id="productSelect" required>
-                            <option value="">Select Product...</option>
-                            @foreach($products as $product)
-                                <option value="{{ $product->id }}">{{ $product->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row-group">
-                    <div class="col-half">
-                        <label>Quantity <span class="req">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fas fa-sort-numeric-down"></i>
-                            <input type="number" name="quantity" id="stockQty" required min="1" value="1" oninput="calculateTotal()">
-                        </div>
-                    </div>
-                    <div class="col-half">
-                        <label>Unit Price <span class="req">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fas fa-dollar-sign"></i>
-                            <input type="number" name="unit_price" id="unitPrice" required step="0.01" oninput="calculateTotal()">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group total-box">
-                    <label>Total Amount</label>
-                    <div class="total-display" id="totalDisplay">FRW 0.00</div>
-                </div>
-
-                <div class="form-group">
-                    <label>Type <span class="req">*</span></label>
-                    <div class="input-icon-wrapper">
-                        <i class="fas fa-tag"></i>
-                        <select name="type" id="typeSelect" required>
-                            <option value="sale">Sale</option>
-                            <option value="return">Return</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Date <span class="req">*</span></label>
-                    <div class="input-icon-wrapper">
-                        <i class="fas fa-calendar-alt"></i>
-                        <input type="date" name="stock_out_date" required value="{{ date('Y-m-d') }}">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Note</label>
-                    <textarea name="note" rows="2" placeholder="Optional notes..."></textarea>
-                </div>
-
-                <button type="submit" class="btn-primary-block">
-                    <i class="fas fa-save"></i> Save Transaction
-                </button>
-            </form>
-        </div>
 
 
-        <!-- RIGHT PANEL: Analytics & List -->
-        <div class="right-panel">
+
+        <div class="full-panel">
             
             <!-- Page Title -->
             <div class="page-title-section">
@@ -386,9 +295,8 @@
 .message-box.error { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
 
 /* Layout */
-.split-layout { display: flex; gap: 20px; align-items: flex-start; margin-top: 15px; }
-.left-panel { flex: 0 0 320px; position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto; }
-.right-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.single-layout { margin-top: 15px; }
+.full-panel { width: 100%; display: flex; flex-direction: column; gap: 12px; }
 
 /* Cards & Glass */
 .glass-card { background: var(--surface); border: 1px solid var(--header-border); border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; }
@@ -538,11 +446,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); backgr
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 1200px) {
-    .split-layout { flex-direction: column; }
-    .left-panel { position: relative; top: 0; max-height: none; flex: 1; width: 100%; max-width: 100%; }
-    .right-panel { width: 100%; }
-}
+
 
 @media (max-width: 768px) {
     .page-wrapper { width: 100%; margin-left: 0; padding: 15px; }
@@ -657,66 +561,7 @@ document.getElementById('saveCustomerForm').addEventListener('submit', function(
     });
 });
 
-// --- Stock Out Form Submit ---
-document.getElementById('stockOutForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const productId = document.getElementById('productSelect').value;
-    const qty = parseInt(document.getElementById('stockQty').value);
-    const type = document.getElementById('typeSelect').value;
-    
-    // Check stock availability for sales
-    if (type === 'sale') {
-        fetch(`/admin/stockout/check-stock/${productId}`)
-            .then(r => r.json())
-            .then(res => {
-                if (qty > res.available) {
-                    showFormMessage('error', `Insufficient stock! Only ${res.available} units available.`);
-                } else {
-                    submitStockOut(form);
-                }
-            })
-            .catch(err => {
-                console.error('Error checking stock:', err);
-                submitStockOut(form);
-            });
-    } else {
-        submitStockOut(form);
-    }
-});
 
-function submitStockOut(form) {
-    fetch("{{ route('admin.stockout.store') }}", {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            customer_id: form.customer_id.value,
-            product_id: form.product_id.value,
-            quantity: form.quantity.value,
-            unit_price: form.unit_price.value,
-            type: form.type.value,
-            stock_out_date: form.stock_out_date.value,
-            note: form.note.value
-        })
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.success) {
-            showAlert('success', 'Stock out transaction saved successfully!');
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showFormMessage('error', d.message || 'Error saving transaction');
-        }
-    })
-    .catch(err => {
-        console.error('Error:', err);
-        showFormMessage('error', 'Failed to save transaction');
-    });
-}
 
 // --- Stock Overview Modal ---
 function openStockOverviewModal() {

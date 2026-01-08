@@ -9,9 +9,20 @@ class Order extends Model
 {
     use HasFactory; // <-- Now it works
 
-    protected $fillable = ['user_id', 'product_id', 'product_name', 'quantity', 'price', 'status'];
+    protected $fillable = [
+        'user_id',
+        'product_id',
+        'product_name',
+        'quantity',
+        'price',
+        'status',
+        'payment_method',
+        'payment_status',
+        'transaction_ref'
+    ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
     public function customer()
@@ -26,5 +37,5 @@ class Order extends Model
     /**
      * Relationship: Order belongs to a User (customer)
      */
-    
+
 }

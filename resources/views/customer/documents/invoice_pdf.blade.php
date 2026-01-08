@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Revenue Ledger Report - eVuba</title>
+    <title>Invoice #{{ $order->id }} - eVuba</title>
     <style>
         @page {
             margin: 1cm;
@@ -91,19 +91,19 @@
             text-transform: uppercase;
         }
 
-        .status-completed {
+        .status-paid {
             background: #dcfce7;
             color: #166534;
         }
 
         .status-pending {
-            background: #fef9c3;
-            color: #854d0e;
-        }
-
-        .status-cancelled {
             background: #fee2e2;
             color: #991b1b;
+        }
+
+        .status-progress {
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .footer {
@@ -142,79 +142,79 @@
 
 <body>
     <div class="header">
-        <h1>Revenue <span class="brand-accent">Ledger</span> Report</h1>
-        <p>Institutional Order Registry & Financial Audit</p>
+        <h1>Payment <span class="brand-accent">Invoice</span> Receipt</h1>
+        <p>Official Transaction Record & Service Fulfilment Document</p>
     </div>
 
     <table class="meta-grid">
         <tr>
-            <td class="meta-label">Generated On:</td>
-            <td>{{ now()->format('M d, Y H:i') }}</td>
-            <td class="meta-label">Authority:</td>
-            <td>{{ auth()->user()->name ?? 'System Manager' }}</td>
+            <td class="meta-label">Invoice Ref:</td>
+            <td style="font-weight: bold;">
+                {{ $order->transaction_ref ?? 'INV-' . str_pad($order->id, 8, '0', STR_PAD_LEFT) }}
+            </td>
+            <td class="meta-label">Issued To:</td>
+            <td>{{ $order->user->name ?? 'Valued Customer' }}</td>
         </tr>
         <tr>
-            <td class="meta-label">Ledger Scope:</td>
-            <td>Strategic Marketplace Audit</td>
-            <td class="meta-label">Entity:</td>
-            <td>eVuba Solutions Hub</td>
+            <td class="meta-label">Date Issued:</td>
+            <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
+            <td class="meta-label">Email:</td>
+            <td>{{ $order->user->email ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="meta-label">Payment Method:</td>
+            <td>{{ $order->payment_method ?? 'Unknown' }}</td>
+            <td class="meta-label">Status:</td>
+            <td>
+                @php
+                    $statusLabel = $order->payment_status;
+                    $badgeClass = 'status-pending';
+                    
+                    if ($order->payment_status === 'paid' || $order->payment_status === 'approved') {
+                        $statusLabel = 'PAID';
+                        $badgeClass = 'status-paid';
+                    }
+                @endphp
+                <span class="status-badge {{ $badgeClass }}">
+                    {{ $statusLabel }}
+                </span>
+            </td>
         </tr>
     </table>
 
     <table>
         <thead>
             <tr>
-                <th>REF</th>
-                <th>Client Entity</th>
-                <th>Product SKU</th>
-                <th>Volume</th>
+                <th>Service / Product</th>
+                <th>Description</th>
+                <th class="text-right">Quantity</th>
                 <th class="text-right">Unit Price</th>
                 <th class="text-right">Total (FRW)</th>
-                <th>Status</th>
-                <th>Timeline</th>
             </tr>
         </thead>
         <tbody>
-            @php $totalRevenue = 0; @endphp
-            @forelse($orders as $order)
-                @php $totalRevenue += ($order->quantity * $order->price); @endphp
-                <tr>
-                    <td>#{{ $order->id }}</td>
-                    <td>
-                        <div style="font-weight: bold;">{{ $order->customer->name ?? 'Guest' }}</div>
-                        <div style="font-size: 9px; color: #64748b;">ID: {{ $order->customer_id ?? 'N/A' }}</div>
-                    </td>
-                    <td>{{ $order->product_name ?? ($order->product->name ?? 'N/A') }}</td>
-                    <td style="font-weight: bold;">{{ $order->quantity }}</td>
-                    <td class="text-right">{{ number_format($order->price, 0) }}</td>
-                    <td class="text-right" style="font-weight: bold;">
-                        {{ number_format($order->quantity * $order->price, 0) }}</td>
-                    <td>
-                        <span class="status-badge status-{{ $order->status }}">
-                            {{ $order->status }}
-                        </span>
-                    </td>
-                    <td>{{ $order->created_at->format('M d, Y') }}</td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">No order entries found.</td>
-                </tr>
-            @endforelse
+            <tr>
+                <td>{{ $order->product_name }}</td>
+                <td>Order #{{ $order->id }} - {{ $order->product_name }} Setup/Service</td>
+                <td class="text-right">{{ $order->quantity }}</td>
+                <td class="text-right">{{ number_format($order->price, 0) }}</td>
+                <td class="text-right" style="font-weight: bold;">
+                    {{ number_format($order->price * $order->quantity, 0) }}
+                </td>
+            </tr>
         </tbody>
     </table>
 
     <div class="summary-box">
         <div class="summary-item">
-            <span style="color: #64748b; font-size: 12px; font-weight: normal; margin-right: 15px;">TOTAL LEDGER
-                REVENUE</span>
-            FRW {{ number_format($totalRevenue, 0) }}
+            <span style="color: #64748b; font-size: 12px; font-weight: normal; margin-right: 15px;">TOTAL AMOUNT
+                PAID</span>
+            FRW {{ number_format($order->price * $order->quantity, 0) }}
         </div>
     </div>
 
     <div class="footer">
-        This document is an official revenue record. Generated via eVuba Intelligence Dashboard. &copy; {{ date('Y') }}
-        eVuba.
+        This document serves as proof of payment. Generated via eVuba Connect Platform. &copy; {{ date('Y') }} eVuba.
     </div>
 </body>
 

@@ -73,6 +73,17 @@
             <i class="fas fa-moon" id="themeIcon"></i>
         </button>
 
+        <!-- Cart & Orders (Customer Only) -->
+        @if($role == 'customer')
+            <a href="#" class="icon-btn" title="My Shopping Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="badge" id="cartBadge" style="display:none;">0</span>
+            </a>
+            <a href="{{ route('customer.orders.index', ['section' => 'archive']) }}" class="icon-btn" title="Order History">
+                <i class="fas fa-clipboard-list"></i>
+            </a>
+        @endif
+
         <!-- Messages -->
         <a href="{{ $role == 'admin' ? route('admin.messages.index') : route('messages.page') }}" class="icon-btn" title="Messages">
             <i class="far fa-envelope"></i>

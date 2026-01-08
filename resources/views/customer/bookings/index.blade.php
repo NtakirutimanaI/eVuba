@@ -1,333 +1,1027 @@
 @include('layouts.header')
 @include('layouts.sidebar')
 
-<link rel="stylesheet" href="{{ asset('css/dashboard-pro.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4F46E5;
+        --primary-dark: #4338ca;
+        --primary-light: #EEF2FF;
+        --secondary: #64748B;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #0f172a;
+        --light: #f8fafc;
+        --white: #ffffff;
+        --border: #e2e8f0;
+
+        /* Semantic Colors (Light Mode Default) */
+        --bg-body: #f1f5f9;
+        --bg-card: #ffffff;
+        --bg-input: #ffffff;
+        --bg-hover: #f8fafc;
+        --bg-modal: #ffffff;
+        --bg-modal-header: #f8fafc;
+        --text-main: #0f172a;
+        --text-secondary: #64748B;
+        --border-color: #e2e8f0;
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.1);
+
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --bg-input: #0f172a;
+        /* Darker input bg */
+        --bg-hover: #334155;
+        --bg-modal: #1e293b;
+        --bg-modal-header: #334155;
+        --text-main: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #334155;
+        --primary-light: rgba(79, 70, 229, 0.2);
+        /* Adjust primary light for dark mode */
+        --light: #1e293b;
+        /* Re-map light utility to be dark in this context if used generally */
+        --glass-bg: rgba(30, 41, 59, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.05);
+
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: var(--bg-body);
+        color: var(--text-main);
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .dashboard-container {
+        padding: 30px;
+        width: 80%;
+        margin-left: 222px;
+    }
+
+    /* Header Section */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .page-title h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+
+    .page-title p {
+        color: var(--text-secondary);
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    /* Stats Cards - Simplified */
+    .stats-single {
+        background: var(--bg-card);
+        padding: 20px 25px;
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+    }
+
+    .stats-single .icon {
+        width: 45px;
+        height: 45px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .stats-single .info h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-main);
+    }
+
+    .stats-single .info p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* Main Content Grid */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1.8fr 1fr;
+        gap: 30px;
+    }
+
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Sections */
+    .section-card {
+        background: var(--bg-card);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+    }
+
+    .filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex;
+        gap: 5px;
+        background: var(--bg-body);
+        padding: 5px;
+        border-radius: 12px;
+    }
+
+    .tab-link {
+        padding: 8px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.2s;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .tab-link.active {
+        background: var(--bg-card);
+        color: var(--primary);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        max-width: 300px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px 10px 40px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        outline: none;
+        font-family: inherit;
+        background: var(--bg-input);
+        color: var(--text-main);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 13px;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    /* Table Styling */
+    .bookings-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .bookings-table th {
+        text-align: left;
+        padding: 15px 20px;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .bookings-table td {
+        padding: 20px 20px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        color: var(--text-main);
+    }
+
+    .bookings-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .bookings-table tr:hover td {
+        background: var(--bg-hover);
+    }
+
+    .service-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .service-icon {
+        width: 45px;
+        height: 45px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .service-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Status Badges */
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .badge-pending {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .badge-confirmed {
+        background: #E0E7FF;
+        color: var(--primary);
+    }
+
+    .badge-completed {
+        background: #D1FAE5;
+        color: var(--success);
+    }
+
+    .badge-cancelled {
+        background: #FEE2E2;
+        color: var(--danger);
+    }
+
+    /* Service Catalog */
+    .catalog-list {
+        display: grid;
+        gap: 20px;
+    }
+
+    .catalog-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        transition: 0.2s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        background: var(--bg-card);
+    }
+
+    .catalog-item:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .catalog-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        object-fit: cover;
+        margin-right: 20px;
+        background: var(--bg-body);
+    }
+
+    .catalog-details {
+        flex: 1;
+    }
+
+    .catalog-price {
+        font-weight: 700;
+        color: var(--success);
+        font-size: 0.95rem;
+    }
+
+    .book-btn-mini {
+        background: var(--bg-body);
+        color: var(--primary);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+
+    .catalog-item:hover .book-btn-mini {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Action Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        gap: 8px;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .btn-icon {
+        padding: 8px;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-icon:hover {
+        background: var(--bg-hover);
+        color: var(--primary);
+    }
+
+    /* Modal */
+    /* Modal - Renamed to avoid conflicts */
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 50;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .modal-backdrop.active {
+        opacity: 1;
+    }
+
+    .custom-modal-panel {
+        background: var(--bg-modal);
+        width: 100%;
+        max-width: 550px;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        transform: scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .modal-backdrop.active .custom-modal-panel {
+        transform: scale(1);
+    }
+
+    .custom-modal-header {
+        padding: 25px 30px !important;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg-modal-header);
+        box-sizing: border-box;
+    }
+
+    .custom-modal-header h3 {
+        color: var(--text-main);
+    }
+
+    .custom-modal-header button {
+        color: var(--text-secondary);
+    }
+
+    .custom-modal-body {
+        padding: 30px !important;
+        box-sizing: border-box;
+    }
+
+    .custom-modal-footer {
+        padding: 20px 30px !important;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        background: var(--bg-modal-header);
+        box-sizing: border-box;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 15px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        font-family: inherit;
+        font-size: 0.95rem;
+        background: var(--bg-input);
+        color: var(--text-main);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-light);
+        outline: none;
+    }
+</style>
 
 <div class="dashboard-wrapper">
-    <div class="pro-header">
-        <div>
-            <h1><i class="fas fa-calendar-check" style="color: var(--primary);"></i> Booking Command</h1>
-            <p style="color: var(--secondary); margin: 5px 0 0;">Secure your next engagement and manage your active service pipeline.</p>
-        </div>
-        <div class="header-actions">
-            <div class="glass-panel" style="padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px;">
-                <div class="stat-item">
-                    <span style="font-size: 0.75rem; color: var(--secondary);">Active Bookings</span>
-                    <strong style="display: block; font-size: 1.1rem; color: var(--primary);">{{ $bookings->where('status', '!=', 'cancelled')->count() }}</strong>
-                </div>
-                <div style="width: 1px; height: 30px; background: var(--glass-border);"></div>
-                <div class="stat-item">
-                    <span style="font-size: 0.75rem; color: var(--secondary);">Total Spent</span>
-                    <strong style="display: block; font-size: 1.1rem; color: #10b981;">{{ number_format($bookings->where('status', 'completed')->sum(fn($b) => $b->service->price ?? 0)) }} RWF</strong>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="dashboard-container">
 
-    {{-- Appointment Archive --}}
-    <div style="margin-top: 3rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h3 style="margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark);">Your Appointment Archive</h3>
-            <div class="mega-search" style="max-width: 300px; flex: 1; background: var(--light);">
-                <i class="fas fa-search" style="color: var(--secondary);"></i>
-                <input type="text" id="bookingSearch" placeholder="Filter appointments..." class="search-input" style="background: transparent; border: none; padding: 10px;">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Booking Management</h1>
+                <p>Track your engagements and schedule new services.</p>
+            </div>
+
+        </div>
+
+        <!-- Single Stat (Active) -->
+        <div class="stats-single">
+            <div class="icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="info">
+                <h3>{{ $activeBookings }}</h3>
+                <p>Active Engagements</p>
             </div>
         </div>
 
-        <div class="glass-panel" style="padding: 0; overflow: hidden; border-radius: 24px;">
-            <table class="pro-table" style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: rgba(0,0,0,0.02); text-align: left;">
-                        <th style="padding: 20px 25px;">Service Manifest</th>
-                        <th style="padding: 20px 25px;">Operational Lead</th>
-                        <th style="padding: 20px 25px;">Scheduled Date</th>
-                        <th style="padding: 20px 25px;">Investment</th>
-                        <th style="padding: 20px 25px;">State</th>
-                        <th style="padding: 20px 25px; text-align: right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($bookings as $booking)
-                        <tr class="booking-row" style="border-top: 1px solid var(--glass-border); transition: 0.3s;">
-                            <td style="padding: 20px 25px;">
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--light); display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                                        <i class="fas fa-concierge-bell"></i>
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 700; color: var(--dark);">{{ $booking->title }}</div>
-                                        <div style="font-size: 0.75rem; color: var(--secondary);">#BKG-{{ str_pad($booking->id, 5, '0', STR_PAD_LEFT) }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="padding: 20px 25px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div class="user-avatar-placeholder" style="width: 30px; height: 30px; font-size: 12px;">{{ strtoupper(substr($booking->employee->name ?? 'E', 0, 1)) }}</div>
-                                    <span style="font-weight: 600; font-size: 0.9rem;">{{ $booking->employee->name ?? 'Unassigned' }}</span>
-                                </div>
-                            </td>
-                            <td style="padding: 20px 25px;">
-                                <div style="font-weight: 600; font-size: 0.9rem;"><i class="far fa-calendar-alt" style="color: var(--primary); margin-right: 5px;"></i> {{ Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}</div>
-                                <div style="font-size: 0.75rem; color: var(--secondary);">{{ Carbon\Carbon::parse($booking->booking_date)->format('h:i A') }}</div>
-                            </td>
-                            <td style="padding: 20px 25px; font-weight: 700; color: #10b981;">
-                                {{ number_format($booking->service->price ?? 0) }} RWF
-                            </td>
-                            <td style="padding: 20px 25px;">
-                                <span class="status-badge status-{{ $booking->status === 'completed' || $booking->status === 'confirmed' ? 'active' : ($booking->status === 'cancelled' ? 'cancelled' : 'pending') }}">
-                                    {{ ucfirst($booking->status) }}
-                                </span>
-                            </td>
-                            <td style="padding: 20px 25px; text-align: right;">
-                                <button class="icon-btn" onclick="viewBookingDetails({{ $booking->id }})" title="View Details"><i class="fas fa-eye"></i></button>
-                                @if($booking->status === 'pending')
-                                    <button class="icon-btn" onclick="cancelBooking({{ $booking->id }})" title="Cancel" style="color: #ef4444;"><i class="fas fa-times"></i></button>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" style="padding: 50px; text-align: center; color: var(--secondary);">
-                                <i class="fas fa-history" style="font-size: 3rem; opacity: 0.1; margin-bottom: 20px; display: block;"></i>
-                                <p>No previous arrangements detected in your archive.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div style="margin-top: 25px;">{{ $bookings->links() }}</div>
-    </div>
+        <div class="content-grid">
+            <!-- Left Column: Bookings List -->
+            <div class="section-card">
 
-    {{-- Service Procurement Catalog --}}
-    <div style="margin-top: 5rem; margin-bottom: 5rem;">
-        <div style="text-align: center; margin-bottom: 40px;">
-            <h2 style="font-size: 2rem; font-weight: 900; color: var(--dark);">Explore Service Solutions</h2>
-            <p style="color: var(--secondary); max-width: 600px; margin: 10px auto;">Browse our professional catalog and initialize a new service arrangement instantly.</p>
-        </div>
-
-        <div class="service-procurement-grid">
-            @forelse($services->where('is_published', 1) as $service)
-                <div class="catalog-card">
-                    <div class="catalog-visual">
-                        @if($service->image)
-                            <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}">
-                        @else
-                            <div class="fallback-visual"><i class="fas fa-rocket"></i></div>
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <div class="tabs">
+                        <a href="{{ route('customer.bookings.index') }}"
+                            class="tab-link {{ !request('status') || request('status') == 'all' ? 'active' : '' }}">All</a>
+                        <a href="{{ route('customer.bookings.index', ['status' => 'pending']) }}"
+                            class="tab-link {{ request('status') == 'pending' ? 'active' : '' }}">Pending</a>
+                        <a href="{{ route('customer.bookings.index', ['status' => 'confirmed']) }}"
+                            class="tab-link {{ request('status') == 'confirmed' ? 'active' : '' }}">Confirmed</a>
+                        <a href="{{ route('customer.bookings.index', ['status' => 'completed']) }}"
+                            class="tab-link {{ request('status') == 'completed' ? 'active' : '' }}">Completed</a>
+                    </div>
+                    <form action="{{ route('customer.bookings.index') }}" method="GET" class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" placeholder="Search bookings..."
+                            value="{{ request('search') }}">
+                        @if(request('status')) <input type="hidden" name="status" value="{{ request('status') }}">
                         @endif
-                        <div class="catalog-price-tag">{{ number_format($service->price) }} RWF</div>
-                    </div>
-                    <div class="catalog-info">
-                        <h3>{{ $service->name }}</h3>
-                        <p>{{ Str::limit($service->description, 80) }}</p>
-                        <div class="catalog-meta">
-                            <span><i class="far fa-clock"></i> {{ $service->duration ?? '60' }} min</span>
-                            <span><i class="fas fa-user-tie"></i> {{ $service->employee->name ?? 'Expert' }}</span>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Service & Date</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($bookings as $booking)
+                                <tr>
+                                    <td style="font-weight: 700; color: var(--text-secondary); text-align: center;">
+                                        {{ $bookings->firstItem() + $loop->index }}
+                                    </td>
+                                    <td>
+                                        <div class="service-info">
+                                            <div class="service-icon">
+                                                @if($booking->service && $booking->service->image)
+                                                    <img src="{{ asset('storage/' . $booking->service->image) }}">
+                                                @else
+                                                    <i class="fas fa-briefcase"></i>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 700; color: var(--text-main);">{{ $booking->title }}
+
+                                                </div>
+                                                <div style="font-size: 0.85rem; color: var(--secondary); margin-top: 4px;">
+                                                    <i class="far fa-calendar" style="font-size: 0.75rem;"></i>
+                                                    {{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-{{ $booking->status }}">{{ ucfirst($booking->status) }}</span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <button class="btn-icon" onclick="viewBooking({{ $booking->id }})"
+                                            title="View Details"><i class="far fa-eye"></i></button>
+                                        @if($booking->status === 'pending')
+                                            <button class="btn-icon"
+                                                onclick="editBooking({{ $booking->id }}, '{{ addslashes($booking->title) }}', '{{ $booking->booking_date->format('Y-m-d') }}', '{{ addslashes($booking->description ?? '') }}', {{ $booking->service_id }})"
+                                                title="Reschedule"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-icon" onclick="cancelBooking({{ $booking->id }})" title="Cancel"
+                                                style="color: var(--danger);"><i class="far fa-trash-alt"></i></button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 40px;">
+                                        <div style="color: var(--text-secondary); font-style: italic;">No bookings found. Try
+                                            adjusting your filters.</div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 20px;">
+                    {{ $bookings->appends(request()->query())->links() }}
+                </div>
+            </div>
+
+            <!-- Right Column: Service Catalog -->
+            <div class="section-card" id="catalog-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <div style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">Service Catalog</div>
+                    <span
+                        style="font-size: 0.75rem; color: var(--secondary); background: var(--light); padding: 4px 10px; border-radius: 10px;">{{ $services->count() }}
+                        Available</span>
+                </div>
+
+                <div class="catalog-list">
+                    @foreach($services as $service)
+                        <div class="catalog-item"
+                            onclick="initiateBooking({{ $service->id }}, '{{ addslashes($service->name) }}', {{ $service->price ?? 0 }})">
+                            <img src="{{ $service->image ? asset('storage/' . $service->image) : 'https://via.placeholder.com/60?text=S' }}"
+                                class="catalog-img">
+                            <div class="catalog-details">
+                                <h4 style="margin: 0 0 5px; font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
+                                    {{ $service->name }}</h4>
+                                <div class="catalog-price">{{ number_format($service->price) }} RWF</div>
+                            </div>
+                            <div class="book-btn-mini"><i class="fas fa-arrow-right"></i></div>
                         </div>
-                        <button class="procure-btn" onclick="initiateProcurement({{ $service->id }}, '{{ addslashes($service->name) }}')">
-                            Initialize Booking <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
+                    @endforeach
                 </div>
-            @empty
-                <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
-                    <p style="color: var(--secondary);">Operational catalog is currently under maintenance.</p>
-                </div>
-            @endforelse
+            </div>
         </div>
+
     </div>
 </div>
 
-{{-- Procurement Modal --}}
-<div id="bookingModal" class="modal-overlay">
-    <div class="pro-modal" style="max-width: 500px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 50px 100px -20px rgba(0,0,0,0.3);">
-        <div class="modal-header" style="padding: 25px 30px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="width: 45px; height: 45px; border-radius: 12px; background: rgba(99, 102, 241, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                    <i class="fas fa-calendar-plus"></i>
-                </div>
-                <div>
-                    <h3 style="margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--dark);">Initialize Arrangement</h3>
-                    <p style="margin: 0; font-size: 0.8rem; color: var(--secondary); font-weight: 500;">Secure your preferred mission window</p>
-                </div>
-            </div>
-            <button class="close-modal" onclick="closeBookingModal()" style="font-size: 1.2rem; background: none; border: none; color: var(--secondary); cursor: pointer;">&times;</button>
+<!-- Booking Modal (Create) -->
+<div id="bookingModal" class="modal-backdrop">
+    <div class="custom-modal-panel">
+        <div class="custom-modal-header">
+            <h3 style="margin: 0; font-size: 1.25rem;">New Booking</h3>
+            <button onclick="closeModal('bookingModal')"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
         </div>
-        
-        <form id="procurementForm" action="{{ route('customer.bookings.store') }}" method="POST">
+        <form action="{{ route('customer.bookings.store') }}" method="POST" id="bookingForm">
             @csrf
-            <input type="hidden" name="service_id" id="modalServiceId">
-            <div class="modal-body" style="padding: 30px;">
-                {{-- Service Brief --}}
-                <div style="background: var(--light); padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border); margin-bottom: 30px;">
-                    <label style="display: block; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: var(--secondary); letter-spacing: 1px; margin-bottom: 8px;">Target Service</label>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-shield-alt" style="color: var(--primary); opacity: 0.5;"></i>
-                        <h4 id="modalServiceName" style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--dark);">Networking</h4>
-                    </div>
-                </div>
-                
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--secondary); margin-bottom: 12px;">Deployment Date</label>
-                    <div style="position: relative;">
-                        <i class="far fa-calendar" style="position: absolute; left: 15px; top: 16px; color: var(--secondary); opacity: 0.6;"></i>
-                        <input type="date" name="booking_date" class="pro-input" required min="{{ date('Y-m-d') }}" style="width: 100%; padding-left: 45px;">
+            <input type="hidden" name="service_id" id="service_id_input">
+            <div class="custom-modal-body">
+                <div
+                    style="background: var(--primary-light); padding: 15px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span
+                            style="display: block; font-size: 0.75rem; color: var(--secondary); font-weight: 700; text-transform: uppercase;">Service</span>
+                        <strong id="service_name_display" style="color: var(--primary); font-size: 1.1rem;">Service
+                            Name</strong>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--secondary); margin-bottom: 12px;">Tactical Considerations & Requirements</label>
-                    <textarea name="description" class="pro-input" style="width: 100%; height: 120px; resize: none; line-height: 1.6;" placeholder="Describe any specific parameters for this arrangement..."></textarea>
+                    <label class="form-label">Target Execution Date</label>
+                    <input type="date" name="booking_date" class="form-control" required min="{{ date('Y-m-d') }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Operational Context & Requirements</label>
+                    <textarea name="description" class="form-control"
+                        placeholder="Describe the mission requirements..."></textarea>
                 </div>
             </div>
-            
-            <div class="modal-footer" style="padding: 20px 30px; background: var(--light); display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid var(--glass-border);">
-                <button type="button" class="btn-cancel" onclick="closeBookingModal()" style="padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; color: var(--secondary); background: transparent; border: none; cursor: pointer;">Cancel Orientation</button>
-                <button type="submit" class="action-btn btn-primary" style="width: auto; padding: 0 30px; border-radius: 14px; height: 50px; font-weight: 800; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);">
-                    Authorize Mission <i class="fas fa-check-circle"></i>
-                </button>
+            <div class="custom-modal-footer">
+                <button type="button" class="btn" style="background: var(--light); color: var(--secondary);"
+                    onclick="closeModal('bookingModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Confirm Booking</button>
             </div>
         </form>
     </div>
 </div>
 
-<style>
-    .service-procurement-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
-    .catalog-card { background: var(--white); border-radius: 28px; overflow: hidden; border: 1px solid var(--glass-border); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .catalog-card:hover { transform: translateY(-12px); box-shadow: 0 40px 80px -20px rgba(0,0,0,0.15); border-color: var(--primary); }
-    
-    .catalog-visual { height: 180px; position: relative; overflow: hidden; }
-    .catalog-visual img { width: 100%; height: 100%; object-fit: cover; }
-    .fallback-visual { width: 100%; height: 100%; background: var(--light); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--primary); opacity: 0.4; }
-    .catalog-price-tag { position: absolute; bottom: 15px; right: 15px; background: rgba(16, 185, 129, 0.9); color: white; padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 0.85rem; backdrop-filter: blur(4px); }
-    
-    .catalog-info { padding: 25px; }
-    .catalog-info h3 { margin: 0 0 10px; font-size: 1.2rem; font-weight: 800; color: var(--dark); }
-    .catalog-info p { font-size: 0.9rem; color: var(--secondary); line-height: 1.6; margin-bottom: 20px; }
-    
-    .catalog-meta { display: flex; gap: 15px; margin-bottom: 20px; border-top: 1px solid rgba(0,0,0,0.03); padding-top: 15px; }
-    .catalog-meta span { font-size: 0.75rem; color: var(--secondary); font-weight: 600; display: flex; align-items: center; gap: 5px; }
-    
-    .procure-btn { width: 100%; background: var(--light); border: 1px solid var(--glass-border); color: var(--primary); padding: 12px; border-radius: 14px; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .procure-btn:hover { background: var(--primary); color: white; transform: scale(1.02); }
+<!-- Edit Booking Modal -->
+<div id="editModal" class="modal-backdrop">
+    <div class="custom-modal-panel">
+        <div class="custom-modal-header">
+            <h3 style="margin: 0; font-size: 1.25rem;">Modify Engagement Parameters</h3>
+            <button onclick="closeModal('editModal')"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+        <form id="editForm" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="service_id" id="edit_service_id">
+            <input type="hidden" name="status" value="pending">
 
-    .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
-    .status-active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-    .status-pending { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
-    .status-cancelled { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+            <div class="custom-modal-body">
+                <div style="margin-bottom: 20px;">
+                    <h4 id="edit_title_display" style="margin: 0 0 5px; color: var(--primary);">Service Title</h4>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--secondary);">You are modifying an existing
+                        request.</p>
+                </div>
 
-    .icon-btn { border: none; background: transparent; color: var(--secondary); font-size: 1rem; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 8px; }
-    .icon-btn:hover { background: var(--light); color: var(--primary); }
+                <div class="form-group">
+                    <label class="form-label">Reschedule Execution</label>
+                    <input type="date" name="booking_date" id="edit_booking_date" class="form-control" required
+                        min="{{ date('Y-m-d') }}">
+                </div>
 
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); z-index: 10001; align-items: center; justify-content: center; }
-    .pro-modal { background: var(--white); width: 95%; border-radius: 30px; overflow: hidden; animation: modalIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-    @keyframes modalIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                <div class="form-group">
+                    <label class="form-label">Update Notes</label>
+                    <textarea name="description" id="edit_description" class="form-control"
+                        placeholder="Update your requirements..."></textarea>
+                </div>
+            </div>
+            <div class="custom-modal-footer">
+                <button type="button" class="btn" style="background: var(--light); color: var(--secondary);"
+                    onclick="closeModal('editModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-    .pro-input { background: var(--light); border: 1px solid var(--glass-border); padding: 12px 15px; border-radius: 12px; font-family: inherit; font-weight: 500; outline: none; transition: 0.3s; }
-    .pro-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-</style>
+<!-- View Modal -->
+<div id="viewModal" class="modal-backdrop">
+    <div class="custom-modal-panel">
+        <div class="custom-modal-header">
+            <h3 style="margin: 0; font-size: 1.25rem;">Engagement Intelligence</h3>
+            <button onclick="closeModal('viewModal')"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+        <div class="custom-modal-body">
+            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <label
+                    style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; margin-bottom: 5px; display: block;">Operation
+                    Title</label>
+                <h2 id="view_title" style="margin: 0 0 10px; font-size: 1.3rem; color: var(--text-main);">Service Title</h2>
+                <div style="display: flex; gap: 10px;">
+                    <span id="view_status" class="badge">Status</span>
+                    <span id="view_price"
+                        style="background: #ecfdf5; color: #10b981; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem;">Price</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label
+                        style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase;">Execution
+                        Time</label>
+                    <div id="view_date" style="font-weight: 600; font-size: 1rem; color: var(--text-main); margin-top: 4px;">
+                        -</div>
+                </div>
+                <div>
+                    <label
+                        style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase;">Assigned
+                        Specialist</label>
+                    <div id="view_employee"
+                        style="font-weight: 600; font-size: 1rem; color: var(--text-main); margin-top: 4px;">-</div>
+                </div>
+                <div style="grid-column: 1/-1;">
+                    <label
+                        style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase;">Operational
+                        Context</label>
+                    <div id="view_description"
+                        style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; margin-top: 5px; font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary);">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="custom-modal-footer">
+            <button type="button" class="btn" onclick="closeModal('viewModal')"
+                style="background: var(--light); color: var(--dark);">Close</button>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function initiateProcurement(id, name) {
-        document.getElementById('modalServiceId').value = id;
-        document.getElementById('modalServiceName').textContent = name;
-        document.getElementById('bookingModal').style.display = 'flex';
-    }
+    // AJAX Navigation & Actions
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableContainer = document.querySelector('.table-responsive');
+        const paginationContainer = document.querySelector('.table-responsive + div');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '{{ csrf_token() }}';
 
-    function closeBookingModal() {
-        document.getElementById('bookingModal').style.display = 'none';
-    }
+        // --- 1. Handling Filters & Search (GET HTML) ---
+        function fetchBookings(url) {
+            tableContainer.style.opacity = '0.5';
 
-    async function viewBookingDetails(id) {
-        // Since we don't have a specific show endpoint for AJAX view, we can use the same detail modal pattern
-        // or just show a SweetAlert for simplicity in this version.
-        Swal.fire({
-            title: 'Technical Intelligence',
-            text: 'System is retrieving arrangement logistics. Please stand by...',
-            icon: 'info',
-            timer: 2000,
-            showConfirmButton: false
-        });
-    }
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
 
-    async function cancelBooking(id) {
-        const result = await Swal.fire({
-            title: 'Terminate Arrangement?',
-            text: "Are you sure you want to cancel this booking? This action is registered in the operational log.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            confirmButtonText: 'Yes, Terminate!'
-        });
+                    // Update Table
+                    const newTable = doc.querySelector('.table-responsive') ? doc.querySelector('.table-responsive').innerHTML : '';
+                    if (newTable) tableContainer.innerHTML = newTable;
 
-        if (result.isConfirmed) {
-            try {
-                const response = await fetch(`/customer/bookings/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
+                    // Update Pagination
+                    const newPagination = doc.querySelector('.table-responsive + div') ? doc.querySelector('.table-responsive + div').innerHTML : '';
+                    if (paginationContainer && newPagination) {
+                        paginationContainer.innerHTML = newPagination;
                     }
+
+                    // Update History State
+                    window.history.pushState({}, '', url);
+                    tableContainer.style.opacity = '1';
+                })
+                .catch(err => {
+                    console.error('Error loading bookings:', err);
+                    tableContainer.style.opacity = '1';
                 });
-                const res = await response.json();
-                if (res.success || response.ok) {
-                    Swal.fire('Terminated!', 'Arrangement has been successfully cancelled.', 'success').then(() => location.reload());
-                }
-            } catch (e) {
-                // If it's a redirect or non-ajax route, we might need a standard form submission or just reload
-                location.reload();
+        }
+
+        // Intercept Filter Tabs
+        document.body.addEventListener('click', function (e) {
+            if (e.target.classList.contains('tab-link')) {
+                e.preventDefault();
+                document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                e.target.classList.add('active');
+                fetchBookings(e.target.href);
+            }
+            // Intercept Pagination
+            if (e.target.closest('.pagination a')) {
+                e.preventDefault();
+                const link = e.target.closest('a');
+                fetchBookings(link.href);
+            }
+        });
+
+        // Intercept Search Form
+        const searchForm = document.querySelector('.search-box');
+        if (searchForm) {
+            searchForm.addEventListener('submit', (e) => { e.preventDefault(); });
+
+            let searchTimeout;
+            const searchInput = searchForm.querySelector('input');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function (e) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        const url = new URL(searchForm.action);
+                        url.searchParams.set('search', this.value);
+                        const status = document.querySelector('.tab-link.active');
+                        if (status) {
+                            const statusVal = new URL(status.href).searchParams.get('status');
+                            if (statusVal && statusVal !== 'all') url.searchParams.set('status', statusVal);
+                        }
+                        fetchBookings(url.toString());
+                    }, 500);
+                });
             }
         }
-    }
 
-    document.getElementById('bookingSearch').addEventListener('keyup', function() {
-        let filter = this.value.toLowerCase();
-        let rows = document.querySelectorAll('.booking-row');
-        rows.forEach(row => {
-            let text = row.innerText.toLowerCase();
-            row.style.display = text.includes(filter) ? '' : 'none';
-        });
+        // --- 2. Handling Forms (POST/PUT/DELETE JSON) ---
+        async function submitForm(form, modalId) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: formData
+                });
+
+                const res = await response.json();
+
+                if (res.success || response.ok) {
+                    closeModal(modalId);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.message || 'Operation completed.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    fetchBookings(window.location.href);
+                    form.reset();
+                } else {
+                    Swal.fire('Error', res.message || 'Validation error', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'Communication failed.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        const bookingForm = document.getElementById('bookingForm');
+        if (bookingForm) {
+            bookingForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                submitForm(this, 'bookingModal');
+            });
+        }
+
+        const editForm = document.getElementById('editForm');
+        if (editForm) {
+            editForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                submitForm(this, 'editModal');
+            });
+        }
+
+        // Expose function for canceling
+        window.cancelBooking = async function (id) {
+            const result = await Swal.fire({
+                title: 'Cancel Engagement?',
+                text: "Are you sure you want to cancel this booking?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Yes, Cancel'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/customer/bookings/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Cancelled',
+                            text: 'Booking has been cancelled.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Smooth refresh
+                        fetchBookings(window.location.href);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    Swal.fire('Error', 'Failed to cancel.', 'error');
+                }
+            }
+        };
+
     });
 
-    document.getElementById('procurementForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const submitBtn = this.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing...';
+    // Existing functions (Modified to not reload)
+    function scrollToCatalog() {
+        document.getElementById('catalog-section').scrollIntoView({ behavior: 'smooth' });
+    }
 
+    function openModal(id) {
+        let modal = document.getElementById(id);
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+
+    function closeModal(id) {
+        let modal = document.getElementById(id);
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    function initiateBooking(id, name, price) {
+        document.getElementById('service_id_input').value = id;
+        document.getElementById('service_name_display').textContent = name;
+        openModal('bookingModal');
+    }
+
+    function editBooking(id, title, date, desc, serviceId) {
+        document.getElementById('edit_service_id').value = serviceId;
+        document.getElementById('edit_title_display').textContent = title;
+        document.getElementById('edit_booking_date').value = date;
+        document.getElementById('edit_description').value = desc;
+        document.getElementById('editForm').action = `/customer/bookings/${id}`;
+        openModal('editModal');
+    }
+
+    async function viewBooking(id) {
         try {
-            const response = await fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: formData
-            });
-            const res = await response.json();
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Arrangement Secured',
-                    text: res.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => location.reload());
-            } else {
-                Swal.fire('Failed', res.message || 'Validation error', 'error');
+            const response = await fetch(`/customer/bookings/${id}`);
+            const data = await response.json();
+            if (data.success) {
+                const b = data.booking;
+                document.getElementById('view_title').textContent = b.title;
+                document.getElementById('view_date').textContent = new Date(b.booking_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('view_status').textContent = b.status.toUpperCase();
+                document.getElementById('view_status').className = `badge badge-${b.status}`;
+                document.getElementById('view_description').textContent = b.description || 'No additional notes provided.';
+                document.getElementById('view_employee').textContent = b.employee ? b.employee.name : 'Pending Assignment';
+                document.getElementById('view_price').textContent = b.service ? new Intl.NumberFormat().format(b.service.price) + ' RWF' : 'N/A';
+                openModal('viewModal');
             }
         } catch (e) {
-            Swal.fire('Error', 'Communication with the command center failed.', 'error');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Confirm Booking';
+            Swal.fire('Error', 'Unable to fetch booking details.', 'error');
         }
-    };
+    }
 
-    window.onclick = (e) => {
-        if (e.target === document.getElementById('bookingModal')) closeBookingModal();
+    // Outside click
+    window.onclick = function (event) {
+        if (event.target.classList.contains('modal-backdrop')) {
+            closeModal(event.target.id);
+        }
     }
 </script>
-

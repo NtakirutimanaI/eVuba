@@ -19,7 +19,7 @@ class CustomerSupportController extends Controller
         $categories = SupportCategory::all();
 
         // Load tickets for the logged-in customer
-        $tickets = Ticket::where('customer_id', Auth::guard('customer')->id())
+        $tickets = Ticket::where('customer_id', Auth::id())
             ->with(['category', 'replies', 'logs'])
             ->orderBy('id', 'DESC')
             ->get();
@@ -33,32 +33,43 @@ class CustomerSupportController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ticket_no'   => 'required|string|max:50',
-            'name'        => 'required|string|max:255',
-            'email'       => 'required|email',
+            'ticket_no' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
             'category_id' => 'required|integer',
-            'subject'     => 'required|string|max:255',
+            'subject' => 'required|string|max:255',
             'description' => 'required|string',
-            'attachment'  => 'nullable|file|max:2048',
+            'attachment' => 'nullable|file|max:10240', // 10MB limit
         ]);
 
         // Handle file upload
         $fileName = null;
         if ($request->hasFile('attachment')) {
-            $fileName = time().'_'.uniqid().'.'.$request->attachment->extension();
+            $fileName = time() . '_' . uniqid() . '.' . $request->attachment->extension();
             $request->attachment->move(public_path('tickets'), $fileName);
         }
 
         Ticket::create([
-            'ticket_no'   => $request->ticket_no,
-            'customer_id' => Auth::guard('customer')->id(),
+            'ticket_no' => $request->ticket_no,
+            'customer_id' => Auth::id(),
             'category_id' => $request->category_id,
-            'subject'     => $request->subject,
+            'subject' => $request->subject,
             'description' => $request->description,
-            'attachment'  => $fileName,
-            'status'      => 'open',
+            'attachment' => $fileName,
+            'status' => 'open',
         ]);
 
+        // Notify user
+        Auth::user()->notify(new \App\Notifications\SystemAlert([
+            'title' => 'Resolution Protocol Initialized',
+            'message' => "Support request #{$request->ticket_no} has been logged via the operations center.",
+            'icon' => 'fa-headset',
+            'action_url' => route('customer.support.index')
+        ]));
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Your ticket has been submitted successfully.']);
+        }
         return back()->with('success', 'Your ticket has been submitted successfully.');
     }
 
@@ -67,7 +78,7 @@ class CustomerSupportController extends Controller
      */
     public function edit($id)
     {
-        $ticket = Ticket::where('customer_id', Auth::guard('customer')->id())
+        $ticket = Ticket::where('customer_id', Auth::id())
             ->with('category')
             ->findOrFail($id);
 
@@ -81,29 +92,29 @@ class CustomerSupportController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $ticket = Ticket::where('customer_id', Auth::guard('customer')->id())->findOrFail($id);
+        $ticket = Ticket::where('customer_id', Auth::id())->findOrFail($id);
 
         $request->validate([
             'category_id' => 'required|integer',
-            'subject'     => 'required|string|max:255',
+            'subject' => 'required|string|max:255',
             'description' => 'required|string',
-            'attachment'  => 'nullable|file|max:2048',
+            'attachment' => 'nullable|file|max:2048',
         ]);
 
         // Handle file upload
         if ($request->hasFile('attachment')) {
             // Delete old file if exists
-            if ($ticket->attachment && file_exists(public_path('tickets/'.$ticket->attachment))) {
-                unlink(public_path('tickets/'.$ticket->attachment));
+            if ($ticket->attachment && file_exists(public_path('tickets/' . $ticket->attachment))) {
+                unlink(public_path('tickets/' . $ticket->attachment));
             }
-            $fileName = time().'_'.uniqid().'.'.$request->attachment->extension();
+            $fileName = time() . '_' . uniqid() . '.' . $request->attachment->extension();
             $request->attachment->move(public_path('tickets'), $fileName);
             $ticket->attachment = $fileName;
         }
 
         $ticket->update([
             'category_id' => $request->category_id,
-            'subject'     => $request->subject,
+            'subject' => $request->subject,
             'description' => $request->description,
         ]);
 
@@ -115,14 +126,17 @@ class CustomerSupportController extends Controller
      */
     public function destroy($id)
     {
-        $ticket = Ticket::where('customer_id', Auth::guard('customer')->id())->findOrFail($id);
+        $ticket = Ticket::where('customer_id', Auth::id())->findOrFail($id);
 
-        // Delete attachment file if exists
-        if ($ticket->attachment && file_exists(public_path('tickets/'.$ticket->attachment))) {
-            unlink(public_path('tickets/'.$ticket->attachment));
+        if ($ticket->attachment && file_exists(public_path('tickets/' . $ticket->attachment))) {
+            unlink(public_path('tickets/' . $ticket->attachment));
         }
 
         $ticket->delete();
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Ticket deleted successfully.']);
+        }
 
         return back()->with('success', 'Ticket deleted successfully.');
     }
@@ -135,26 +149,26 @@ class CustomerSupportController extends Controller
         $ticket = Ticket::with(['category', 'replies', 'logs'])->findOrFail($id);
 
         return response()->json([
-            'id'          => $ticket->id,
-            'ticket_no'   => $ticket->ticket_no,
-            'subject'     => $ticket->subject,
+            'id' => $ticket->id,
+            'ticket_no' => $ticket->ticket_no,
+            'subject' => $ticket->subject,
             'description' => $ticket->description,
-            'status'      => ucfirst($ticket->status),
-            'attachment'  => $ticket->attachment ? url('tickets/'.$ticket->attachment) : null,
-            'category'    => $ticket->category,
+            'status' => ucfirst($ticket->status),
+            'attachment' => $ticket->attachment ? url('tickets/' . $ticket->attachment) : null,
+            'category' => $ticket->category,
             'assigned_to' => $ticket->assignedUser ? $ticket->assignedUser->name : null,
-            'replies'     => $ticket->replies->map(function($r){
+            'replies' => $ticket->replies->map(function ($r) {
                 return [
-                    'id'         => $r->id,
-                    'message'    => $r->message,
-                    'is_staff_reply'  => $r->is_staff_reply,
-                    'attachment' => $r->attachment ? url('tickets/'.$r->attachment) : null,
+                    'id' => $r->id,
+                    'message' => $r->message,
+                    'is_staff_reply' => $r->is_staff_reply,
+                    'attachment' => $r->attachment ? url('tickets/' . $r->attachment) : null,
                     'created_at' => $r->created_at,
                 ];
             }),
-            'logs'        => $ticket->logs->map(function($l){
+            'logs' => $ticket->logs->map(function ($l) {
                 return [
-                    'id'         => $l->id,
+                    'id' => $l->id,
                     'old_status' => $l->old_status,
                     'new_status' => $l->new_status,
                     'changed_by' => $l->changed_by,
@@ -178,22 +192,22 @@ class CustomerSupportController extends Controller
 
         $fileName = null;
         if ($request->hasFile('attachment')) {
-            $fileName = time().'_reply_'.uniqid().'.'.$request->attachment->extension();
+            $fileName = time() . '_reply_' . uniqid() . '.' . $request->attachment->extension();
             $request->attachment->move(public_path('tickets'), $fileName);
         }
 
         $reply = $ticket->replies()->create([
-            'message'        => $request->message,
+            'message' => $request->message,
             'is_staff_reply' => false,
-            'user_id'        => Auth::guard('customer')->id(),
-            'attachment'     => $fileName,
+            'user_id' => Auth::id(),
+            'attachment' => $fileName,
         ]);
 
         return response()->json([
-            'id'         => $reply->id,
-            'message'    => $reply->message,
-            'is_staff_reply'  => $reply->is_staff_reply,
-            'attachment' => $reply->attachment ? url('tickets/'.$reply->attachment) : null,
+            'id' => $reply->id,
+            'message' => $reply->message,
+            'is_staff_reply' => $reply->is_staff_reply,
+            'attachment' => $reply->attachment ? url('tickets/' . $reply->attachment) : null,
             'created_at' => $reply->created_at,
         ]);
     }

@@ -1,333 +1,375 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<div class="container">
-  <!-- LEFT SIDE -->
-  <div class="left">
-    <div class="overlay"></div>
-    <div class="left-content-wrapper">
-      <div class="left-title">
-        <h1>E-VUBA <span class="arrow">CONNECT</span></h1>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - eVuba Connect</title>
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #334155;
+    }
+
+    .login-main-wrapper {
+      width: 1000px;
+      height: 700px;
+      /* Slightly taller for reg form */
+      background: #ffffff;
+      border-radius: 24px;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* LEFT SIDE - BLUE PANEL */
+    .left-panel {
+      flex: 1;
+      background: linear-gradient(135deg, #090e24, #1e3a8a, #1d4ed8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 50px;
+      position: relative;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+    }
+
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 40px;
+      width: fit-content;
+      text-transform: uppercase;
+    }
+
+    .panel-heading {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .panel-heading span {
+      color: #93c5fd;
+    }
+
+    .panel-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 60px;
+    }
+
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #ffffff;
+      color: #1e3a8a;
+      font-weight: 700;
+      border-radius: 8px;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .step-content h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    /* RIGHT SIDE - FORM */
+    .right-panel {
+      flex: 1.1;
+      padding: 40px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #ffffff;
+      overflow-y: auto;
+    }
+
+    .form-header {
+      margin-bottom: 24px;
+    }
+
+    .form-header h2 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .form-header p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      color: #1e293b;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: #0f172a;
+      /* Dark Navy for contrast */
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: none;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-link a {
+      color: #64748b;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .back-link a:hover {
+      color: #0f172a;
+    }
+
+    @media (max-width: 900px) {
+      .login-main-wrapper {
+        flex-direction: column;
+        width: 95%;
+        height: auto;
+      }
+
+      .left-panel {
+        padding: 40px 30px;
+      }
+
+      .right-panel {
+        padding: 40px 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-main-wrapper">
+
+    <!-- LEFT: INFO PANEL -->
+    <div class="left-panel">
+      <div class="brand-pill">
+        eVuba Connect
       </div>
-      <div class="left-features">
-        <p>Partner with us</p>
-        <p>&</p>
-        <p>Transform Your Business</p>
+
+      <h1 class="panel-heading">
+        Partner with us<br><span>& Transform</span>
+      </h1>
+
+      <p class="panel-text">
+        Your reliable IT infrastructure starts here.
+      </p>
+
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <h4>Create Account</h4>
+            <p>Fill in your details to join eVuba Connect.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <h4>Verify Email</h4>
+            <p>Secure your account with a quick verification.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <h4>Start Exploring</h4>
+            <p>Access our cloud, software, and hardware services.</p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- RIGHT SIDE: REGISTER FORM -->
-  <div class="right">
-    <div class="signup-form" style="display:block;">
-      <h2>Create Account</h2>
-      <p>Sign up to get started.</p>
+    <!-- RIGHT: REGISTER FORM -->
+    <div class="right-panel">
+      <div class="form-header">
+        <h2>Create Account</h2>
+        <p>Sign up to get started.</p>
+      </div>
 
       <form method="POST" action="{{ route('auth.register.submit') }}">
         @csrf
 
+        <!-- Name -->
         <div class="input-group">
-          <label for="name">Name</label>
-          <input id="name" type="text" name="name" value="{{ old('name') }}" required placeholder="Full name">
+          <label for="name">Full Name</label>
+          <input id="name" type="text" name="name" class="input-field" value="{{ old('name') }}" required
+            placeholder="Faustin Ndayishimiye">
           @error('name')
-            <div style="color:red;font-size:12px;">{{ $message }}</div>
+            <div style="color:#dc2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
           @enderror
         </div>
 
+        <!-- Email -->
         <div class="input-group">
-          <label for="email">Email</label>
-          <input id="email" type="email" name="email" value="{{ old('email') }}" required placeholder="Email address">
+          <label for="email">Email Address</label>
+          <input id="email" type="email" name="email" class="input-field" value="{{ old('email') }}" required
+            placeholder="name@company.com">
           @error('email')
-            <div style="color:red;font-size:12px;">{{ $message }}</div>
+            <div style="color:#dc2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
           @enderror
         </div>
 
+        <!-- Password -->
         <div class="input-group" x-data="{ show: false }">
           <label for="password">Password</label>
-          <div style="position: relative;">
-            <input id="password" :type="show ? 'text' : 'password'" name="password" required
-              placeholder="Create password" style="padding-right: 40px;">
-            <button type="button" @click="show = !show" class="toggle-btn">
+          <div style="position:relative;">
+            <input id="password" :type="show ? 'text' : 'password'" name="password" class="input-field" required
+              placeholder="Create a password">
+            <button type="button" @click="show = !show" class="toggle-password">
               <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
           @error('password')
-            <div style="color:red;font-size:12px;">{{ $message }}</div>
+            <div style="color:#dc2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
           @enderror
         </div>
 
+        <!-- Confirm Password -->
         <div class="input-group" x-data="{ show: false }">
           <label for="password_confirmation">Confirm Password</label>
-          <div style="position: relative;">
-            <input id="password_confirmation" :type="show ? 'text' : 'password'" name="password_confirmation" required
-              placeholder="Confirm password" style="padding-right: 40px;">
-            <button type="button" @click="show = !show" class="toggle-btn">
+          <div style="position:relative;">
+            <input id="password_confirmation" :type="show ? 'text' : 'password'" name="password_confirmation"
+              class="input-field" required placeholder="Confirm your password">
+            <button type="button" @click="show = !show" class="toggle-password">
               <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
         </div>
 
-        <button type="submit">Create Account</button>
+        <button type="submit" class="btn-submit">Sign Up</button>
       </form>
 
-      <div class="divider">Or, Sign up with</div>
-
-      <a href="{{ route('google.redirect') }}" class="google">
-        <img src="{{ asset('images/google.png') }}" alt="Google logo" style="height:16px; margin-right:6px;">
-        Sign up with Google
-      </a>
-
-      <div class="toggle">
-        Already have an account? <a href="{{ route('auth.login') }}">Login here</a>
+      <div style="text-align:center; margin-top:20px; font-size:14px; color:#64748b;">
+        Already have an account? <a href="{{ route('auth.login') }}"
+          style="color:#2563eb; font-weight:600; text-decoration:none;">Login</a>
       </div>
 
-      <div class="back-btn">
-        <a href="{{ url('/') }}">← Back to Website</a>
+      <div class="back-link">
+        <a href="{{ url('/') }}">← Back to Home</a>
       </div>
     </div>
   </div>
-</div>
 
-<style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-  }
+</body>
 
-  body {
-    background: #f2f2f2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-  .container {
-    width: 900px;
-    height: 600px;
-    background: #fff;
-    border-radius: 18px;
-    display: flex;
-    overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-  }
-
-  /* LEFT SIDE STYLES */
-  .left {
-    flex: 1;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
-    flex-direction: column;
-    text-align: center;
-    color: #fff;
-    background: linear-gradient(180deg, rgba(22, 62, 170, 0.85), rgba(1, 19, 49, 0.85));
-  }
-
-  .overlay {
-    display: none;
-  }
-
-  .left-content-wrapper {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    width: 100%;
-    max-width: 300px;
-    text-align: center;
-  }
-
-  .left-title h1 {
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.3;
-    margin: 6px 0;
-  }
-
-  .left-features p {
-    font-size: 15px;
-    margin: 6px 0;
-  }
-
-  .arrow {
-    font-weight: bold;
-    margin-left: 8px;
-    color: #0A1128;
-    background: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  /* RIGHT SIDE FORM STYLES */
-  .right {
-    flex: 1;
-    padding: 50px 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .right h2 {
-    font-size: 26px;
-    margin-bottom: 6px;
-    font-weight: 700;
-  }
-
-  .right p {
-    color: #666;
-    margin-bottom: 20px;
-    font-size: 14px;
-  }
-
-  .input-group {
-    margin-bottom: 16px;
-  }
-
-  .input-group label {
-    display: block;
-    font-size: 12px;
-    margin-bottom: 4px;
-  }
-
-  .input-group input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-  }
-
-  button {
-    width: 100%;
-    padding: 14px;
-    border-radius: 30px;
-    border: none;
-    background: #111;
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-    margin-bottom: 12px;
-    transition: 0.3s;
-  }
-
-  button:hover {
-    background: #333;
-  }
-
-  .google {
-    background: #fff;
-    border: 1px solid #ddd;
-    color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    padding: 12px;
-    border-radius: 25px;
-    margin-bottom: 12px;
-  }
-
-  .divider {
-    text-align: center;
-    font-size: 12px;
-    margin: 10px 0;
-    color: #999;
-    position: relative;
-  }
-
-  .divider::before,
-  .divider::after {
-    content: '';
-    height: 1px;
-    background-color: #ddd;
-    position: absolute;
-    top: 50%;
-    width: 40%;
-  }
-
-  .divider::before {
-    left: 0;
-  }
-
-  .divider::after {
-    right: 0;
-  }
-
-  .toggle {
-    text-align: center;
-    font-size: 12px;
-    margin-top: 10px;
-  }
-
-  .toggle a {
-    color: #6c63ff;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .toggle a:hover {
-    text-decoration: underline;
-  }
-
-  .back-btn {
-    text-align: center;
-    margin-top: 12px;
-  }
-
-  .back-btn a {
-    text-decoration: none;
-    color: #6c63ff;
-    font-weight: 600;
-  }
-
-  .back-btn a:hover {
-    text-decoration: underline;
-  }
-
-  @media(max-width: 900px) {
-    .container {
-      flex-direction: column;
-      height: auto;
-      width: 95%;
-    }
-
-    .left {
-      min-height: 350px;
-      padding: 30px 20px;
-      border-radius: 18px 18px 0 0;
-    }
-
-    .right {
-      padding: 30px 20px;
-    }
-  }
-
-  .toggle-btn {
-      position: absolute !important;
-      right: 12px !important;
-      top: 50% !important;
-      transform: translateY(-50%) !important;
-      background: transparent !important;
-      border: none !important;
-      width: auto !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      color: #777 !important;
-      cursor: pointer !important;
-      font-size: 16px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      height: auto !important;
-      z-index: 10;
-  }
-  .toggle-btn:hover {
-      background: transparent !important;
-      color: #333 !important;
-  }
-</style>
+</html>

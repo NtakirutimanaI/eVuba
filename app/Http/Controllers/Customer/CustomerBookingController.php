@@ -13,17 +13,35 @@ class CustomerBookingController extends Controller
     /**
      * Display a listing of the customer's bookings and show available services.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Get all bookings for the logged-in user with pagination
-        $bookings = Booking::where('user_id', Auth::id())
-                           ->orderBy('booking_date', 'desc')
-                           ->paginate(10);
+        $query = Booking::where('user_id', Auth::id());
+
+        // Status Filter
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $bookings = $query->orderBy('booking_date', 'desc')->paginate(10);
+
+        // Global stats (avoiding pagination limits)
+        $activeBookings = Booking::where('user_id', Auth::id())
+            ->where('status', '!=', 'cancelled')
+            ->count();
 
         // Also get all services for display
         $services = Service::with('employee')->get();
 
-        return view('customer.bookings.index', compact('bookings', 'services'));
+        return view('customer.bookings.index', compact('bookings', 'services', 'activeBookings'));
     }
 
     /**
@@ -44,7 +62,7 @@ class CustomerBookingController extends Controller
     {
         // Validate input
         $request->validate([
-            'service_id'   => 'required|exists:services,id',
+            'service_id' => 'required|exists:services,id',
             'booking_date' => 'required|date|after_or_equal:today',
         ]);
 
@@ -52,12 +70,13 @@ class CustomerBookingController extends Controller
 
         // Create booking
         Booking::create([
-            'user_id'      => Auth::id(),
-            'title'        => $service->name,
-            'description'  => $service->description,
-            'employee_id'  => $service->employee_id,
+            'user_id' => Auth::id(),
+            'service_id' => $service->id,
+            'title' => $service->name,
+            'description' => $service->description,
+            'employee_id' => $service->employee_id,
             'booking_date' => $request->booking_date,
-            'status'       => 'pending',
+            'status' => 'pending',
         ]);
 
         if ($request->expectsJson()) {
@@ -65,7 +84,7 @@ class CustomerBookingController extends Controller
         }
 
         return redirect()->route('customer.bookings.index')
-                         ->with('success', 'Booking created successfully.');
+            ->with('success', 'Booking created successfully.');
     }
 
     /**
@@ -76,7 +95,7 @@ class CustomerBookingController extends Controller
         // Ensure the booking belongs to the logged-in user
         if ($booking->user_id !== Auth::id()) {
             return redirect()->route('customer.bookings.index')
-                             ->with('error', 'You are not authorized to edit this booking.');
+                ->with('error', 'You are not authorized to edit this booking.');
         }
 
         // Load all services for selection in edit form
@@ -93,25 +112,26 @@ class CustomerBookingController extends Controller
         // Ensure the booking belongs to the logged-in user
         if ($booking->user_id !== Auth::id()) {
             return redirect()->route('customer.bookings.index')
-                             ->with('error', 'You are not authorized to update this booking.');
+                ->with('error', 'You are not authorized to update this booking.');
         }
 
         // Validate input
         $request->validate([
-            'service_id'   => 'required|exists:services,id',
+            'service_id' => 'required|exists:services,id',
             'booking_date' => 'required|date|after_or_equal:today',
-            'status'       => 'required|in:pending,confirmed,cancelled',
+            'status' => 'required|in:pending,confirmed,cancelled',
         ]);
 
         $service = Service::findOrFail($request->service_id);
 
         // Update booking
         $booking->update([
-            'title'        => $service->name,
-            'description'  => $service->description,
-            'employee_id'  => $service->employee_id,
+            'title' => $service->name,
+            'description' => $request->description ?? $service->description,
+            'employee_id' => $service->employee_id,
+            'service_id' => $service->id,
             'booking_date' => $request->booking_date,
-            'status'       => $request->status,
+            'status' => $request->status,
         ]);
 
         if ($request->expectsJson()) {
@@ -119,7 +139,7 @@ class CustomerBookingController extends Controller
         }
 
         return redirect()->route('customer.bookings.index')
-                         ->with('success', 'Booking updated successfully.');
+            ->with('success', 'Booking updated successfully.');
     }
 
     /**
@@ -127,10 +147,11 @@ class CustomerBookingController extends Controller
      */
     public function destroy(Booking $booking)
     {
+        // ... existing destroy code ...
         // Ensure the booking belongs to the logged-in user
         if ($booking->user_id !== Auth::id()) {
             return redirect()->route('customer.bookings.index')
-                             ->with('error', 'You are not authorized to delete this booking.');
+                ->with('error', 'You are not authorized to delete this booking.');
         }
 
         $booking->delete();
@@ -140,6 +161,21 @@ class CustomerBookingController extends Controller
         }
 
         return redirect()->route('customer.bookings.index')
-                         ->with('success', 'Booking deleted successfully.');
+            ->with('success', 'Booking deleted successfully.');
+    }
+
+    /**
+     * Display the specified booking.
+     */
+    public function show(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'booking' => $booking->load(['service', 'employee'])
+        ]);
     }
 }

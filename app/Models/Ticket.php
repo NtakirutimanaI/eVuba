@@ -49,6 +49,15 @@ class Ticket extends Model
         return $this->belongsTo(SupportCategory::class, 'category_id');
     }
 
+    /**
+     * Fallback relationship to User model for tickets created by non-customers (e.g. Admins/Employees)
+     * Maps 'customer_id' to 'id' on users table.
+     */
+    public function submitter()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
+    }
+
     /** Replies for this ticket */
     public function replies()
     {

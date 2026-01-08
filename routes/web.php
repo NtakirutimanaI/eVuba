@@ -46,7 +46,7 @@ use App\Http\Controllers\Employee\{
 // ------------------ Customer Controllers ------------------
 use App\Http\Controllers\Customer\{
     DashboardController as CustomerDashboardController,
-    BookingController as CustomerBookingController,
+    CustomerBookingController,
     AppointmentController as CustomerAppointmentController,
 };
 
@@ -59,6 +59,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Admin\AdminSupportController;
 use App\Http\Controllers\Manager\ManagerSupportController;
 use App\Http\Controllers\Customer\CustomerSupportController;
+use App\Http\Controllers\Customer\CustomerInvoiceController;
 use App\Http\Controllers\Manager\ManagerInvoiceController;
 // ------------------ Public Website Routes ------------------
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -279,7 +280,12 @@ Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(functi
     Route::post('/appointments', [CustomerAppointmentController::class, 'store'])->name('appointments.store');
     Route::put('/appointments/{appointment}', [CustomerAppointmentController::class, 'update'])->name('appointments.update');
     Route::delete('/appointments/{appointment}', [CustomerAppointmentController::class, 'destroy'])->name('appointments.destroy');
+    Route::get('/appointments/{appointment}/edit', [CustomerAppointmentController::class, 'edit'])->name('appointments.edit');
 
+    Route::get('/invoices', [CustomerInvoiceController::class, 'index'])->name('invoices.index');
+
+    // Order Routes
+    Route::resource('orders', CustomerOrderController::class);
     Route::resource('bookings', CustomerBookingController::class)->except(['index']);
     Route::resource('support', CustomerSupportController::class)->except(['index']);
     Route::get('/appointments/{appointment}', [CustomerAppointmentController::class, 'show'])
@@ -497,15 +503,15 @@ Route::post('/admin/stock_in/store-supplier', [\App\Http\Controllers\Admin\Admin
     ->name('admin.stock_in.storeSupplier');
 
 
-// routes/web.php (or routes/admin.php if using a separate admin group)
-
-use App\Http\Controllers\Admin\CustomerController;
-use App\Http\Controllers\Admin\AdminStockOutController;
-
+// ------------------ Admin Routes ------------------
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::resource('customer', CustomerController::class);
     Route::post('/customer/store', [CustomerController::class, 'store'])->name('customer.store');
     Route::get('customers-report', [CustomerController::class, 'report'])->name('customers.report');
+
+    // Admin Order Invoice Download
+    Route::get('/orders/{id}/invoice', [\App\Http\Controllers\Admin\AdminOrderController::class, 'downloadInvoice'])->name('orders.download_invoice');
+
 });
 
 Route::prefix('admin/stockout')->name('admin.stockout.')->middleware(['auth'])->group(function () {
@@ -659,14 +665,22 @@ Route::prefix('customer')->group(function () {
     Route::get('orders', [CustomerOrderController::class, 'index'])->name('customer.orders.index');
     Route::get('orders/create', [CustomerOrderController::class, 'create'])->name('customer.orders.create');
     Route::post('orders', [CustomerOrderController::class, 'store'])->name('customer.orders.store');
+    Route::delete('orders/{id}', [CustomerOrderController::class, 'destroy'])->name('customer.orders.destroy');
+
+    // Documents & Invoices
+    Route::get('orders/{id}/invoice', [CustomerOrderController::class, 'downloadInvoice'])->name('customer.orders.invoice');
+
 });
 
 // Admin routes
 Route::prefix('admin')->group(function () {
     // Orders
     Route::get('orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
-    Route::post('orders/{id}/status', [AdminOrderController::class, 'update'])->name('admin.orders.updateStatus');
-    Route::delete('orders/{id}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');
+    Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+    Route::post('orders/{id}/status', [AdminOrderController::class, 'update'])->name('admin.orders.updateStatus'); // Keep original update route
+    Route::delete('orders/{id}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy'); // Keep original delete route
+    Route::post('orders/{id}/approve-payment', [AdminOrderController::class, 'approvePayment'])->name('admin.orders.approve_payment');
+    Route::post('orders/{id}/send-invoice', [AdminOrderController::class, 'sendInvoice'])->name('admin.orders.send_invoice');
 
     // Products
     Route::post('products', [AdminOrderController::class, 'storeProduct'])->name('admin.products.store');
@@ -856,6 +870,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
     Route::post('/notifications/dismiss/{id}', [NotificationController::class, 'dismissAnnouncement'])->name('notifications.dismiss');
 
     // Messages

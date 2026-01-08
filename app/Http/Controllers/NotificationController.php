@@ -26,21 +26,29 @@ class NotificationController extends Controller
     }
 
     // Mark notification as read
-    public function markAsRead($id)
+    public function markAsRead(Request $request, $id)
     {
         Auth::user()->notifications()->where('id',$id)->update(['read_at'=>now()]);
+        
+        if($request->ajax() || $request->wantsJson()){
+            return response()->json(['success'=>true, 'message'=>'Marked as read']);
+        }
         return redirect()->route('notifications.page');
     }
 
     // Mark all notifications as read
-    public function markAllRead()
+    public function markAllRead(Request $request)
     {
         Auth::user()->unreadNotifications->markAsRead();
+        
+        if($request->ajax() || $request->wantsJson()){
+             return response()->json(['success'=>true, 'message'=>'All notifications marked as read.']);
+        }
         return back()->with('success', 'All notifications marked as read.');
     }
 
     // Dismiss an announcement
-    public function dismissAnnouncement($id)
+    public function dismissAnnouncement(Request $request, $id)
     {
         $user = Auth::user();
         $announcement = Announcement::findOrFail($id);
@@ -48,13 +56,31 @@ class NotificationController extends Controller
         // Attach user to announcement if not already attached
         $user->announcements()->syncWithoutDetaching([$id]);
         
+        if($request->ajax() || $request->wantsJson()){
+             return response()->json(['success'=>true, 'message'=>'Announcement dismissed.']);
+        }
         return back()->with('success', 'Announcement dismissed.');
     }
 
+    // Delete a single notification
+    public function delete(Request $request, $id)
+    {
+        Auth::user()->notifications()->where('id', $id)->delete();
+        
+        if($request->ajax() || $request->wantsJson()){
+             return response()->json(['success'=>true, 'message'=>'Notification deleted.']);
+        }
+        return back()->with('success', 'Notification deleted.');
+    }
+
     // Clear all notifications (delete them)
-    public function clearAll()
+    public function clearAll(Request $request)
     {
         Auth::user()->notifications()->delete();
+        
+        if($request->ajax() || $request->wantsJson()){
+             return response()->json(['success'=>true, 'message'=>'All notifications cleared.']);
+        }
         return back()->with('success', 'All notifications cleared.');
     }
 

@@ -23,8 +23,15 @@ class CustomerOrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Get all published products
-        $products = Product::where('status', 'published')->get();
+        // Get all published products with relations for stock calc
+        $products = Product::with(['category', 'stockIns', 'stockOuts'])
+            ->where('status', 'published')
+            ->get();
+
+        // Append remaining_stock for JS availability
+        $products->each(function ($product) {
+            $product->append('remaining_stock');
+        });
 
         return view('customer.orders.index', compact('orders', 'products'));
     }
@@ -36,23 +43,54 @@ class CustomerOrderController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity'   => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
+            'payment_method' => 'nullable|string',
+            'transaction_ref' => 'nullable|string',
         ]);
 
         $product = Product::findOrFail($request->product_id);
 
-        // Create new order using only product_id
+        // Logic for payment status: SIMULATED AUTO-APPROVAL
+        // If payment method is provided, we simulate a successful immediate payment.
+        $isPaid = !empty($request->payment_method);
+        $paymentStatus = $isPaid ? 'approved' : 'pending';
+        $orderStatus = $isPaid ? 'processing' : 'pending';
+
+        // Generate mock transaction ref if needed
+        $txRef = $request->transaction_ref;
+        if ($isPaid && empty($txRef)) {
+            $txRef = 'SIM-' . strtoupper(uniqid());
+        }
+
+        // Create new order
         Order::create([
-            'user_id'    => auth()->id(),
+            'user_id' => auth()->id(),
             'product_id' => $product->id,
             'product_name' => $product->name,
-            'quantity'   => $request->quantity,
-            'price'      => $product->selling_price ?? 0,
-            'status'     => 'pending',
+            'quantity' => $request->quantity,
+            'price' => $product->unit_price ?? 0,
+            'status' => $orderStatus,
+            'payment_method' => $request->payment_method,
+            'payment_status' => $paymentStatus,
+            'transaction_ref' => $txRef,
         ]);
 
-        return redirect()->route('customer.orders.index')
-                         ->with('success', 'Order placed successfully!');
+        // Notify user
+        $message = "Your order for {$product->name} (x{$request->quantity}) has been placed.";
+        if ($isPaid) {
+            $message .= " Payment confirmed via {$request->payment_method}.";
+        } else {
+            $message .= " Status: Pending Payment.";
+        }
+
+        auth()->user()->notify(new \App\Notifications\SystemAlert([
+            'title' => $isPaid ? 'Order Paid & Processing' : 'Order Received',
+            'message' => $message,
+            'icon' => $isPaid ? 'fa-check-circle' : 'fa-hourglass-start',
+            'action_url' => route('customer.orders.index')
+        ]));
+
+        return response()->json(['success' => true, 'message' => 'Order placed successfully!']);
     }
 
     /**
@@ -60,16 +98,47 @@ class CustomerOrderController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        $product = Product::with(['category', 'stockIns', 'stockOuts'])->findOrFail($id);
 
         return response()->json([
-            'id'          => $product->id,
-            'name'        => $product->name,
-            'image'       => $product->image ? asset('storage/products/'.$product->image) : asset('images/no-image.png'),
-            'category'    => $product->category->name ?? 'N/A',
-            'price'       => $product->selling_price ?? 0,
-            'stock'       => $product->stock_quantity ?? 'N/A',
+            'id' => $product->id,
+            'name' => $product->name,
+            'image' => $product->image ? asset('storage/' . $product->image) : asset('images/no-image.png'),
+            'category' => $product->category->name ?? 'N/A',
+            'price' => $product->unit_price ?? 0,
+            'stock' => $product->remaining_stock ?? 0,
             'description' => $product->description ?? '',
         ]);
+    }
+
+    /**
+     * Delete a pending order
+     */
+    public function destroy($id)
+    {
+        $order = Order::where('user_id', auth()->id())->findOrFail($id);
+
+        if ($order->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Only pending orders can be cancelled.'], 403);
+        }
+
+        $order->delete();
+
+        return response()->json(['success' => true, 'message' => 'Order cancelled successfully.']);
+    }
+
+    /**
+     * Download Invoice PDF
+     */
+    public function downloadInvoice($id)
+    {
+        $order = Order::with(['user', 'product'])->where('user_id', auth()->id())->findOrFail($id);
+
+        if (!in_array($order->payment_status, ['approved', 'paid'])) {
+            return redirect()->back()->with('error', 'Invoice is only available for paid orders.');
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('customer.documents.invoice_pdf', compact('order'));
+        return $pdf->download('Invoice_' . $order->transaction_ref . '.pdf');
     }
 }

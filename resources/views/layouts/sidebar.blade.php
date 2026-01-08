@@ -71,7 +71,7 @@
 
             <li><a href="{{ route('admin.appointments.index') }}"><i class="fa fa-clipboard-list"></i> Activity/Tasks</a>
             </li>
-            <li><a href="{{ route('admin.orders.index') }}"><i class="fa fa-shopping-cart"></i> Orders</a></li>
+            <li><a href="{{ route('admin.orders.index') }}"><i class="fa fa-shopping-cart"></i> Orders & Payments</a></li>
             <li><a href="{{ route('admin.support.index') }}"><i class="fas fa-headset"></i> Support</a></li>
             <li><a href="{{ route('admin.performance.index') }}"><i class="fas fa-tasks"></i> Employee Performance</a></li>
             <li><a href="{{ route('admin.roles_permissions') }}"><i class="fas fa-key"></i> Roles & Permissions</a></li>
@@ -171,7 +171,11 @@
             <li><a href="{{ route('customer.appointments.index') }}"><i class="fa fa-calendar-check"></i> Appointments</a>
             </li>
 
+
+
             <li><a href="{{ route('customer.orders.index') }}"><i class="fas fa-store"></i> Marketplace</a></li>
+            <li><a href="{{ route('customer.invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i> Invoices</a>
+            </li>
             <li><a href="{{ route('customer.orders.index', ['section' => 'archive']) }}"><i class="fas fa-history"></i>
                     Order Archive</a></li>
 

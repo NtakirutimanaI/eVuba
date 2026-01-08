@@ -98,7 +98,7 @@
                         <button class="f-pill active" data-filter="all">All</button>
                         <button class="f-pill" data-filter="open">Open</button>
                         <button class="f-pill" data-filter="in_progress">In Progress</button>
-                        <button class="f-pill" data-filter="closed">Closed</button>
+                        <button class="f-pill" data-filter="closed">Resolved</button>
                     </div>
                 </div>
 
@@ -110,7 +110,7 @@
                                 <th>Client / Subject</th>
                                 <th>Level</th>
                                 <th>Status</th>
-                                <th>Manager</th>
+                                <th>CASE WORKER</th>
                                 <th>Quick Actions</th>
                             </tr>
                         </thead>
@@ -119,7 +119,7 @@
                                 <tr class="ticket-row" data-status="{{ $ticket->status }}" data-id="{{ $ticket->id }}">
                                     <td class="ticket-no">#{{ $ticket->ticket_no }}</td>
                                     <td class="client-info">
-                                        <strong>{{ optional($ticket->customer)->name ?? 'Guest User' }}</strong>
+                                        <strong>{{ optional($ticket->customer)->name ?? optional($ticket->submitter)->name ?? 'Guest User' }}</strong>
                                         <span>{{ $ticket->subject }}</span>
                                     </td>
                                     <td>
@@ -129,7 +129,13 @@
                                     </td>
                                     <td>
                                         <span class="status-badge {{ $ticket->status }}">
-                                            {{ ucfirst($ticket->status) }}
+                                            @if($ticket->status === 'closed')
+                                                Resolved
+                                            @elseif($ticket->status === 'in_progress')
+                                                In Progress
+                                            @else
+                                                {{ ucfirst($ticket->status) }}
+                                            @endif
                                         </span>
                                     </td>
                                     <td class="assigned-col">
@@ -1254,19 +1260,31 @@
             fetch(`/admin/support/ticket/${id}`)
                 .then(res => res.json())
                 .then(t => {
+                    // Status Badge Logic for Dropdown
+                    const isSelected = (s) => t.status === s ? 'selected' : '';
+
                     body.innerHTML = `
                     <div class="insight-section">
                         <label>Ticket Identity</label>
-                        <div class="insight-value" style="font-family: monospace; font-weight: 800; color: var(--indigo); font-size: 16px;">
-                            #${t.ticket_no}
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="insight-value" style="font-family: monospace; font-weight: 800; color: var(--indigo); font-size: 16px;">
+                                #${t.ticket_no}
+                            </div>
+                            <!-- Status Dropdown -->
+                            <select onchange="updateTicketStatus(${t.id}, this.value)" 
+                                    style="padding: 8px 12px; border-radius: 10px; border: 1px solid var(--header-border); background: var(--body-bg); color: var(--text-primary); font-weight: 700; font-size: 12px; cursor: pointer;">
+                                <option value="open" ${isSelected('open')}>Open</option>
+                                <option value="in_progress" ${isSelected('in_progress')}>In Progress</option>
+                                <option value="closed" ${isSelected('closed')}>Resolved</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="insight-section">
                         <label>Requester Details</label>
                         <div class="insight-value">
-                            <div style="font-weight: 800; font-size: 15px;">${t.customer ? t.customer.name : 'Anonymous Client'}</div>
-                            <div style="color: #64748b; font-size: 13px;">${t.customer ? t.customer.email : 'No email provided'}</div>
+                            <div style="font-weight: 800; font-size: 15px;">${t.requester_name}</div>
+                            <div style="color: #64748b; font-size: 13px;">${t.requester_email}</div>
                         </div>
                     </div>
 
@@ -1306,6 +1324,38 @@
                     </div>
                 `;
                 });
+        };
+
+        // NEW: Status Update Logic
+        window.updateTicketStatus = function(id, newStatus) {
+            const formData = new FormData();
+            formData.append('status', newStatus);
+            
+            fetch(`/admin/support/status/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    let displayStatus = newStatus === 'closed' ? 'RESOLVED' : newStatus.replace('_', ' ').toUpperCase();
+                    showToast(`Status updated to ${displayStatus}`, 'success');
+                    
+                    // Reload page to update stats and table (User Request)
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    showToast('Failed to update status', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Error updating status', 'error');
+            });
         };
 
         window.closeInspector = () => document.getElementById('inspectorPanel').style.display = 'none';
