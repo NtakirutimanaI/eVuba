@@ -114,14 +114,9 @@
                             </td>
                             <td style="text-align: right; padding-right: 25px;">
                                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                    @if(in_array($order->payment_status, ['approved', 'paid']))
-                                        <a href="{{ route('customer.orders.invoice', $order->id) }}" class="icon-btn" title="Download Invoice" style="color: var(--primary); display: flex; align-items: center; justify-content: center; text-decoration: none;">
-                                            <i class="fas fa-file-download"></i>
-                                        </a>
-                                    @else
-                                        <button class="icon-btn" onclick="viewReceipt({{ $order->id }})" title="View Receipt"><i
-                                            class="fas fa-file-invoice"></i></button>
-                                    @endif
+                                    <a href="{{ route('customer.orders.invoice', $order->id) }}" class="icon-btn" title="Download Invoice" style="color: var(--primary); display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                                        <i class="fas fa-file-download"></i>
+                                    </a>
                                     <button class="icon-btn" onclick="deleteOrder({{ $order->id }})" title="Delete Order"
                                         style="color: #ef4444;">
                                         <i class="fas fa-trash-alt"></i>

@@ -381,6 +381,7 @@ Route::prefix('manager')->name('manager.')->middleware(['auth'])->group(function
 
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('bookings/generate-report', [\App\Http\Controllers\Admin\AdminBookingController::class, 'generateReport'])->name('bookings.generateReport');
     Route::resource('bookings', \App\Http\Controllers\Admin\AdminBookingController::class);
 });
 
@@ -437,9 +438,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 });
 Route::patch('admin/services/{service}/publish', [ServiceController::class, 'publish'])->name('admin.services.publish');
 use App\Http\Controllers\Admin\AdminBookingController;
-// Route for manager to generate report
-Route::get('/admin/bookings/generate-report', [AdminBookingController::class, 'generateReport'])
-    ->name('admin.bookings.generateReport');
+
 
 // Booking status update
 Route::post('/admin/bookings/{booking}/update-status/{status}', [AdminBookingController::class, 'updateStatus'])

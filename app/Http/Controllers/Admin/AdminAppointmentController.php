@@ -65,11 +65,12 @@ class AdminAppointmentController extends Controller
         $appointments = $query->get();
 
         $pdf = Pdf::loadView('admin.appointments.report', compact('appointments'));
-        
+
         // Add date range to filename if present
         $filename = 'tasks_report';
-        if ($request->start_date) $filename .= '_' . $request->start_date;
-        
+        if ($request->start_date)
+            $filename .= '_' . $request->start_date;
+
         return $pdf->download($filename . '.pdf');
     }
 
@@ -91,16 +92,16 @@ class AdminAppointmentController extends Controller
         $appointments = $query->get();
 
         $filename = "tasks_export_" . date('Y-m-d') . ".csv";
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
-        return response()->stream(function() use ($appointments) {
+        return response()->stream(function () use ($appointments) {
             $handle = fopen('php://output', 'w');
             fputcsv($handle, ['ID', 'Title', 'Description', 'Employee', 'Customer', 'Status', 'Priority', 'Date', 'Source']);
-            
+
             foreach ($appointments as $task) {
                 fputcsv($handle, [
                     $task->id,
@@ -129,23 +130,23 @@ class AdminAppointmentController extends Controller
     public function update(Request $request, Appointment $appointment)
     {
         $request->validate([
-            'title'        => 'required|string|max:255',
-            'description'  => 'nullable|string',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'scheduled_at' => 'required|date',
-            'employee_id'  => 'nullable|exists:users,id',
-            'user_id'      => 'nullable|exists:users,id',
-            'status'       => 'required|in:pending,confirmed,completed,cancelled',
-            'priority'     => 'nullable|in:low,medium,high,urgent',
+            'employee_id' => 'nullable|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
+            'status' => 'required|in:pending,confirmed,completed,cancelled',
+            'priority' => 'nullable|in:low,medium,high,urgent',
         ]);
 
         $appointment->update([
-            'title'        => $request->title,
-            'description'  => $request->description,
+            'title' => $request->title,
+            'description' => $request->description,
             'scheduled_at' => $request->scheduled_at,
-            'employee_id'  => $request->employee_id,
-            'user_id'      => $request->user_id,
-            'status'       => $request->status,
-            'priority'     => $request->priority ?? $appointment->priority ?? 'medium',
+            'employee_id' => $request->employee_id,
+            'user_id' => $request->user_id,
+            'status' => $request->status,
+            'priority' => $request->priority ?? $appointment->priority ?? 'medium',
         ]);
 
         if ($request->expectsJson()) {
@@ -172,7 +173,7 @@ class AdminAppointmentController extends Controller
         if ($appointment->user) {
             $appointment->user->notify(new \App\Notifications\SystemAlert([
                 'title' => 'Appointment Status Updated',
-                'message' => 'The status of your appointment "'.$appointment->title.'" has been updated to '.ucfirst($appointment->status).'.',
+                'message' => 'The status of your appointment "' . $appointment->title . '" has been updated to ' . ucfirst($appointment->status) . '.',
                 'icon' => 'fa-calendar-check',
                 'action_url' => '#'
             ]));
@@ -202,7 +203,7 @@ class AdminAppointmentController extends Controller
         if ($appointment->employee) {
             $appointment->employee->notify(new \App\Notifications\SystemAlert([
                 'title' => 'New Task Assigned',
-                'message' => 'You have been assigned to: '.$appointment->title.'.',
+                'message' => 'You have been assigned to: ' . $appointment->title . '.',
                 'icon' => 'fa-tasks',
                 'action_url' => route('employee.appointments.index')
             ]));
@@ -299,7 +300,7 @@ class AdminAppointmentController extends Controller
         if ($appointment->employee) {
             $appointment->employee->notify(new \App\Notifications\SystemAlert([
                 'title' => 'New Task Assigned',
-                'message' => 'You have been assigned to: '.$appointment->title.'.',
+                'message' => 'You have been assigned to: ' . $appointment->title . '.',
                 'icon' => 'fa-tasks',
                 'action_url' => route('employee.appointments.index')
             ]));

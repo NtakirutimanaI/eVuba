@@ -142,8 +142,21 @@
 
 <body>
     <div class="header">
-        <h1>Payment <span class="brand-accent">Invoice</span> Receipt</h1>
-        <p>Official Transaction Record & Service Fulfilment Document</p>
+        <table style="width: 100%; border-collapse: collapse; border: none;">
+            <tr>
+                <td style="width: 60%; vertical-align: top; padding: 0; border: none;">
+                   <h1 style="font-size: 32px; font-weight: 900; margin: 0; line-height: 1; color: #6366f1; text-transform: uppercase;">INVOICE RECEIPT</h1>
+                </td>
+                <td style="width: 40%; vertical-align: top; text-align: right; padding: 0; border: none;">
+                    <div style="font-size: 10px; color: #64748b; line-height: 1.4;">
+                        <strong style="font-size: 14px; color: #1e293b; display: block; margin-bottom: 2px;">e-Vuba Connect</strong>
+                        Umoja House 4th Floor<br>
+                        Kigali, Rwanda<br>
+                        0786325291 | info@evuba.connect.rw
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <table class="meta-grid">
@@ -169,10 +182,12 @@
                 @php
                     $statusLabel = $order->payment_status;
                     $badgeClass = 'status-pending';
-                    
+
                     if ($order->payment_status === 'paid' || $order->payment_status === 'approved') {
                         $statusLabel = 'PAID';
                         $badgeClass = 'status-paid';
+                    } else {
+                        $statusLabel = strtoupper($order->payment_status);
                     }
                 @endphp
                 <span class="status-badge {{ $badgeClass }}">

@@ -37,54 +37,80 @@
             @php
                 $unreadMessages = \App\Models\MessageUs::where('read', false)->count();
             @endphp
-            <li><a href="{{ route('admin.users.index') }}"><i class="fa fa-users"></i> Users</a></li>
-            <li><a href="{{ route('admin.employees.index') }}"><i class="fas fa-user-tie"></i> Employees</a></li>
-            <li><a href="{{ route('admin.customers.index') }}"><i class="fas fa-user-friends"></i> Customers</a></li>
-
-            <!-- SERVICES DROPDOWN -->
+            
+            <!-- USER MANAGEMENT -->
             <li class="crm-dropdown">
                 <a class="crm-dropdown-toggle">
-                    <i class="fas fa-concierge-bell"></i>Services
+                    <i class="fas fa-users-cog"></i> User Management
                     <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
-
                 <ul class="crm-dropdown-menu">
-                    <li><a href="{{ route('admin.services.index') }}"><i class="fa fa-cog"></i> Manage Services</a></li>
-                    <li><a href="{{ route('admin.bookings.index') }}"><i class="fa fa-book"></i> Manage Bookings</a></li>
+                     <li><a href="{{ route('admin.users.index') }}"><i class="fa fa-users"></i> Users</a></li>
+                     <li><a href="{{ route('admin.employees.index') }}"><i class="fas fa-user-tie"></i> Employees</a></li>
+                     <li><a href="{{ route('admin.customers.index') }}"><i class="fas fa-user-friends"></i> Customers</a></li>
+                     <li><a href="{{ route('admin.roles_permissions') }}"><i class="fas fa-key"></i> Roles & Permissions</a></li>
+                     <li><a href="{{ route('admin.subscribers.index') }}"><i class="fas fa-user-plus"></i> Subscribers</a></li>
                 </ul>
             </li>
 
-            <!-- INVENTORY DROPDOWN -->
+            <!-- SERVICE OPS -->
             <li class="crm-dropdown">
                 <a class="crm-dropdown-toggle">
-                    <i class="fas fa-warehouse"></i>Inventory
+                    <i class="fas fa-concierge-bell"></i> Service Ops
                     <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
-
                 <ul class="crm-dropdown-menu">
-                    <li><a href="{{ route('admin.product.index') }}"><i class="fa fa-cog"></i> Create Product</a></li>
-                    <li><a href="{{ route('admin.stock_in.addSupplier') }}"><i class="fa fa-book"></i> Add Supplier</a></li>
-                    <li><a href="{{ route('admin.stock_in.index') }}"><i class="fa fa-book"></i> Stock In</a></li>
-                    <li><a href="{{ route('admin.stockout.index') }}"><i class="fa fa-book"></i> Stock Out</a></li>
+                    <li><a href="{{ route('admin.services.index') }}"><i class="fa fa-cog"></i> Services</a></li>
+                    <li><a href="{{ route('admin.bookings.index') }}"><i class="fa fa-book"></i> Bookings</a></li>
+                    <li><a href="{{ route('admin.appointments.index') }}"><i class="fa fa-clipboard-list"></i> Activity/Tasks</a></li>
                 </ul>
             </li>
 
-            <li><a href="{{ route('admin.appointments.index') }}"><i class="fa fa-clipboard-list"></i> Activity/Tasks</a>
-            </li>
-            <li><a href="{{ route('admin.orders.index') }}"><i class="fa fa-shopping-cart"></i> Orders & Payments</a></li>
-            <li><a href="{{ route('admin.support.index') }}"><i class="fas fa-headset"></i> Support</a></li>
-            <li><a href="{{ route('admin.performance.index') }}"><i class="fas fa-tasks"></i> Employee Performance</a></li>
-            <li><a href="{{ route('admin.roles_permissions') }}"><i class="fas fa-key"></i> Roles & Permissions</a></li>
-            <li><a href="{{ route('admin.subscribers.index') }}"><i class="fas fa-user-plus"></i> Subscribers</a></li>
-            <li>
-                <a href="{{ route('admin.messages.index') }}" style="position:relative;">
-                    <i class="fas fa-envelope"></i> Messages
-                    @if($unreadMessages > 0)
-                        <span
-                            style="position:absolute; right:10px; top:12px; background:#f43f5e; color:#fff; font-size:10px; padding:2px 6px; border-radius:10px; font-weight:800; line-height:1;">{{ $unreadMessages }}</span>
-                    @endif
+            <!-- INVENTORY -->
+            <li class="crm-dropdown">
+                <a class="crm-dropdown-toggle">
+                    <i class="fas fa-warehouse"></i> Inventory
+                    <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
+                <ul class="crm-dropdown-menu">
+                    <li><a href="{{ route('admin.product.index') }}"><i class="fa fa-shopping-bag"></i> Products</a></li>
+                    <li><a href="{{ route('admin.stock_in.addSupplier') }}"><i class="fa fa-truck"></i> Suppliers</a></li>
+                    <li><a href="{{ route('admin.stock_in.index') }}"><i class="fa fa-arrow-right"></i> Stock In</a></li>
+                    <li><a href="{{ route('admin.stockout.index') }}"><i class="fa fa-arrow-left"></i> Stock Out</a></li>
+                </ul>
             </li>
+
+            <!-- COMMERCIAL -->
+            <li class="crm-dropdown">
+                <a class="crm-dropdown-toggle">
+                    <i class="fas fa-chart-line"></i> Commercial
+                    <i class="fa fa-caret-down crm-dropdown-arrow"></i>
+                </a>
+                <ul class="crm-dropdown-menu">
+                    <li><a href="{{ route('admin.orders.index') }}"><i class="fa fa-shopping-cart"></i> Orders & Payments</a></li>
+                </ul>
+            </li>
+
+             <!-- SUPPORT & HUB -->
+            <li class="crm-dropdown">
+                <a class="crm-dropdown-toggle">
+                    <i class="fas fa-headset"></i> Support & Hub
+                    <i class="fa fa-caret-down crm-dropdown-arrow"></i>
+                </a>
+                <ul class="crm-dropdown-menu">
+                    <li><a href="{{ route('admin.support.index') }}"><i class="fas fa-headset"></i> Support Tickets</a></li>
+                    <li>
+                        <a href="{{ route('admin.messages.index') }}">
+                            <i class="fas fa-envelope"></i> Messages
+                             @if($unreadMessages > 0)
+                                <span style="margin-left:5px; background:#f43f5e; color:#fff; font-size:10px; padding:2px 6px; border-radius:10px;">{{ $unreadMessages }}</span>
+                             @endif
+                        </a>
+                    </li>
+                    <li><a href="{{ route('admin.performance.index') }}"><i class="fas fa-tasks"></i> Employee Performance</a></li>
+                </ul>
+            </li>
+
             <li><a href="{{ route('admin.settings') }}"><i class="fas fa-cogs"></i> Settings</a></li>
         @endif
 
@@ -203,25 +229,27 @@
         document.getElementById("crm-sidebar").classList.toggle("active");
     });
 
-    // Dropdown positioning fix for scrollable sidebar
-    document.querySelectorAll('.crm-dropdown').forEach(dropdown => {
-        const toggle = dropdown.querySelector('.crm-dropdown-toggle');
-        const menu = dropdown.querySelector('.crm-dropdown-menu');
+    // Accordion Dropdowns
+    document.querySelectorAll('.crm-dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default anchor behavior
 
-        dropdown.addEventListener('mouseenter', () => {
-            const rect = toggle.getBoundingClientRect();
-            menu.style.top = rect.top + 'px';
-            menu.style.display = 'block';
+            const parent = toggle.closest('.crm-dropdown');
+            const menu = parent.querySelector('.crm-dropdown-menu');
+            const arrow = toggle.querySelector('.crm-dropdown-arrow');
+
+            // Close other open menus (optional, usually preferred in accordions)
+            document.querySelectorAll('.crm-dropdown').forEach(other => {
+                if (other !== parent) {
+                    other.querySelector('.crm-dropdown-menu').classList.remove('show');
+                    other.querySelector('.crm-dropdown-arrow').classList.remove('rotate');
+                }
+            });
+
+            // Toggle current
+            menu.classList.toggle('show');
+            arrow.classList.toggle('rotate');
         });
-
-        dropdown.addEventListener('mouseleave', () => {
-            menu.style.display = 'none';
-        });
-    });
-
-    // Close open menus when sidebar is scrolled to prevent "detached" menus
-    document.getElementById('crm-sidebar').addEventListener('scroll', () => {
-        document.querySelectorAll('.crm-dropdown-menu').forEach(m => m.style.display = 'none');
     });
 </script>
 
@@ -304,7 +332,7 @@
         color: #fff;
     }
 
-    /* DROPDOWN STYLING (Flyout Outside Sidebar) */
+    /* DROPDOWN STYLING (Accordion) */
     .crm-dropdown {
         position: relative;
     }
@@ -320,29 +348,42 @@
     .crm-dropdown-menu {
         display: none;
         /* Hidden by default */
-        position: fixed;
-        /* Bypasses parent overflow clipping */
-        left: 222px;
-        /* Fixed width of sidebar */
+        position: relative;
+        /* Inline flow */
+        left: 0;
         top: 0;
-        /* Positioned via JS on hover */
-        width: 200px;
-        /* Specific width for flyout */
+        width: 100%;
         list-style: none;
-        padding: 10px 0;
+        padding: 5px 0;
         margin: 0;
-        background: #1e293b;
-        /* Slightly lighter navy for contrast */
-        border-radius: 0 12px 12px 0;
-        /* Rounded outer corners */
-        box-shadow: 10px 0 20px rgba(0, 0, 0, 0.2);
-        border-left: 2px solid #3b82f6;
-        /* Accent border connecting to sidebar */
-        z-index: 1001;
+        background: rgba(0, 0, 0, 0.2);
+        /* Darker background for nested items */
+        border-radius: 8px;
+        box-shadow: none;
+        border-left: none;
+        z-index: 100;
+    }
+
+    .crm-dropdown-menu.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .crm-dropdown-menu li a {
-        padding: 10px 20px;
+        padding: 10px 20px 10px 45px;
+        /* Increased padding for indentation */
         color: #94a3b8;
         font-size: 13px;
         border-radius: 0;
@@ -352,33 +393,17 @@
     }
 
     .crm-dropdown-menu li a i {
-        font-size: 14px;
+        font-size: 13px;
         margin-right: 10px;
+        opacity: 0.7;
     }
 
     .crm-dropdown-menu li a:hover {
-        background: rgba(59, 130, 246, 0.1);
+        background: transparent;
         color: #fff;
-        padding-left: 25px;
     }
 
-    /* Hover Trigger with a small 'bridge' area to prevent menu closing */
-    .crm-dropdown:hover .crm-dropdown-menu {
-        display: block;
-        animation: fadeInFlyout 0.2s ease-out;
-    }
-
-    @keyframes fadeInFlyout {
-        from {
-            opacity: 0;
-            transform: translateX(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
+    /* Remove hover flyout logic */
 
     .crm-dropdown-arrow {
         font-size: 10px;
@@ -386,7 +411,7 @@
         opacity: 0.7;
     }
 
-    .crm-dropdown:hover .crm-dropdown-arrow {
+    .crm-dropdown-arrow.rotate {
         transform: rotate(180deg);
     }
 

@@ -49,7 +49,7 @@
 
                                     $statusLabel = match ($invoice->payment_status) {
                                         'paid', 'approved' => 'PAID',
-                                        default => ucfirst($invoice->payment_status)
+                                        default => strtoupper($invoice->payment_status)
                                     };
                                 @endphp
                                 <span class="status-badge {{ $statusClass }}">

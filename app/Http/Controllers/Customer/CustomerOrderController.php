@@ -134,9 +134,10 @@ class CustomerOrderController extends Controller
     {
         $order = Order::with(['user', 'product'])->where('user_id', auth()->id())->findOrFail($id);
 
-        if (!in_array($order->payment_status, ['approved', 'paid'])) {
-            return redirect()->back()->with('error', 'Invoice is only available for paid orders.');
-        }
+        // Allow downloading invoice for any status (Pending, Paid, etc.)
+        // if (!in_array($order->payment_status, ['approved', 'paid'])) {
+        //     return redirect()->back()->with('error', 'Invoice is only available for paid orders.');
+        // }
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('customer.documents.invoice_pdf', compact('order'));
         return $pdf->download('Invoice_' . $order->transaction_ref . '.pdf');

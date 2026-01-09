@@ -16,7 +16,7 @@ class BookingsExport implements FromView
 
     public function view(): View
     {
-        return view('manager.bookings.report', [
+        return view('admin.bookings.excel', [
             'bookings' => $this->bookings
         ]);
     }
