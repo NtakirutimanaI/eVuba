@@ -40,16 +40,16 @@ class AdminInvoiceController extends Controller
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
-            'customer_id'   => 'nullable|exists:customers,id',
-            'invoice_date'  => 'required|date',
-            'subtotal'      => 'required|numeric',
-            'tax_amount'    => 'required|numeric',
-            'grand_total'   => 'required|numeric',
-            'payment_method'=> 'nullable|string',
-            'status'        => 'nullable|string',
-            'items'         => 'required|array|min:1',
-            'items.*.name'  => 'required|string',
-            'items.*.qty'   => 'required|numeric|min:1',
+            'customer_id' => 'nullable|exists:customers,id',
+            'invoice_date' => 'required|date',
+            'subtotal' => 'required|numeric',
+            'tax_amount' => 'required|numeric',
+            'grand_total' => 'required|numeric',
+            'payment_method' => 'nullable|string',
+            'status' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.name' => 'required|string',
+            'items.*.qty' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
         ]);
 
@@ -62,27 +62,45 @@ class AdminInvoiceController extends Controller
             // Create invoice
             $invoice = Invoice::create([
                 'invoice_number' => $invoiceNumber,
-                'customer_id'    => $request->customer_id,
-                'customer_name'  => $request->customer_name,
-                'invoice_date'   => $request->invoice_date,
-                'subtotal'       => $request->subtotal,
-                'tax_amount'     => $request->tax_amount,
-                'grand_total'    => $request->grand_total,
+                'customer_id' => $request->customer_id,
+                'customer_name' => $request->customer_name,
+                'invoice_date' => $request->invoice_date,
+                'subtotal' => $request->subtotal,
+                'tax_amount' => $request->tax_amount,
+                'grand_total' => $request->grand_total,
                 'payment_method' => $request->payment_method ?? 'Cash',
-                'status'         => $request->status ?? 'pending',
-                'description'    => $request->description,
+                'status' => $request->status ?? 'pending',
+                'description' => $request->description,
             ]);
 
-            // Insert invoice items
+            // Insert invoice items and deduct stock
             foreach ($request->items as $id => $item) {
+                // Determine product ID
+                $productId = is_numeric($id) ? $id : null;
+
                 InvoiceItem::create([
-                    'invoice_id'  => $invoice->id,
-                    'product_id'  => is_numeric($id) ? $id : null,
+                    'invoice_id' => $invoice->id,
+                    'product_id' => $productId,
                     'description' => $item['name'],
-                    'quantity'    => $item['qty'],
-                    'unit_price'  => $item['price'],
-                    'total'       => $item['qty'] * $item['price'],
+                    'quantity' => $item['qty'],
+                    'unit_price' => $item['price'],
+                    'total' => $item['qty'] * $item['price'],
                 ]);
+
+                // Create Stock Out Record if Product ID exists
+                if ($productId) {
+                    \App\Models\StockOut::create([
+                        'customer_id' => $request->customer_id,
+                        'product_id' => $productId,
+                        'quantity' => $item['qty'],
+                        'unit_price' => $item['price'], // Selling price
+                        'total_price' => $item['qty'] * $item['price'],
+                        'type' => 'sale',
+                        'stock_out_date' => $request->invoice_date ?? now(),
+                        'note' => 'Invoice: ' . $invoiceNumber,
+                        'user_id' => auth()->id(),
+                    ]);
+                }
             }
 
             DB::commit();

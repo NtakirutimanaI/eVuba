@@ -7,20 +7,23 @@
     <div class="pro-header">
         <div>
             <h1>My Assigned Activities</h1>
-            <p style="color: var(--secondary); margin: 5px 0 0;">Manage your daily appointments and client engagements.</p>
+            <p style="color: var(--secondary); margin: 5px 0 0;">Manage your daily appointments and client engagements.
+            </p>
         </div>
         <div class="header-actions">
             <div class="glass-panel" style="padding: 5px 15px; display: flex; align-items: center; gap: 15px;">
                 <div class="stat-item">
                     <span style="font-size: 0.8rem; color: var(--secondary);">Total Engagements</span>
-                    <strong style="display: block; font-size: 1.1rem; color: var(--primary);">{{ $appointments->total() }}</strong>
+                    <strong
+                        style="display: block; font-size: 1.1rem; color: var(--primary);">{{ $appointments->total() }}</strong>
                 </div>
             </div>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success" style="margin-top: 1rem; padding: 12px 20px; border-radius: 12px; background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); display: flex; align-items: center; gap: 10px;">
+        <div class="alert alert-success"
+            style="margin-top: 1rem; padding: 12px 20px; border-radius: 12px; background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); display: flex; align-items: center; gap: 10px;">
             <i class="fas fa-check-circle"></i>
             {{ session('success') }}
         </div>
@@ -36,9 +39,10 @@
             <div class="target-glow"></div>
             <div class="target-header">
                 <span class="pulse-tag"><i class="fas fa-satellite-dish"></i> Next Mission Critical</span>
-                <span class="target-time">{{ $nextUp ? \Carbon\Carbon::parse($nextUp->scheduled_at)->diffForHumans() : 'No pending missions' }}</span>
+                <span
+                    class="target-time">{{ $nextUp ? \Carbon\Carbon::parse($nextUp->scheduled_at)->diffForHumans() : 'No pending missions' }}</span>
             </div>
-            
+
             @if($nextUp)
                 <div class="target-main">
                     <div class="target-info">
@@ -67,12 +71,14 @@
     </div>
 
     {{-- Agenda Stream --}}
-    <div style="margin-top: 3rem; background: var(--white); border-radius: 30px; padding: 40px; border: 1px solid var(--glass-border);">
+    <div
+        style="margin-top: 3rem; background: var(--white); border-radius: 30px; padding: 40px; border: 1px solid var(--glass-border);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
             <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--dark);">Agenda Stream</h3>
             <div class="mega-search" style="max-width: 300px; flex: 1; background: var(--light);">
                 <i class="fas fa-search" style="color: var(--secondary);"></i>
-                <input type="text" id="appointmentSearch" placeholder="Scan agenda..." class="search-input" style="background: transparent; border: none; padding: 10px;">
+                <input type="text" id="appointmentSearch" placeholder="Scan agenda..." class="search-input"
+                    style="background: transparent; border: none; padding: 10px;">
             </div>
         </div>
 
@@ -83,7 +89,7 @@
                         <span class="clock">{{ \Carbon\Carbon::parse($appointment->scheduled_at)->format('H:i') }}</span>
                         <span class="period">{{ \Carbon\Carbon::parse($appointment->scheduled_at)->format('A') }}</span>
                     </div>
-                    
+
                     <div class="agenda-connector">
                         <div class="connector-dot {{ $appointment->status }}"></div>
                         <div class="connector-line"></div>
@@ -94,11 +100,14 @@
                             <h4>{{ $appointment->title }}</h4>
                             <div class="agenda-meta">
                                 <span><i class="far fa-user"></i> {{ $appointment->user->name ?? 'Guest' }}</span>
-                                <span><i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($appointment->scheduled_at)->format('M d') }}</span>
+                                <span><i class="far fa-calendar-alt"></i>
+                                    {{ \Carbon\Carbon::parse($appointment->scheduled_at)->format('M d') }}</span>
                             </div>
                         </div>
                         <div class="agenda-actions">
-                            <button class="stream-btn" onclick="openHelpModal({{ $appointment->id }}, '{{ addslashes($appointment->title) }}')" title="Support">
+                            <button class="stream-btn"
+                                onclick="openHelpModal({{ $appointment->id }}, '{{ addslashes($appointment->title) }}')"
+                                title="Support">
                                 <i class="fas fa-headset"></i>
                             </button>
                             <button class="stream-btn" onclick="viewDetails({{ $appointment->id }})" title="Details">
@@ -139,11 +148,13 @@
                 <input type="hidden" name="appointment_id" id="help_appointment_id">
                 <div class="form-group">
                     <label>Activity Context</label>
-                    <input type="text" id="help_title" readonly class="glass-input" style="background: var(--light) !important;">
+                    <input type="text" id="help_title" readonly class="glass-input"
+                        style="background: var(--light) !important;">
                 </div>
                 <div class="form-group" style="margin-top: 15px;">
                     <label>Support Message / Feedback</label>
-                    <textarea name="message" id="help_message" rows="5" class="glass-input" placeholder="Explain what support you need for this activity..." required></textarea>
+                    <textarea name="message" id="help_message" rows="5" class="glass-input"
+                        placeholder="Explain what support you need for this activity..." required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -176,88 +187,393 @@
 
 <style>
     /* Mission Command Focus Mode */
-    .primary-target-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 30px; padding: 40px; position: relative; overflow: hidden; color: white; border: 1px solid rgba(255,255,255,0.1); }
-    .target-glow { position: absolute; top: -50%; right: -20%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%); pointer-events: none; }
-    
-    .target-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    .pulse-tag { background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-    .pulse-tag i { animation: pulseSate 2s infinite; }
-    @keyframes pulseSate { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
-    .target-time { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 600; }
+    .primary-target-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 30px;
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-    .target-main { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; }
-    .target-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 15px; line-height: 1.1; letter-spacing: -1px; }
-    .target-desc { font-size: 1rem; color: rgba(255,255,255,0.7); max-width: 600px; line-height: 1.6; margin: 0 0 20px; }
-    .target-client { font-size: 0.9rem; font-weight: 700; color: #818cf8; display: flex; align-items: center; gap: 8px; }
+    .target-glow {
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
 
-    .target-actions { display: flex; flex-direction: column; gap: 10px; min-width: 200px; }
-    .mega-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .mega-btn:hover { background: white; color: black; transform: translateY(-3px); }
-    .mega-btn.success { background: #10b981; border: none; }
-    .mega-btn.success:hover { background: #059669; color: white; }
+    .target-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .pulse-tag {
+        background: rgba(99, 102, 241, 0.2);
+        color: #818cf8;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pulse-tag i {
+        animation: pulseSate 2s infinite;
+    }
+
+    @keyframes pulseSate {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.5;
+            transform: scale(1.2);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .target-time {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 600;
+    }
+
+    .target-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 40px;
+    }
+
+    .target-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        margin: 0 0 15px;
+        line-height: 1.1;
+        letter-spacing: -1px;
+    }
+
+    .target-desc {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        max-width: 600px;
+        line-height: 1.6;
+        margin: 0 0 20px;
+    }
+
+    .target-client {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #818cf8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .target-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 200px;
+    }
+
+    .mega-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 14px 25px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .mega-btn:hover {
+        background: white;
+        color: black;
+        transform: translateY(-3px);
+    }
+
+    .mega-btn.success {
+        background: #10b981;
+        border: none;
+    }
+
+    .mega-btn.success:hover {
+        background: #059669;
+        color: white;
+    }
 
     /* Agenda Stream */
-    .agenda-stream { position: relative; margin-top: 10px; }
-    .agenda-item { display: flex; gap: 30px; margin-bottom: 25px; align-items: center; transition: 0.3s; }
-    .agenda-item.archived { opacity: 0.4; filter: grayscale(1); }
-    .agenda-time { width: 60px; text-align: right; }
-    .agenda-time .clock { display: block; font-size: 1.25rem; font-weight: 900; color: var(--dark); line-height: 1; }
-    .agenda-time .period { font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; }
+    .agenda-stream {
+        position: relative;
+        margin-top: 10px;
+    }
 
-    .agenda-connector { display: flex; flex-direction: column; align-items: center; height: 100%; align-self: stretch; }
-    .connector-dot { width: 12px; height: 12px; border-radius: 50%; border: 3px solid var(--glass-border); background: white; position: relative; z-index: 2; margin-top: 5px; }
-    .connector-dot.pending { border-color: #f59e0b; }
-    .connector-dot.completed { border-color: #10b981; background: #10b981; }
-    .connector-line { flex: 1; width: 2px; background: rgba(0,0,0,0.05); margin-top: 5px; margin-bottom: -25px; }
-    .agenda-item:last-child .connector-line { display: none; }
+    .agenda-item {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 25px;
+        align-items: center;
+        transition: 0.3s;
+    }
 
-    .agenda-card { flex: 1; background: var(--light); border-radius: 20px; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; border: 1px solid transparent; }
-    .agenda-card:hover { background: var(--white); border-color: var(--primary); transform: translateX(10px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
-    .agenda-card h4 { margin: 0 0 5px; font-size: 1.1rem; font-weight: 800; color: var(--dark); }
-    .agenda-meta { display: flex; gap: 15px; font-size: 0.75rem; color: var(--secondary); font-weight: 600; }
-    
-    .agenda-actions { display: flex; gap: 10px; }
-    .stream-btn { width: 38px; height: 38px; border-radius: 12px; border: none; background: rgba(0,0,0,0.03); color: var(--secondary); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-    .stream-btn:hover { background: var(--dark); color: white; }
-    .stream-btn.success:hover { background: #10b981; }
+    .agenda-item.archived {
+        opacity: 0.4;
+        filter: grayscale(1);
+    }
+
+    .agenda-time {
+        width: 60px;
+        text-align: right;
+    }
+
+    .agenda-time .clock {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .agenda-time .period {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--secondary);
+        text-transform: uppercase;
+    }
+
+    .agenda-connector {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        align-self: stretch;
+    }
+
+    .connector-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 3px solid var(--glass-border);
+        background: white;
+        position: relative;
+        z-index: 2;
+        margin-top: 5px;
+    }
+
+    .connector-dot.pending {
+        border-color: #f59e0b;
+    }
+
+    .connector-dot.completed {
+        border-color: #10b981;
+        background: #10b981;
+    }
+
+    .connector-line {
+        flex: 1;
+        width: 2px;
+        background: rgba(0, 0, 0, 0.05);
+        margin-top: 5px;
+        margin-bottom: -25px;
+    }
+
+    .agenda-item:last-child .connector-line {
+        display: none;
+    }
+
+    .agenda-card {
+        flex: 1;
+        background: var(--light);
+        border-radius: 20px;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.3s;
+        border: 1px solid transparent;
+    }
+
+    .agenda-card:hover {
+        background: var(--white);
+        border-color: var(--primary);
+        transform: translateX(10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .agenda-card h4 {
+        margin: 0 0 5px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .agenda-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 0.75rem;
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    .agenda-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .stream-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        border: none;
+        background: rgba(0, 0, 0, 0.03);
+        color: var(--secondary);
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stream-btn:hover {
+        background: var(--dark);
+        color: white;
+    }
+
+    .stream-btn.success:hover {
+        background: #10b981;
+    }
 
     /* Modal Styling */
     .modal-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(10px);
         z-index: 10001;
         align-items: center;
         justify-content: center;
     }
+
     .pro-modal {
         background: var(--white);
         width: 100%;
         max-width: 600px;
         border-radius: 30px;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         overflow: hidden;
         animation: modalFadeIn 0.3s ease-out;
     }
-    .modal-header { padding: 30px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
-    .close-modal { background: none; border: none; font-size: 2rem; color: var(--secondary); cursor: pointer; height: 40px; width: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-    .close-modal:hover { background: var(--light); }
-    .modal-body { padding: 40px; max-height: 60vh; overflow-y: auto; }
-    .modal-footer { padding: 25px 30px; background: var(--light); display: flex; justify-content: flex-end; gap: 15px; }
-    
-    .glass-input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border); background: var(--white); font-family: inherit; font-size: 0.95rem; }
-    .btn-submit { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 800; cursor: pointer; }
-    .btn-cancel { background: transparent; color: var(--secondary); border: none; padding: 12px 25px; cursor: pointer; font-weight: 700; }
 
-    @keyframes modalFadeIn { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .modal-header {
+        padding: 30px;
+        border-bottom: 1px solid var(--glass-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: var(--secondary);
+        cursor: pointer;
+        height: 40px;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .close-modal:hover {
+        background: var(--light);
+    }
+
+    .modal-body {
+        padding: 40px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 25px 30px;
+        background: var(--light);
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+
+    .glass-input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 15px;
+        border: 1px solid var(--glass-border);
+        background: var(--white);
+        font-family: inherit;
+        font-size: 0.95rem;
+    }
+
+    .btn-submit {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .btn-cancel {
+        background: transparent;
+        color: var(--secondary);
+        border: none;
+        padding: 12px 25px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Search Functionality
-    document.getElementById('appointmentSearch').addEventListener('keyup', function() {
+    document.getElementById('appointmentSearch').addEventListener('keyup', function () {
         let filter = this.value.toLowerCase();
         let rows = document.querySelectorAll('.appointment-row');
 
@@ -267,14 +583,14 @@
         });
     });
 
-    function openHelpModal(id, title){
+    function openHelpModal(id, title) {
         const modal = document.getElementById('helpModal');
         modal.style.display = 'flex';
         document.getElementById('help_appointment_id').value = id;
         document.getElementById('help_title').value = title;
     }
 
-    function closeHelpModal(){
+    function closeHelpModal() {
         document.getElementById('helpModal').style.display = 'none';
     }
 
@@ -310,12 +626,25 @@
                         </div>
                     </div>
                     <div style="margin-top: 25px; border-top: 1px dashed var(--glass-border); padding-top: 20px;">
-                        <label style="font-size: 0.75rem; color: var(--secondary); text-transform: uppercase;">Client Information</label>
-                        <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
-                            <div class="user-avatar-placeholder" style="width: 40px; height: 40px; background: var(--primary); font-size: 14px;">${app.customer_name.charAt(0)}</div>
-                            <div>
-                                <div style="font-weight: 700;">${app.customer_name}</div>
-                                <div style="font-size: 0.8rem; color: var(--secondary);">${app.customer_email}</div>
+                        <label style="font-size: 0.75rem; color: var(--secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Client Profile</label>
+                        <div style="background: var(--light); padding: 15px; border-radius: 16px; margin-top: 10px; display: flex; gap: 15px; border: 1px solid var(--glass-border);">
+                            <div class="user-avatar-placeholder" style="width: 50px; height: 50px; background: var(--primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; flex-shrink: 0; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);">
+                                ${app.customer_name.charAt(0)}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 800; font-size: 1.05rem; color: var(--dark);">${app.customer_name}</div>
+                                <div style="font-size: 0.85rem; color: var(--primary); margin-bottom: 10px; font-weight: 500;">${app.customer_email}</div>
+                                
+                                <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                                    <div style="font-size: 0.8rem; color: var(--secondary); display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.5); padding: 6px 10px; border-radius: 8px;">
+                                        <i class="fas fa-phone-alt" style="color: var(--primary); opacity: 0.8;"></i> 
+                                        <span>${app.customer_phone}</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: var(--secondary); display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.5); padding: 6px 10px; border-radius: 8px;">
+                                        <i class="fas fa-map-marker-alt" style="color: var(--danger); opacity: 0.8;"></i> 
+                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${app.customer_address}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -332,7 +661,7 @@
         }
     }
 
-    function closeDetailsModal(){
+    function closeDetailsModal() {
         document.getElementById('detailsModal').style.display = 'none';
     }
 
@@ -364,7 +693,7 @@
                 const data = await response.json();
                 if (data.success) {
                     Swal.fire({ icon: 'success', title: 'Great Job!', text: data.message, timer: 1500, showConfirmButton: false })
-                    .then(() => location.reload());
+                        .then(() => location.reload());
                 } else {
                     Swal.fire('Update Failed', data.message || 'Operation could not be completed.', 'error');
                 }
@@ -375,10 +704,10 @@
         }
     }
 
-    window.onclick = function(event){
+    window.onclick = function (event) {
         const helpModal = document.getElementById('helpModal');
         const detailsModal = document.getElementById('detailsModal');
-        if(event.target == helpModal) closeHelpModal();
-        if(event.target == detailsModal) closeDetailsModal();
+        if (event.target == helpModal) closeHelpModal();
+        if (event.target == detailsModal) closeDetailsModal();
     }
 </script>

@@ -1,10 +1,10 @@
 @php
     $user = Auth::user();
     $role = $user->role ?? 'customer';
-    
+
     // Notifications count
     $unreadNotifications = $user ? $user->unreadNotifications()->count() : 0;
-    
+
     // Messages count (Role specific logic)
     if (in_array($role, ['admin', 'manager'])) {
         $unreadMessages = \App\Models\MessageUs::where('read', false)->count();
@@ -15,7 +15,7 @@
 
 <script>
     // Immediate Theme Application to prevent flicker
-    (function() {
+    (function () {
         const theme = "{{ $user->theme ?? 'light' }}";
         document.documentElement.setAttribute('data-theme', theme);
     })();
@@ -28,8 +28,7 @@
     <div class="logo-area">
         <a href="{{ url('/') }}" class="topbar-logo">
             <!-- Ensure logo image has transparent bg -->
-            <img src="{{ asset('images/logo.png') }}" alt="eVuba Logo">
-            <span>eVubaConnect</span>
+            <img src="{{ asset('images/logo1.png') }}" alt="eVuba Logo">
         </a>
     </div>
 
@@ -37,8 +36,10 @@
     <div class="mega-search-container">
         <div class="mega-search">
             <i class="fas fa-search" style="color: var(--text-muted);"></i>
-            <input type="text" id="globalSearchInput" placeholder="Search orders, customers, tasks..." class="search-input" autocomplete="off">
-            <div id="searchLoader" style="display:none;"><i class="fas fa-spinner fa-spin" style="color: var(--primary);"></i></div>
+            <input type="text" id="globalSearchInput" placeholder="Search orders, customers, tasks..."
+                class="search-input" autocomplete="off">
+            <div id="searchLoader" style="display:none;"><i class="fas fa-spinner fa-spin"
+                    style="color: var(--primary);"></i></div>
         </div>
         <div id="globalSearchResults" class="search-results">
             <!-- Results populated via JS -->
@@ -48,23 +49,32 @@
     <div class="topbar-icons">
         <!-- Quick Add Dropdown -->
         <div class="dropdown-wrapper">
-            <button class="icon-btn" title="Quick Add" id="quickAddBtn" style="background: var(--primary); color: white;">
+            <button class="icon-btn" title="Quick Add" id="quickAddBtn"
+                style="background: var(--primary); color: white;">
                 <i class="fas fa-plus"></i>
             </button>
             <div class="dropdown-menu" id="quickAddDropdown">
                 <div class="dropdown-header">Quick Actions</div>
                 @if($role == 'admin' || $role == 'manager')
-                    <a href="{{ route($role.'.orders.index') }}" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Create New Order</a>
-                    <a href="{{ route($role == 'admin' ? 'admin.customers.index' : 'manager.dashboard') }}" class="dropdown-item"><i class="fas fa-user-plus"></i> Add New Customer</a>
-                    <a href="{{ route($role.'.product.index') }}" class="dropdown-item"><i class="fas fa-box-open"></i> Add New Product</a>
+                    <a href="{{ route($role . '.orders.index') }}" class="dropdown-item"><i
+                            class="fas fa-shopping-cart"></i>
+                        Create New Order</a>
+                    <a href="{{ route($role == 'admin' ? 'admin.customers.index' : 'manager.dashboard') }}"
+                        class="dropdown-item"><i class="fas fa-user-plus"></i> Add New Customer</a>
+                    <a href="{{ route($role . '.product.index') }}" class="dropdown-item"><i class="fas fa-box-open"></i>
+                        Add
+                        New Product</a>
                 @endif
                 @if($role == 'admin')
-                    <a href="{{ route('admin.employees.index') }}" class="dropdown-item"><i class="fas fa-user-tie"></i> Register Employee</a>
+                    <a href="{{ route('admin.employees.index') }}" class="dropdown-item"><i class="fas fa-user-tie"></i>
+                        Register Employee</a>
                 @endif
                 @if(in_array($role, ['admin', 'manager', 'employee']))
-                    <a href="{{ route($role == 'manager' ? 'manager.appointments' : $role.'.appointments.index') }}" class="dropdown-item"><i class="fas fa-calendar-plus"></i> New Activity/Task</a>
+                    <a href="{{ route($role == 'manager' ? 'manager.appointments' : $role . '.appointments.index') }}"
+                        class="dropdown-item"><i class="fas fa-calendar-plus"></i> New Activity/Task</a>
                 @endif
-                <a href="{{ route('customer.bookings.index') }}" class="dropdown-item"><i class="fas fa-bookmark"></i> Book a Service</a>
+                <a href="{{ route('customer.bookings.index') }}" class="dropdown-item"><i class="fas fa-bookmark"></i>
+                    Book a Service</a>
             </div>
         </div>
 
@@ -85,7 +95,8 @@
         @endif
 
         <!-- Messages -->
-        <a href="{{ $role == 'admin' ? route('admin.messages.index') : route('messages.page') }}" class="icon-btn" title="Messages">
+        <a href="{{ $role == 'admin' ? route('admin.messages.index') : route('messages.page') }}" class="icon-btn"
+            title="Messages">
             <i class="far fa-envelope"></i>
             @if($unreadMessages > 0)
                 <span class="badge">{{ $unreadMessages }}</span>
@@ -114,14 +125,17 @@
             <div class="dropdown-menu" id="profileDropdown">
                 <div class="dropdown-header">Account</div>
                 <div style="padding: 10px 15px; border-bottom: 1px solid var(--header-border); margin-bottom: 5px;">
-                    <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">{{ $user->name ?? 'User' }}</div>
+                    <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">{{ $user->name ?? 'User' }}
+                    </div>
                     <div style="font-size: 11px; color: var(--text-muted);">{{ ucfirst($role) }} Account</div>
                 </div>
                 <a href="{{ route('profile.show') }}" class="dropdown-item"><i class="far fa-user"></i> My Profile</a>
-                <a href="{{ ($role == 'admin') ? route('admin.settings') : '#' }}" class="dropdown-item"><i class="fas fa-sliders-h"></i> Settings</a>
+                <a href="{{ ($role == 'admin') ? route('admin.settings') : '#' }}" class="dropdown-item"><i
+                        class="fas fa-sliders-h"></i> Settings</a>
                 <form method="POST" action="{{ route('logout') }}" style="margin:0;" data-turbo="false">
                     @csrf
-                    <button type="submit" class="dropdown-item" style="width:100%; text-align:left; border:none; background:none; cursor:pointer; color: #ef4444;">
+                    <button type="submit" class="dropdown-item"
+                        style="width:100%; text-align:left; border:none; background:none; cursor:pointer; color: #ef4444;">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </form>
@@ -134,24 +148,29 @@
     /* Intact Design Update */
     .topbar {
         height: 64px;
-        background: var(--surface); /* Default to surface */
+        background: var(--surface);
+        /* Default to surface */
         display: flex;
         align-items: center;
-        padding: 0; /* Remove default padding to let logo flush */
+        padding: 0;
+        /* Remove default padding to let logo flush */
         position: fixed;
-        top: 0; 
-        left: 0; 
+        top: 0;
+        left: 0;
         right: 0;
-        z-index: 2000; /* Highest Priority: Always on top of everything */
+        z-index: 2000;
+        /* Highest Priority: Always on top of everything */
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         border-bottom: 1px solid var(--header-border);
     }
 
     /* Logo Area matches Header (White) */
     .logo-area {
-        width: 222px; /* Sidebar Width */
+        width: 222px;
+        /* Sidebar Width */
         height: 100%;
-        background: transparent; /* Seamless with white header */
+        background: transparent;
+        /* Seamless with white header */
         display: flex;
         align-items: center;
         padding-left: 20px;
@@ -165,17 +184,23 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        color: var(--primary); /* Brand Color for Logo Text */
+        color: var(--primary);
+        /* Brand Color for Logo Text */
         text-decoration: none;
         font-weight: 800;
         font-size: 19px;
         font-family: 'Inter', sans-serif;
         letter-spacing: -0.5px;
     }
-    
+
     .topbar-logo img {
-        height: 32px;
+        height: 120px;
         width: auto;
+    }
+
+    /* Fix logo visibility in light mode */
+    [data-theme="light"] .topbar-logo img {
+        filter: drop-shadow(0px 0px 1px rgba(0,0,0,0.5)) drop-shadow(0px 0px 1px rgba(0,0,0,0.5));
     }
 
     .mega-search-container {
@@ -184,7 +209,7 @@
         margin-left: 20px;
         position: relative;
     }
-    
+
     /* Adjust icons container */
     .topbar-icons {
         margin-left: auto;
@@ -208,11 +233,11 @@
     themeToggle.addEventListener('click', () => {
         let theme = document.documentElement.getAttribute('data-theme');
         let newTheme = theme === 'light' ? 'dark' : 'light';
-        
+
         // Update UI immediately
         document.documentElement.setAttribute('data-theme', newTheme);
         updateThemeIcon(newTheme);
-        
+
         // Persist to database
         fetch("{{ route('profile.theme') }}", {
             method: 'POST',
@@ -225,7 +250,7 @@
     });
 
     function updateThemeIcon(theme) {
-        if(theme === 'dark') {
+        if (theme === 'dark') {
             themeIcon.classList.replace('fa-moon', 'fa-sun');
         } else {
             themeIcon.classList.replace('fa-sun', 'fa-moon');
@@ -236,7 +261,7 @@
     function setupDropdown(btnId, menuId) {
         const btn = document.getElementById(btnId);
         const menu = document.getElementById(menuId);
-        if(!btn || !menu) return;
+        if (!btn || !menu) return;
 
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -265,7 +290,7 @@
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         clearTimeout(searchTimeout);
-        
+
         if (query.length < 2) {
             searchResults.style.display = 'none';
             return;

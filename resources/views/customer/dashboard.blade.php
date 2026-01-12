@@ -8,10 +8,12 @@
     <div class="pro-header">
         <div>
             <h1><i class="fas fa-chart-line" style="color: var(--primary);"></i> Command Center</h1>
-            <p style="color: var(--secondary); margin: 5px 0 0;">Welcome back, <strong>{{ Auth::user()->name }}</strong>. Monitoring your operational footprint.</p>
+            <p style="color: var(--secondary); margin: 5px 0 0;">Welcome back,
+                <strong>{{ Auth::user()->name }}</strong>. Monitoring your operational footprint.</p>
         </div>
         <div class="header-actions">
-            <a href="{{ route('customer.bookings.index') }}" class="action-btn btn-primary" style="text-decoration:none; padding: 0 25px; border-radius: 12px; height: 46px; display: flex; align-items: center; gap: 10px;">
+            <a href="{{ route('customer.bookings.index') }}" class="action-btn btn-primary"
+                style="text-decoration:none; padding: 0 25px; border-radius: 12px; height: 46px; display: flex; align-items: center; gap: 10px;">
                 <i class="fas fa-calendar-plus"></i> Initialize Engagement
             </a>
         </div>
@@ -47,7 +49,7 @@
             </div>
             <div class="metric-content">
                 <div class="metric-label">Liquid Investment</div>
-                <div class="metric-value" style="font-size: 1.4rem;">{{ number_format($totalSpent) }} RWF</div>
+                <div class="metric-value" style="font-size: 1.4rem;">{{ number_format($totalSpent) }} FRW</div>
                 <div class="metric-trend up"><i class="fas fa-file-invoice-dollar"></i> Confirmed Capital</div>
             </div>
         </div>
@@ -73,7 +75,7 @@
             </div>
             <div id="spendingChart" class="chart-container"></div>
         </div>
-        
+
         <div class="pro-card glass-panel analytical-card">
             <div class="card-header">
                 <h3><i class="fas fa-chart-pie"></i> Engagement Lifecycle</h3>
@@ -88,7 +90,8 @@
         <div class="pro-card glass-panel activity-card">
             <div class="card-header">
                 <h3><i class="fas fa-exchange-alt"></i> Transactional Pulse</h3>
-                <a href="{{ route('customer.orders.index') }}" class="view-all-link">Archive <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('customer.orders.index') }}" class="view-all-link">Archive <i
+                        class="fas fa-arrow-right"></i></a>
             </div>
             <div class="table-container">
                 <table class="pro-table">
@@ -103,14 +106,25 @@
                         @forelse($recentOrders as $order)
                             <tr>
                                 <td>
-                                    <div style="font-weight: 700; color: var(--dark);">{{ $order->product->name ?? $order->product_name }}</div>
-                                    <div style="font-size: 0.7rem; color: var(--secondary);">{{ $order->created_at->diffForHumans() }}</div>
+                                    <div style="font-weight: 700; color: var(--dark);">
+                                        {{ $order->product->name ?? $order->product_name }}</div>
+                                    <div style="font-size: 0.7rem; color: var(--secondary);">
+                                        {{ $order->created_at->diffForHumans() }}</div>
                                 </td>
-                                <td><span style="font-weight: 700; color: #10b981;">{{ number_format($order->price * $order->quantity) }} RWF</span></td>
-                                <td><span class="status-badge status-{{ $order->status }}">{{ ucfirst($order->status) }}</span></td>
+                                <td><span
+                                        style="font-weight: 700; color: #10b981;">{{ number_format($order->price * $order->quantity) }}
+                                        FRW</span></td>
+                                <td><span
+                                        class="status-badge status-{{ $order->status }}">{{ ucfirst($order->status) }}</span>
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" style="text-align:center; padding:3rem; color: var(--secondary);"><i class="fas fa-ghost" style="display:block; font-size: 2rem; opacity: 0.2; margin-bottom: 10px;"></i> No transactional pulse detected.</td></tr>
+                            <tr>
+                                <td colspan="3" style="text-align:center; padding:3rem; color: var(--secondary);"><i
+                                        class="fas fa-ghost"
+                                        style="display:block; font-size: 2rem; opacity: 0.2; margin-bottom: 10px;"></i> No
+                                    transactional pulse detected.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -120,7 +134,8 @@
         <div class="pro-card glass-panel activity-card">
             <div class="card-header">
                 <h3><i class="fas fa-stream"></i> Engagement Pipeline</h3>
-                <a href="{{ route('customer.bookings.index') }}" class="view-all-link">Commands <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('customer.bookings.index') }}" class="view-all-link">Commands <i
+                        class="fas fa-arrow-right"></i></a>
             </div>
             <div class="activity-list">
                 @forelse($recentBookings as $booking)
@@ -130,13 +145,15 @@
                         </div>
                         <div class="item-info">
                             <div class="item-title">{{ $booking->service->name ?? $booking->title }}</div>
-                            <div class="item-meta"><i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}</div>
+                            <div class="item-meta"><i class="far fa-calendar-alt"></i>
+                                {{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}</div>
                         </div>
                         <span class="status-badge status-{{ $booking->status }}">{{ ucfirst($booking->status) }}</span>
                     </div>
                 @empty
                     <div style="text-align:center; padding:3rem; color: var(--secondary);">
-                        <i class="fas fa-terminal" style="display:block; font-size: 2rem; opacity: 0.2; margin-bottom: 10px;"></i>
+                        <i class="fas fa-terminal"
+                            style="display:block; font-size: 2rem; opacity: 0.2; margin-bottom: 10px;"></i>
                         No active pipeline.
                     </div>
                 @endforelse
@@ -174,7 +191,7 @@
             }
         },
         colors: ['#6366f1'],
-        xaxis: { 
+        xaxis: {
             categories: @json($spendingLabels),
             axisBorder: { show: false },
             axisTicks: { show: false },
@@ -214,4 +231,3 @@
     };
     new ApexCharts(document.querySelector("#bookingChart"), bookingOptions).render();
 </script>
-

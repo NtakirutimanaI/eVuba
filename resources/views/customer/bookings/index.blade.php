@@ -577,7 +577,8 @@
                                                 @endif
                                             </div>
                                             <div>
-                                                <div style="font-weight: 700; color: var(--text-main);">{{ $booking->title }}
+                                                <div style="font-weight: 700; color: var(--text-main);">
+                                                    {{ $booking->title }}
 
                                                 </div>
                                                 <div style="font-size: 0.85rem; color: var(--secondary); margin-top: 4px;">
@@ -606,7 +607,8 @@
                             @empty
                                 <tr>
                                     <td colspan="3" style="text-align: center; padding: 40px;">
-                                        <div style="color: var(--text-secondary); font-style: italic;">No bookings found. Try
+                                        <div style="color: var(--text-secondary); font-style: italic;">No bookings found.
+                                            Try
                                             adjusting your filters.</div>
                                     </td>
                                 </tr>
@@ -636,8 +638,9 @@
                                 class="catalog-img">
                             <div class="catalog-details">
                                 <h4 style="margin: 0 0 5px; font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
-                                    {{ $service->name }}</h4>
-                                <div class="catalog-price">{{ number_format($service->price) }} RWF</div>
+                                    {{ $service->name }}
+                                </h4>
+                                <div class="catalog-price">{{ number_format($service->price) }} FRW</div>
                             </div>
                             <div class="book-btn-mini"><i class="fas fa-arrow-right"></i></div>
                         </div>
@@ -746,7 +749,8 @@
                 <label
                     style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; margin-bottom: 5px; display: block;">Operation
                     Title</label>
-                <h2 id="view_title" style="margin: 0 0 10px; font-size: 1.3rem; color: var(--text-main);">Service Title</h2>
+                <h2 id="view_title" style="margin: 0 0 10px; font-size: 1.3rem; color: var(--text-main);">Service Title
+                </h2>
                 <div style="display: flex; gap: 10px;">
                     <span id="view_status" class="badge">Status</span>
                     <span id="view_price"
@@ -759,7 +763,8 @@
                     <label
                         style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase;">Execution
                         Time</label>
-                    <div id="view_date" style="font-weight: 600; font-size: 1rem; color: var(--text-main); margin-top: 4px;">
+                    <div id="view_date"
+                        style="font-weight: 600; font-size: 1rem; color: var(--text-main); margin-top: 4px;">
                         -</div>
                 </div>
                 <div>
@@ -1010,7 +1015,7 @@
                 document.getElementById('view_status').className = `badge badge-${b.status}`;
                 document.getElementById('view_description').textContent = b.description || 'No additional notes provided.';
                 document.getElementById('view_employee').textContent = b.employee ? b.employee.name : 'Pending Assignment';
-                document.getElementById('view_price').textContent = b.service ? new Intl.NumberFormat().format(b.service.price) + ' RWF' : 'N/A';
+                document.getElementById('view_price').textContent = b.service ? new Intl.NumberFormat().format(b.service.price) + ' FRW' : 'N/A';
                 openModal('viewModal');
             }
         } catch (e) {

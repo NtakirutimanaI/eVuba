@@ -210,7 +210,7 @@
             </div>
             <div class="stat-content">
                 <div class="label">Revenue</div>
-                <div class="value">{{ number_format($stats['total_sales']) }} RWF</div>
+                <div class="value">{{ number_format($stats['total_sales']) }} FRW</div>
             </div>
         </div>
         <div class="stat-card">

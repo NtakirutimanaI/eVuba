@@ -250,71 +250,19 @@ class AdminOrderController extends Controller
     {
         $order = Order::with('product')->findOrFail($id);
 
-        // 1. Check Stock Availability
-        $totalStockIn = DB::table('stock_in')
-            ->where('product_id', $order->product_id)
-            ->sum('quantity');
+        $stockService = new \App\Services\StockService();
+        $result = $stockService->deductStock($order);
 
-        $totalStockOut = StockOut::where('product_id', $order->product_id)
-            ->sum('quantity');
-
-        $availableStock = $totalStockIn - $totalStockOut;
-
-        if ($order->quantity > $availableStock) {
-            return redirect()->back()->with('error', "Insufficient stock! Available: $availableStock, Required: $order->quantity");
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $result['message']);
         }
 
-        // 2. Find or Create Customer Profile for the User
-        // We link the stock out to a 'Customer' record. If the user doesn't have one, we create one.
-        $user = $order->user;
-        $customer = Customer::firstOrCreate(
-            ['email' => $user->email],
-            [
-                'name' => $user->name,
-                'phone' => 'N/A', // Or fetch from user profile if available
-                'address' => 'Created from Order #' . $order->id
-            ]
-        );
-
-        // 3. Calculate Unit Price (Weighted Average Cost)
-        $stockIns = DB::table('stock_in')
-            ->where('product_id', $order->product_id)
-            ->get();
-
-        $totalCost = $stockIns->sum(fn($s) => $s->unit_cost * $s->quantity);
-        $totalQty = $stockIns->sum('quantity');
-        $unitPrice = $totalQty ? $totalCost / $totalQty : 0;
-
-        // 4. Create Stock Out Record
-        StockOut::create([
-            'customer_id' => $customer->id,
-            'product_id' => $order->product_id,
-            'quantity' => $order->quantity,
-            'unit_price' => $unitPrice,
-            'total_price' => $order->quantity * $unitPrice,
-            'type' => 'sale',
-            'stock_out_date' => now(),
-            'note' => "Auto-generated from Order #{$order->id}",
-            'user_id' => Auth::id(), // Admin who approved it
-        ]);
-
-        // 5. Create Sale Record
-        Sale::create([
-            'customer_id' => $customer->id,
-            'product_id' => $order->product_id,
-            'quantity' => $order->quantity,
-            'unit_price' => $unitPrice,
-            'total_amount' => $order->quantity * $unitPrice,
-            'sale_date' => now(),
-            'user_id' => Auth::id(),
-        ]);
-
-        // 6. Update Order Status
+        // Update Order Status
         $order->payment_status = 'approved';
         $order->status = 'processing';
         $order->save();
 
-        // 7. Notify User
+        // Notify User
         if ($order->user) {
             $order->user->notify(new \App\Notifications\SystemAlert([
                 'title' => 'Payment Verified',

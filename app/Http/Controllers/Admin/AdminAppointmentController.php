@@ -123,7 +123,12 @@ class AdminAppointmentController extends Controller
     public function edit(Appointment $appointment)
     {
         $employees = User::where('role', 'employee')->get();
-        return view('admin.appointments.edit', compact('appointment', 'employees'));
+        $customers = User::where('role', 'customer')->get();
+
+        // Ensure relationships are loaded
+        $appointment->load(['customer', 'user' => fn($q) => $q->withTrashed()]);
+
+        return view('admin.appointments.edit', compact('appointment', 'employees', 'customers'));
     }
 
     // Update appointment
@@ -157,7 +162,7 @@ class AdminAppointmentController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Appointment updated successfully.');
+        return redirect()->route('admin.appointments.index')->with('success', 'Appointment updated successfully.');
     }
 
     // Update only status
@@ -261,7 +266,10 @@ class AdminAppointmentController extends Controller
      */
     public function showJson($id)
     {
-        $appointment = Appointment::with(['user', 'employee'])->findOrFail($id);
+        $appointment = Appointment::with(['customer', 'user' => fn($q) => $q->withTrashed(), 'employee'])->findOrFail($id);
+
+        // Append dynamic attributes if needed, or rely on frontend to parse 'customer' object
+        // We will just return the full model with relations
         return response()->json($appointment);
     }
 

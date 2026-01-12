@@ -44,53 +44,40 @@ class CustomerOrderController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
-            'payment_method' => 'nullable|string',
-            'transaction_ref' => 'nullable|string',
         ]);
 
         $product = Product::findOrFail($request->product_id);
 
-        // Logic for payment status: SIMULATED AUTO-APPROVAL
-        // If payment method is provided, we simulate a successful immediate payment.
-        $isPaid = !empty($request->payment_method);
-        $paymentStatus = $isPaid ? 'approved' : 'pending';
-        $orderStatus = $isPaid ? 'processing' : 'pending';
-
-        // Generate mock transaction ref if needed
-        $txRef = $request->transaction_ref;
-        if ($isPaid && empty($txRef)) {
-            $txRef = 'SIM-' . strtoupper(uniqid());
-        }
-
-        // Create new order
-        Order::create([
+        // Create new order with pending payment status
+        $order = Order::create([
             'user_id' => auth()->id(),
             'product_id' => $product->id,
             'product_name' => $product->name,
             'quantity' => $request->quantity,
             'price' => $product->unit_price ?? 0,
-            'status' => $orderStatus,
-            'payment_method' => $request->payment_method,
-            'payment_status' => $paymentStatus,
-            'transaction_ref' => $txRef,
+            'status' => 'pending',
+            'payment_method' => null, // Will be set after payment
+            'payment_status' => 'pending',
+            'transaction_ref' => null, // Will be set when payment is initiated
         ]);
 
         // Notify user
-        $message = "Your order for {$product->name} (x{$request->quantity}) has been placed.";
-        if ($isPaid) {
-            $message .= " Payment confirmed via {$request->payment_method}.";
-        } else {
-            $message .= " Status: Pending Payment.";
-        }
+        $message = "Your order for {$product->name} (x{$request->quantity}) has been placed. Please complete payment to confirm.";
 
         auth()->user()->notify(new \App\Notifications\SystemAlert([
-            'title' => $isPaid ? 'Order Paid & Processing' : 'Order Received',
+            'title' => 'Order Created',
             'message' => $message,
-            'icon' => $isPaid ? 'fa-check-circle' : 'fa-hourglass-start',
+            'icon' => 'fa-shopping-cart',
             'action_url' => route('customer.orders.index')
         ]));
 
-        return response()->json(['success' => true, 'message' => 'Order placed successfully!']);
+        // Return order ID so frontend can initiate payment
+        return response()->json([
+            'success' => true,
+            'message' => 'Order placed successfully! Redirecting to payment...',
+            'order_id' => $order->id,
+            'redirect_to_payment' => true
+        ]);
     }
 
     /**
@@ -112,19 +99,25 @@ class CustomerOrderController extends Controller
     }
 
     /**
-     * Delete a pending order
+     * Delete an order (Archive)
      */
     public function destroy($id)
     {
-        $order = Order::where('user_id', auth()->id())->findOrFail($id);
+        try {
+            $order = Order::where('user_id', auth()->id())->findOrFail($id);
 
-        if ($order->status !== 'pending') {
-            return response()->json(['success' => false, 'message' => 'Only pending orders can be cancelled.'], 403);
+            // Removed status restriction to allow deleting any order from archive
+            // Soft delete or standard delete depending on model config
+            $order->delete();
+
+            return response()->json(['success' => true, 'message' => 'Order removed from archive successfully.']);
+        } catch (\Exception $e) {
+            \Log::error('Order deletion failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to delete order. It may be linked to payment records.'
+            ], 500);
         }
-
-        $order->delete();
-
-        return response()->json(['success' => true, 'message' => 'Order cancelled successfully.']);
     }
 
     /**

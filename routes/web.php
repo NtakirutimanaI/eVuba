@@ -319,7 +319,7 @@ use App\Http\Controllers\Admin\AppointmentController;
 // Route moved to main admin group
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     // Other appointment routes if any
-    Route::post('/appointments/update-status', [AdminAppointmentController::class, 'updateStatus'])
+    Route::patch('/appointments/{appointment}/status', [AdminAppointmentController::class, 'updateStatus'])
         ->name('admin.appointments.updateStatus');
     Route::post('/appointments/{id}/priority', [AdminAppointmentController::class, 'updatePriority']);
     Route::post('/appointments/{id}/assign', [AdminAppointmentController::class, 'assignEmployeeAjax']);
@@ -482,13 +482,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('stock_in/{id}', [\App\Http\Controllers\Admin\AdminStockInController::class, 'update'])->name('stock_in.update');
     Route::delete('stock_in/{id}', [\App\Http\Controllers\Admin\AdminStockInController::class, 'destroy'])->name('stock_in.destroy');
 
-    // Stock Out
-    Route::get('stockout', [\App\Http\Controllers\Admin\AdminStockOutController::class, 'index'])->name('stockout.index');
-    Route::get('admin/stock_out', [\App\Http\Controllers\Admin\AdminStockOutController::class, 'create'])->name('admin.stockout.create');
-    Route::post('stock_out', [\App\Http\Controllers\Admin\AdminStockOutController::class, 'store'])->name('stock_out.store');
-    Route::get('stockout/{id}/edit', [\App\Http\Controllers\Admin\AdminStockOutController::class, 'edit'])->name('stockout.edit');
-    Route::put('stockout/{id}', [\App\Http\Controllers\Admin\AdminStockOutController::class, 'update'])->name('stockout.update');
-    Route::delete('stockout/{id}', [\App\Http\Controllers\Admin\AdminStockOutController::class, 'destroy'])->name('stockout.destroy');
+    // Stock Out Routes - Consolidated below
+    // Route::get('stockout', [\App\Http\Controllers\Admin\AdminStockOutController::class, 'index'])->name('stockout.index');
+    // ... removed duplicates ...
 
     //Report
     Route::get('/stock_in/pdf', [\App\Http\Controllers\Admin\AdminStockInController::class, 'generatePdf'])->name('stock_in.pdf');
@@ -515,6 +511,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
 Route::prefix('admin/stockout')->name('admin.stockout.')->middleware(['auth'])->group(function () {
     Route::get('/', [AdminStockOutController::class, 'index'])->name('index');
+    Route::get('/create', [AdminStockOutController::class, 'create'])->name('create');
     Route::post('/store', [AdminStockOutController::class, 'store'])->name('store');
     Route::post('/store-customer', [AdminStockOutController::class, 'storeCustomer'])->name('storeCustomer');
     Route::get('/product-price/{id}', [AdminStockOutController::class, 'getProductPrice'])->name('product-price');
@@ -522,6 +519,11 @@ Route::prefix('admin/stockout')->name('admin.stockout.')->middleware(['auth'])->
     Route::put('/{id}/update', [AdminStockOutController::class, 'update'])->name('update');
     Route::delete('/{id}/delete', [AdminStockOutController::class, 'destroy'])->name('delete');
     Route::get('/check-stock/{id}', [AdminStockOutController::class, 'checkStock'])->name('check-stock');
+});
+
+Route::prefix('admin/invoices')->name('admin.invoices.')->middleware(['auth'])->group(function () {
+    Route::post('/store', [\App\Http\Controllers\Admin\AdminInvoiceController::class, 'store'])->name('store');
+    Route::get('/{id}/pdf', [\App\Http\Controllers\Admin\AdminInvoiceController::class, 'pdf'])->name('pdf');
 });
 
 
@@ -659,8 +661,9 @@ Route::prefix('manager')->middleware(['auth'])->group(function () {
 use App\Http\Controllers\Customer\CustomerOrderController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Manager\ManagerOrderController;
+use App\Http\Controllers\FlutterwaveController;
 // Customer routes
-Route::prefix('customer')->group(function () {
+Route::prefix('customer')->middleware(['auth'])->group(function () {
     Route::get('orders', [CustomerOrderController::class, 'index'])->name('customer.orders.index');
     Route::get('orders/create', [CustomerOrderController::class, 'create'])->name('customer.orders.create');
     Route::post('orders', [CustomerOrderController::class, 'store'])->name('customer.orders.store');
@@ -669,6 +672,9 @@ Route::prefix('customer')->group(function () {
     // Documents & Invoices
     Route::get('orders/{id}/invoice', [CustomerOrderController::class, 'downloadInvoice'])->name('customer.orders.invoice');
 
+    // Flutterwave Payment Routes
+    Route::post('payment/initiate', [FlutterwaveController::class, 'initiatePayment'])->name('payment.initiate');
+    Route::get('payment/callback', [FlutterwaveController::class, 'handleCallback'])->name('payment.callback');
 });
 
 // Admin routes

@@ -46,3 +46,9 @@ Route::get('/ping', function () {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Flutterwave Webhook Route (No auth middleware needed - verified by signature)
+use App\Http\Controllers\FlutterwaveController;
+
+Route::post('/flutterwave/webhook', [FlutterwaveController::class, 'handleWebhook'])
+    ->name('flutterwave.webhook');

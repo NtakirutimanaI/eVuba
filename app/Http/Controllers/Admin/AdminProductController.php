@@ -17,65 +17,69 @@ class AdminProductController extends Controller
     {
         $products = Product::with(['category', 'stockIns', 'stockOuts'])->orderBy('id', 'DESC')->paginate(20); // Increase per page slightly for dense view
         $categories = Category::orderBy('name')->get();
-        return view('admin.products.index', compact('products','categories'));
+        return view('admin.products.index', compact('products', 'categories'));
     }
 
     public function storeCategory(Request $request)
     {
         $request->validate([
-            'name'=>['required','max:255', Rule::unique('categories')],
-            'description'=>'nullable|string'
+            'name' => ['required', 'max:255', Rule::unique('categories')],
+            'description' => 'nullable|string'
         ]);
 
         $category = Category::create([
-            'name'=>$request->name,
-            'description'=>$request->description
+            'name' => $request->name,
+            'description' => $request->description
         ]);
 
         return redirect()->route('admin.product.index')
-            ->with('success','Category created successfully!')
-            ->with('new_category',$category->id);
+            ->with('success', 'Category created successfully!')
+            ->with('new_category', $category->id);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>['required','max:255', Rule::unique('products')],
-            'description'=>'nullable|string',
-            'category_id'=>'required|exists:categories,id'
+            'name' => ['required', 'max:255', Rule::unique('products')],
+            'description' => 'nullable|string',
+            'category_id' => 'required|exists:categories,id',
+            'unit_price' => 'nullable|numeric|min:0'
         ]);
 
         Product::create([
-            'name'=>$request->name,
-            'description'=>$request->description,
-            'category_id'=>$request->category_id
+            'name' => $request->name,
+            'description' => $request->description,
+            'category_id' => $request->category_id,
+            'unit_price' => $request->unit_price
         ]);
 
-        return redirect()->back()->with('success','Product created successfully!');
+        return redirect()->back()->with('success', 'Product created successfully!');
     }
 
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
         $request->validate([
-            'name'=>['required','max:255', Rule::unique('products')->ignore($product->id)],
-            'description'=>'nullable|string',
-            'category_id'=>'required|exists:categories,id'
+            'name' => ['required', 'max:255', Rule::unique('products')->ignore($product->id)],
+            'description' => 'nullable|string',
+            'category_id' => 'required|exists:categories,id',
+            'unit_price' => 'nullable|numeric|min:0'
         ]);
 
         $product->update([
-            'name'=>$request->name,
-            'description'=>$request->description,
-            'category_id'=>$request->category_id
+            'name' => $request->name,
+            'description' => $request->description,
+            'category_id' => $request->category_id,
+            'unit_price' => $request->unit_price
         ]);
 
-        return redirect()->back()->with('success','Product updated successfully!');
+        return redirect()->back()->with('success', 'Product updated successfully!');
     }
 
     public function destroy($id)
     {
         Product::findOrFail($id)->delete();
-        return redirect()->back()->with('success','Product deleted successfully!');
+        return redirect()->back()->with('success', 'Product deleted successfully!');
     }
 
     public function exportPdf(Request $request)

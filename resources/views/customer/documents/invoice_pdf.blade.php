@@ -18,7 +18,7 @@
         }
 
         .header {
-            border-bottom: 3px solid #6366f1;
+            border-bottom: 3px solid #0056b3;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
@@ -142,18 +142,21 @@
 
 <body>
     <div class="header">
-        <table style="width: 100%; border-collapse: collapse; border: none;">
+        <table style="width: 100%; margin-bottom: 30px; padding-bottom: 10px;">
             <tr>
-                <td style="width: 60%; vertical-align: top; padding: 0; border: none;">
-                   <h1 style="font-size: 32px; font-weight: 900; margin: 0; line-height: 1; color: #6366f1; text-transform: uppercase;">INVOICE RECEIPT</h1>
-                </td>
-                <td style="width: 40%; vertical-align: top; text-align: right; padding: 0; border: none;">
-                    <div style="font-size: 10px; color: #64748b; line-height: 1.4;">
-                        <strong style="font-size: 14px; color: #1e293b; display: block; margin-bottom: 2px;">e-Vuba Connect</strong>
-                        Umoja House 4th Floor<br>
-                        Kigali, Rwanda<br>
-                        0786325291 | info@evuba.connect.rw
+                <td style="text-align: left; vertical-align: middle; border: none;">
+                    <div
+                        style="background-color: #00C853; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-family: sans-serif; font-size: 24px; display: inline-block; position: relative;">
+                        Receipt
+                        <span
+                            style="position: absolute; top: -10px; right: -10px; background: white; color: #00C853; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 20px; font-size: 14px; border: 2px solid #00C853;">&#10003;</span>
                     </div>
+                </td>
+                <td style="text-align: right; vertical-align: middle; border: none;">
+                    <div style="color: #0056b3; font-weight: bold; font-size: 32px; font-family: sans-serif;">
+                        eVubaConnect</div>
+                    <div style="color: #64748b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+                        #{{ $order->transaction_ref ?? 'INV-' . str_pad($order->id, 8, '0', STR_PAD_LEFT) }}</div>
                 </td>
             </tr>
         </table>
@@ -221,7 +224,15 @@
     </table>
 
     <div class="summary-box">
-        <div class="summary-item">
+        <div class="summary-item" style="font-size: 14px; font-weight: normal; margin-bottom: 5px;">
+            <span style="color: #64748b; margin-right: 15px;">Subtotal:</span>
+            FRW {{ number_format(($order->price * $order->quantity) / 1.18, 0) }}
+        </div>
+        <div class="summary-item" style="font-size: 14px; font-weight: normal; margin-bottom: 5px;">
+            <span style="color: #64748b; margin-right: 15px;">VAT (18%):</span>
+            FRW {{ number_format(($order->price * $order->quantity) - (($order->price * $order->quantity) / 1.18), 0) }}
+        </div>
+        <div class="summary-item" style="border-top: 2px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
             <span style="color: #64748b; font-size: 12px; font-weight: normal; margin-right: 15px;">TOTAL AMOUNT
                 PAID</span>
             FRW {{ number_format($order->price * $order->quantity, 0) }}

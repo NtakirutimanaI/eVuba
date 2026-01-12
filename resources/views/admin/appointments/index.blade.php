@@ -1283,7 +1283,7 @@
 </style>
 
 <script>
-        // Alert Hel    per
+    // Alert Hel    per
     function showAlert(type, mes        sage) {
         const container = document.getElementById('alertContainer');
         const alert = document.createElement('div');
@@ -1421,6 +1421,12 @@
         fetch(`/admin/appointments/${id}/json`)
             .then(r => r.json())
             .then(task => {
+                const customer = task.customer || task.user || {};
+                const customerName = customer.name || 'No Customer';
+                const customerPhone = customer.phone || 'N/A';
+                const customerAddress = customer.address || 'N/A';
+                const customerEmail = customer.email || 'N/A';
+
                 const content = `
                 <div style="padding: 20px;">
                     <h3 style="margin: 0 0 20px 0; color: var(--primary);">${task.title}</h3>
@@ -1438,14 +1444,25 @@
                             <p style="margin: 5px 0;">${task.employee ? task.employee.name : 'Unassigned'}</p>
                         </div>
                         <div>
-                            <strong style="color: var(--text-light); font-size: 12px;">Customer:</strong>
-                            <p style="margin: 5px 0;">${task.user ? task.user.name : 'No Customer'}</p>
-                        </div>
-                        <div>
                             <strong style="color: var(--text-light); font-size: 12px;">Due Date:</strong>
                             <p style="margin: 5px 0;">${new Date(task.scheduled_at).toLocaleString()}</p>
                         </div>
                     </div>
+
+                    <div style="margin-bottom: 20px; background: var(--light); padding: 15px; border-radius: 12px;">
+                        <strong style="color: var(--text-light); font-size: 12px; display:block; margin-bottom:8px;">Customer Details:</strong>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <div style="font-weight:700;">${customerName}</div>
+                                <div style="font-size:12px; color:var(--text-muted);">${customerEmail}</div>
+                            </div>
+                            <div style="font-size:13px;">
+                                <div style="margin-bottom:4px;"><i class="fas fa-phone-alt" style="font-size:11px; width:15px; color:var(--primary);"></i> ${customerPhone}</div>
+                                <div><i class="fas fa-map-marker-alt" style="font-size:11px; width:15px; color:var(--danger);"></i> ${customerAddress}</div>
+                            </div>
+                        </div>
+                    </div>
+
                     ${task.description ? `
                         <div>
                             <strong style="color: var(--text-light); font-size: 12px;">Description:</strong>
@@ -1580,8 +1597,8 @@
     });
 
     function updateStatus(id, newStatus) {
-        fetch(`/admin/appointments/${id}`, {
-            method: 'PUT',
+        fetch(`/admin/appointments/${id}/status`, {
+            method: 'PATCH',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Accept': 'application/json',
@@ -1593,23 +1610,7 @@
             .then(d => {
                 if (d.success) {
                     showAlert('success', 'Status updated successfully!');
-                    // Update the progress bar visually
-                    const select = document.querySelector(`select[onchange="updateStatus(${id}, this.value)"]`);
-                    if (select) {
-                        const row = select.closest('tr');
-                        const progressBar = row.querySelector('.progress-fill');
-                        const progressText = row.querySelector('.progress-text');
-
-                        let progress = 0;
-                        if (newStatus === 'completed') progress = 100;
-                        else if (newStatus === 'confirmed') progress = 50;
-
-                        if (progressBar) progressBar.style.width = progress + '%';
-                        if (progressText) progressText.textContent = progress + '%';
-
-                        // Update select class for color
-                        select.className = `status-select status-${newStatus}`;
-                    }
+                    setTimeout(() => location.reload(), 500);
                 } else {
                     showAlert('error', d.message || 'Error updating status');
                 }

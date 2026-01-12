@@ -80,7 +80,7 @@
                     <li><a href="{{ route('admin.product.index') }}"><i class="fa fa-shopping-bag"></i> Products</a></li>
                     <li><a href="{{ route('admin.stock_in.addSupplier') }}"><i class="fa fa-truck"></i> Suppliers</a></li>
                     <li><a href="{{ route('admin.stock_in.index') }}"><i class="fa fa-arrow-right"></i> Stock In</a></li>
-                    <li><a href="{{ route('admin.stockout.index') }}"><i class="fa fa-arrow-left"></i> Stock Out</a></li>
+
                 </ul>
             </li>
 
@@ -222,7 +222,6 @@
                 <ul class="crm-dropdown-menu">
                     <li><a href="{{ route('employee.appointments.index') }}"><i class="fa fa-calendar-check"></i> Daily Engagements</a></li>
                     <li><a href="{{ route('employee.bookings.index') }}"><i class="fas fa-book"></i> Service Bookings</a></li>
-                    <li><a href="{{ route('employee.tasks') }}"><i class="fas fa-list-check"></i> Tasks Catalog</a></li>
                 </ul>
             </li>
 

@@ -29,7 +29,7 @@
             </div>
             <div class="metric-content">
                 <div class="metric-label">Total Revenue</div>
-                <div class="metric-value">{{ number_format($totalSalesAmount) }} RWF</div>
+                <div class="metric-value">{{ number_format($totalSalesAmount) }} FRW</div>
                 <div class="metric-trend {{ $salesGrowth >= 0 ? 'up' : 'down' }}">
                     <i class="fas fa-arrow-{{ $salesGrowth >= 0 ? 'up' : 'down' }}"></i>
                     {{ number_format(abs($salesGrowth), 1) }}% growth
@@ -138,7 +138,8 @@
                                 </td>
                                 <td>{{ $order->customer->user->name ?? 'Guest' }}</td>
                                 <td style="font-size: 0.8rem; color: var(--secondary);">
-                                    {{ $order->created_at->format('M d') }}</td>
+                                    {{ $order->created_at->format('M d') }}
+                                </td>
                             </tr>
                         @empty
                             <tr>
@@ -276,7 +277,7 @@
         colors: ['#6366f1', '#10b981'],
         labels: @json($revenueOverTime['labels']),
         yaxis: [{
-            title: { text: 'Revenue (RWF)' },
+            title: { text: 'Revenue (FRW)' },
         }, {
             opposite: true,
             title: { text: 'Orders' }

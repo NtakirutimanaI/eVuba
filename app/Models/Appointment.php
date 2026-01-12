@@ -30,11 +30,19 @@ class Appointment extends Model
     ];
 
     /**
-     * The customer who created the appointment
+     * The customer who created the appointment (Business Entity)
      */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Explicit link to Customer profile
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'user_id', 'id');
     }
 
     /**

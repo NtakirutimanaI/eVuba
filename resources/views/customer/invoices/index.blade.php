@@ -39,7 +39,7 @@
                                 <div style="font-weight: 600;">{{ $invoice->product->name ?? $invoice->product_name }}</div>
                             </td>
                             <td>{{ $invoice->created_at->format('M d, Y') }}</td>
-                            <td style="font-weight: 700;">{{ number_format($invoice->price * $invoice->quantity) }} RWF</td>
+                            <td style="font-weight: 700;">{{ number_format($invoice->price * $invoice->quantity) }} FRW</td>
                             <td>
                                 @php
                                     $statusClass = match ($invoice->payment_status) {
@@ -79,8 +79,8 @@
             </table>
         </div>
 
-        <div class="pagination-container">
-            {{ $invoices->links() }}
+        <div class="pagination-wrapper">
+            {{ $invoices->links('pagination::bootstrap-5') }}
         </div>
     </div>
 </div>
@@ -216,11 +216,7 @@
         padding: 50px 20px;
     }
 
-    .pagination-container {
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-    }
+
 
     @media (max-width: 1024px) {
         .dashboard-wrapper {

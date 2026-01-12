@@ -7,20 +7,24 @@
     <div class="pro-header">
         <div>
             <h1><i class="fas fa-calendar-check" style="color: var(--primary);"></i> Service Bookings</h1>
-            <p style="color: var(--secondary); margin: 5px 0 0;">Manage and track customer service requests assigned to you.</p>
+            <p style="color: var(--secondary); margin: 5px 0 0;">Manage and track customer service requests assigned to
+                you.</p>
         </div>
         <div class="header-actions">
-            <div class="glass-panel" style="padding: 10px 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
+            <div class="glass-panel"
+                style="padding: 10px 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
                 <div class="stat-item">
                     <span style="font-size: 0.8rem; color: var(--secondary);">Active Queue</span>
-                    <strong style="display: block; font-size: 1.1rem; color: var(--primary);">{{ $bookings->total() }}</strong>
+                    <strong
+                        style="display: block; font-size: 1.1rem; color: var(--primary);">{{ $bookings->total() }}</strong>
                 </div>
             </div>
         </div>
     </div>
 
     {{-- Timeline Feed --}}
-    <div class="timeline-container" style="margin-top: 3rem; background: var(--white); border-radius: 30px; padding: 40px; box-shadow: var(--shadow-sm);">
+    <div class="timeline-container"
+        style="margin-top: 3rem; background: var(--white); border-radius: 30px; padding: 40px; box-shadow: var(--shadow-sm);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
             <div>
                 <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--dark);">Mission Timeline</h3>
@@ -28,7 +32,8 @@
             </div>
             <div class="mega-search" style="max-width: 300px; flex: 1; background: var(--light);">
                 <i class="fas fa-search" style="color: var(--secondary);"></i>
-                <input type="text" id="bookingSearch" placeholder="Filter by customer..." class="search-input" style="background: transparent; border: none; padding: 10px;">
+                <input type="text" id="bookingSearch" placeholder="Filter by customer..." class="search-input"
+                    style="background: transparent; border: none; padding: 10px;">
             </div>
         </div>
 
@@ -47,16 +52,21 @@
                     <div class="timeline-content card-row">
                         <div class="card-inner">
                             <div class="booking-meta">
-                                <span class="time-badge"><i class="far fa-clock"></i> {{ \Carbon\Carbon::parse($booking->booking_date)->format('h:i A') }}</span>
+                                <span class="time-badge"><i class="far fa-clock"></i>
+                                    {{ \Carbon\Carbon::parse($booking->booking_date)->format('h:i A') }}</span>
                                 <span class="status-pill {{ $booking->status }}">{{ ucfirst($booking->status) }}</span>
                             </div>
-                            
+
                             <div class="main-info">
-                                <div class="customer-info" style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-                                    <div class="client-avatar">{{ strtoupper(substr($booking->user->name ?? 'G', 0, 1)) }}</div>
+                                <div class="customer-info"
+                                    style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                                    <div class="client-avatar">{{ strtoupper(substr($booking->user->name ?? 'G', 0, 1)) }}
+                                    </div>
                                     <div>
-                                        <h4 style="margin: 0; font-size: 1.1rem; color: var(--dark);">{{ $booking->user->name ?? 'Guest' }}</h4>
-                                        <span style="font-size: 0.8rem; color: var(--secondary);">{{ $booking->user->email ?? 'N/A' }}</span>
+                                        <h4 style="margin: 0; font-size: 1.1rem; color: var(--dark);">
+                                            {{ $booking->user->name ?? 'Guest' }}</h4>
+                                        <span
+                                            style="font-size: 0.8rem; color: var(--secondary);">{{ $booking->user->email ?? 'N/A' }}</span>
                                     </div>
                                 </div>
                                 <div class="service-highlight">
@@ -110,37 +120,196 @@
 
 <style>
     /* Timeline Engine */
-    .mission-timeline { position: relative; margin-top: 20px; }
-    .mission-timeline::before { content: ''; position: absolute; left: 100px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--glass-border) 10%, var(--glass-border) 90%, transparent); }
+    .mission-timeline {
+        position: relative;
+        margin-top: 20px;
+    }
 
-    .timeline-item { display: flex; gap: 40px; margin-bottom: 30px; position: relative; }
-    .timeline-date { width: 60px; text-align: right; display: flex; flex-direction: column; justify-content: center; }
-    .timeline-date .day { display: block; font-size: 1.8rem; font-weight: 900; color: var(--dark); line-height: 1; }
-    .timeline-date .month { display: block; font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
+    .mission-timeline::before {
+        content: '';
+        position: absolute;
+        left: 100px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, transparent, var(--glass-border) 10%, var(--glass-border) 90%, transparent);
+    }
 
-    .timeline-marker { width: 40px; display: flex; align-items: center; justify-content: center; z-index: 2; }
-    .marker-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--white); border: 3px solid var(--glass-border); transition: 0.3s; }
-    .marker-dot.active { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); background: #10b981; }
-    .marker-dot.pending { border-color: #f59e0b; }
+    .timeline-item {
+        display: flex;
+        gap: 40px;
+        margin-bottom: 30px;
+        position: relative;
+    }
 
-    .timeline-content { flex: 1; background: var(--light); border-radius: 20px; padding: 25px; transition: 0.3s; border: 1px solid transparent; }
-    .timeline-content:hover { background: var(--white); border-color: var(--primary); transform: translateX(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    .timeline-date {
+        width: 60px;
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 
-    .booking-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .time-badge { font-size: 0.8rem; font-weight: 700; color: var(--primary); background: rgba(99, 102, 241, 0.08); padding: 4px 12px; border-radius: 10px; }
-    .status-pill { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; }
-    .status-pill.completed { background: #10b981; color: white; }
-    .status-pill.pending { background: #f59e0b; color: white; }
-    .status-pill.confirmed { background: #6366f1; color: white; }
+    .timeline-date .day {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
 
-    .client-avatar { width: 40px; height: 40px; border-radius: 12px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
-    .service-highlight { display: inline-flex; align-items: center; gap: 8px; font-size: 1rem; color: var(--dark); background: var(--white); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--glass-border); }
+    .timeline-date .month {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-    .timeline-actions { margin-top: 20px; display: flex; gap: 12px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px; }
-    .action-trigger { background: transparent; border: 1px solid var(--glass-border); color: var(--secondary); padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-    .action-trigger:hover { background: var(--dark); color: white; border-color: var(--dark); }
-    .action-trigger.primary { background: var(--primary); color: white; border-color: var(--primary); }
-    .action-trigger.primary:hover { opacity: 0.9; transform: scale(1.02); }
+    .timeline-marker {
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+    }
+
+    .marker-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--white);
+        border: 3px solid var(--glass-border);
+        transition: 0.3s;
+    }
+
+    .marker-dot.active {
+        border-color: #10b981;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        background: #10b981;
+    }
+
+    .marker-dot.pending {
+        border-color: #f59e0b;
+    }
+
+    .timeline-content {
+        flex: 1;
+        background: var(--light);
+        border-radius: 20px;
+        padding: 25px;
+        transition: 0.3s;
+        border: 1px solid transparent;
+    }
+
+    .timeline-content:hover {
+        background: var(--white);
+        border-color: var(--primary);
+        transform: translateX(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .booking-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .time-badge {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        background: rgba(99, 102, 241, 0.08);
+        padding: 4px 12px;
+        border-radius: 10px;
+    }
+
+    .status-pill {
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 8px;
+    }
+
+    .status-pill.completed {
+        background: #10b981;
+        color: white;
+    }
+
+    .status-pill.pending {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .status-pill.confirmed {
+        background: #6366f1;
+        color: white;
+    }
+
+    .client-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--dark);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.9rem;
+    }
+
+    .service-highlight {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+        color: var(--dark);
+        background: var(--white);
+        padding: 8px 15px;
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+    }
+
+    .timeline-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 12px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding-top: 15px;
+    }
+
+    .action-trigger {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--secondary);
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .action-trigger:hover {
+        background: var(--dark);
+        color: white;
+        border-color: var(--dark);
+    }
+
+    .action-trigger.primary {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .action-trigger.primary:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
 
     /* Modal Styling */
     .modal-overlay {
@@ -153,31 +322,89 @@
         align-items: center;
         justify-content: center;
     }
+
     .pro-modal {
         background: var(--white);
         width: 95%;
         border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         overflow: hidden;
         animation: slideUp 0.4s ease-out;
     }
+
     @keyframes slideUp {
-        from { opacity: 0; transform: translateY(40px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
+        from {
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
-    .modal-header { padding: 25px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
-    .close-modal { background: none; border: none; font-size: 2rem; color: var(--secondary); cursor: pointer; height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-    .close-modal:hover { background: var(--light); color: var(--dark); }
-    .modal-body { padding: 30px; max-height: 70vh; overflow-y: auto; }
-    .modal-footer { padding: 20px 30px; background: var(--light); display: flex; justify-content: flex-end; }
-    .btn-cancel { padding: 12px 24px; border-radius: 12px; background: var(--white); border: 1px solid var(--glass-border); color: var(--secondary); font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn-cancel:hover { background: var(--dark); color: white; }
+
+    .modal-header {
+        padding: 25px;
+        border-bottom: 1px solid var(--glass-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: var(--secondary);
+        cursor: pointer;
+        height: 32px;
+        width: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .close-modal:hover {
+        background: var(--light);
+        color: var(--dark);
+    }
+
+    .modal-body {
+        padding: 30px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 20px 30px;
+        background: var(--light);
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-cancel {
+        padding: 12px 24px;
+        border-radius: 12px;
+        background: var(--white);
+        border: 1px solid var(--glass-border);
+        color: var(--secondary);
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background: var(--dark);
+        color: white;
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Search Functionality
-    document.getElementById('bookingSearch').addEventListener('keyup', function() {
+    document.getElementById('bookingSearch').addEventListener('keyup', function () {
         let filter = this.value.toLowerCase();
         let rows = document.querySelectorAll('.booking-row');
         rows.forEach(row => {
@@ -217,7 +444,7 @@
                             <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--secondary); font-weight: 700;">Service Logistics</label>
                             <div style="margin-top: 15px;">
                                 <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem;">${b.service_name || 'Service'}</div>
-                                <div style="margin-top: 5px; font-weight: 600; color: #10b981;"><i class="fas fa-tags"></i> ${b.service_price || '0 RWF'}</div>
+                                <div style="margin-top: 5px; font-weight: 600; color: #10b981;"><i class="fas fa-tags"></i> ${b.service_price || '0 FRW'}</div>
                             </div>
                         </div>
                     </div>
@@ -388,7 +615,7 @@
         }
     }
 
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         if (event.target === document.getElementById('bookingDetailsModal')) closeBookingModal();
     }
 </script>

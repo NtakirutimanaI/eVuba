@@ -11,13 +11,14 @@ class TaskController extends Controller
     {
         $userId = \Illuminate\Support\Facades\Auth::id();
         $tasks = \App\Models\Task::where('user_id', $userId)->latest()->paginate(10);
-        return view('employee.tasks.index', compact('tasks'));
+        $services = \App\Models\Service::all(); // Retrieve Service Catalog info
+        return view('employee.tasks.index', compact('tasks', 'services'));
     }
 
     public function updateStatus(Request $request, $id)
     {
         $task = \App\Models\Task::findOrFail($id);
-        
+
         if ($task->user_id != \Illuminate\Support\Facades\Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }

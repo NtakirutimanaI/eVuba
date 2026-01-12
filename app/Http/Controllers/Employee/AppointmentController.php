@@ -16,19 +16,23 @@ class AppointmentController extends Controller
     public function index(Request $request)
     {
         $employeeId = Auth::id();
-        $query = Appointment::where('employee_id', $employeeId)->with('user');
+        $query = Appointment::where('employee_id', $employeeId)->with([
+            'user' => function ($q) {
+                $q->withTrashed();
+            }
+        ]);
 
         // Live search across multiple columns
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -68,7 +72,7 @@ class AppointmentController extends Controller
         ]);
 
         return redirect()->route('employee.appointments.index')
-                         ->with('success', 'Appointment created successfully.');
+            ->with('success', 'Appointment created successfully.');
     }
 
     /**
@@ -113,7 +117,7 @@ class AppointmentController extends Controller
         ]);
 
         return redirect()->route('employee.appointments.index')
-                         ->with('success', 'Appointment updated successfully.');
+            ->with('success', 'Appointment updated successfully.');
     }
 
     /**
@@ -126,7 +130,7 @@ class AppointmentController extends Controller
         $appointment->delete();
 
         return redirect()->route('employee.appointments.index')
-                         ->with('success', 'Appointment deleted successfully.');
+            ->with('success', 'Appointment deleted successfully.');
     }
 
     /**
@@ -156,7 +160,7 @@ class AppointmentController extends Controller
         $appointment->update(['feedback' => $request->message]);
 
         return redirect()->route('employee.appointments.index')
-                         ->with('success', 'Feedback sent to customer successfully.');
+            ->with('success', 'Feedback sent to customer successfully.');
     }
 
     /**
@@ -164,8 +168,13 @@ class AppointmentController extends Controller
      */
     public function getDetails($id)
     {
-        $appointment = Appointment::with('user')->findOrFail($id);
+        // Load 'customer' relationship explicitly along with 'user'
+        $appointment = Appointment::with(['customer', 'user' => fn($q) => $q->withTrashed()])->findOrFail($id);
+
         $this->authorizeAppointment($appointment);
+
+        // Prioritize Customer model (Business Data), fallback to User model (Auth Data)
+        $customer = $appointment->customer ?? $appointment->user;
 
         return response()->json([
             'success' => true,
@@ -175,8 +184,10 @@ class AppointmentController extends Controller
                 'description' => $appointment->description,
                 'status' => $appointment->status,
                 'scheduled_at' => $appointment->scheduled_at?->format('M d, Y h:i A') ?? 'N/A',
-                'customer_name' => $appointment->user?->name ?? 'N/A',
-                'customer_email' => $appointment->user?->email ?? 'N/A',
+                'customer_name' => $customer?->name ?? 'Guest/Unknown',
+                'customer_email' => $customer?->email ?? 'N/A',
+                'customer_phone' => $customer?->phone ?? 'Not Provided',
+                'customer_address' => $customer?->address ?? 'Not Provided',
             ]
         ]);
     }

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Invoice {{ $invoice->invoice_number }}</title>
-    
+
     <style>
         * {
             margin: 0;
@@ -276,29 +277,30 @@
         }
     </style>
 </head>
+
 <body>
     <div class="invoice-container">
-        
+
         <!-- Header -->
-        <div class="invoice-header">
-            <div class="company-info">
-                <div class="company-logo">eVubaConnect</div>
-                <div class="company-details">
-                    Stock Management System<br>
-                    Kigali, Rwanda<br>
-                    Phone: +250 XXX XXX XXX<br>
-                    Email: info@evubaconnect.com
-                </div>
-            </div>
-            <div class="invoice-meta">
-                <div class="invoice-title">INVOICE</div>
-                <div class="invoice-number">{{ $invoice->invoice_number }}</div>
-                <div class="invoice-date">
-                    Date: {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('M d, Y') }}<br>
-                    <span class="status-badge status-{{ strtolower($invoice->status) }}">{{ ucfirst($invoice->status) }}</span>
-                </div>
-            </div>
-        </div>
+        <!-- Header -->
+        <table style="width: 100%; border-bottom: 3px solid #0056b3; margin-bottom: 30px; padding-bottom: 10px;">
+            <tr>
+                <td style="text-align: left; vertical-align: middle;">
+                    <div
+                        style="background-color: #00C853; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-family: sans-serif; font-size: 24px; display: inline-block; position: relative;">
+                        Receipt
+                        <span
+                            style="position: absolute; top: -10px; right: -10px; background: white; color: #00C853; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 20px; font-size: 14px; border: 2px solid #00C853;">&#10003;</span>
+                    </div>
+                </td>
+                <td style="text-align: right; vertical-align: middle;">
+                    <div style="color: #0056b3; font-weight: bold; font-size: 32px; font-family: sans-serif;">
+                        eVubaConnect</div>
+                    <div style="color: #64748b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+                        #{{ $invoice->invoice_number }}</div>
+                </td>
+            </tr>
+        </table>
 
         <!-- Bill To -->
         <div class="bill-to-section">
@@ -332,13 +334,13 @@
             </thead>
             <tbody>
                 @foreach($invoice->items as $index => $item)
-                <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $item->description }}</td>
-                    <td class="text-center">{{ $item->quantity }}</td>
-                    <td class="text-right">FRW {{ number_format($item->unit_price, 2) }}</td>
-                    <td class="text-right">FRW {{ number_format($item->total, 2) }}</td>
-                </tr>
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td>{{ $item->description }}</td>
+                        <td class="text-center">{{ $item->quantity }}</td>
+                        <td class="text-right">FRW {{ number_format($item->unit_price, 2) }}</td>
+                        <td class="text-right">FRW {{ number_format($item->total, 2) }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
@@ -372,10 +374,10 @@
 
         <!-- Notes -->
         @if($invoice->description)
-        <div class="notes-section">
-            <div class="notes-title">NOTES:</div>
-            <div class="notes-content">{{ $invoice->description }}</div>
-        </div>
+            <div class="notes-section">
+                <div class="notes-title">NOTES:</div>
+                <div class="notes-content">{{ $invoice->description }}</div>
+            </div>
         @endif
 
         <!-- Footer -->
@@ -390,4 +392,5 @@
 
     </div>
 </body>
+
 </html>

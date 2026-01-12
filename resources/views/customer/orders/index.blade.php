@@ -47,7 +47,7 @@
                             <div class="fallback-visual"><i class="fas fa-box-open"></i></div>
                         @endif
                         <div class="category-badge">{{ $product->category->name ?? 'General' }}</div>
-                        <div class="price-tag">{{ number_format($product->unit_price) }} RWF</div>
+                        <div class="price-tag">{{ number_format($product->unit_price) }} FRW</div>
                     </div>
                     <div class="product-info">
                         <h3>{{ $product->name }}</h3>
@@ -99,14 +99,16 @@
                             </td>
                             <td>
                                 <div style="font-weight: 700; color: var(--dark);">
-                                    {{ $order->product->name ?? $order->product_name }}</div>
+                                    {{ $order->product->name ?? $order->product_name }}
+                                </div>
                                 <div style="font-size: 0.7rem; color: var(--secondary);">
-                                    {{ $order->created_at->format('M d, Y') }}</div>
+                                    {{ $order->created_at->format('M d, Y') }}
+                                </div>
                             </td>
                             <td><span style="font-weight: 800;">x{{ $order->quantity }}</span></td>
                             <td><span
                                     style="color: #10b981; font-weight: 700;">{{ number_format($order->price * $order->quantity) }}
-                                    RWF</span></td>
+                                    FRW</span></td>
                             <td>
                                 <span class="status-badge status-{{ $order->status }}">
                                     {{ $order->status == 'approved' ? 'Paid' : ucfirst($order->status) }}
@@ -114,7 +116,9 @@
                             </td>
                             <td style="text-align: right; padding-right: 25px;">
                                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                    <a href="{{ route('customer.orders.invoice', $order->id) }}" class="icon-btn" title="Download Invoice" style="color: var(--primary); display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                                    <a href="{{ route('customer.orders.invoice', $order->id) }}" class="icon-btn"
+                                        title="Download Invoice"
+                                        style="color: var(--primary); display: flex; align-items: center; justify-content: center; text-decoration: none;">
                                         <i class="fas fa-file-download"></i>
                                     </a>
                                     <button class="icon-btn" onclick="deleteOrder({{ $order->id }})" title="Delete Order"
@@ -158,7 +162,7 @@
                         <h4 id="modalProductName"
                             style="margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--dark);">Product Name
                         </h4>
-                        <div id="modalProductPrice" style="color: #10b981; font-weight: 700; margin-top: 5px;">0 RWF
+                        <div id="modalProductPrice" style="color: #10b981; font-weight: 700; margin-top: 5px;">0 FRW
                         </div>
 
                     </div>
@@ -176,7 +180,7 @@
                                 style="font-size: 0.7rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px;">
                                 Estimated Investment</div>
                             <div id="estimatedTotal"
-                                style="font-size: 1.2rem; font-weight: 900; color: var(--primary);">0 RWF</div>
+                                style="font-size: 1.2rem; font-weight: 900; color: var(--primary);">0 FRW</div>
                         </div>
                     </div>
                 </div>
@@ -351,7 +355,7 @@
                                style="width: 60px; padding: 6px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-main); color: var(--text-main); font-weight: 700; text-align: center;"
                                onchange="updateCartItem(${index}, this.value)">
                     </td>
-                    <td style="color: var(--success); font-weight: 700;">${new Intl.NumberFormat().format(itemTotal)} RWF</td>
+                    <td style="color: var(--success); font-weight: 700;">${new Intl.NumberFormat().format(itemTotal)} FRW</td>
                     <td><button onclick="removeCartItem(${index})" style="color: #ef4444; border:none; background:none; cursor:pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `;
@@ -359,7 +363,7 @@
 
         html += `</tbody></table></div>
         <div style="text-align: right; margin-top: 20px; font-weight: 900; font-size: 1.3rem; color: var(--primary); padding-top: 15px; border-top: 1px solid var(--glass-border);">
-            Total: <span style="color: ${textColor};">${new Intl.NumberFormat().format(total)} RWF</span>
+            Total: <span style="color: ${textColor};">${new Intl.NumberFormat().format(total)} FRW</span>
         </div>`;
 
         Swal.fire({
@@ -376,174 +380,9 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                selectPaymentMethod(total);
-            }
-        });
-    }
-
-    function selectPaymentMethod(amount) {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const bgColor = isDark ? '#1e293b' : '#ffffff';
-        const textColor = isDark ? '#e2e8f0' : '#334155';
-        const formattedAmount = new Intl.NumberFormat().format(amount);
-
-        const html = `
-            <p style="margin-bottom: 20px; font-size: 1.1rem; color: ${textColor};">
-                Total Payable: <strong style="color: var(--primary);">${formattedAmount} RWF</strong>
-            </p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <button onclick="inputPaymentDetails('MTN Mobile Money', ${amount})" class="payment-option" style="background: #FFCC00; color: #000; padding: 15px; border-radius: 12px; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    <span style="font-weight: 900; font-size: 1.2rem;">MTN</span>
-                    <span style="font-size: 0.8rem;">Mobile Money</span>
-                </button>
-                <button onclick="inputPaymentDetails('Airtel Money', ${amount})" class="payment-option" style="background: #FF0000; color: #fff; padding: 15px; border-radius: 12px; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    <span style="font-weight: 900; font-size: 1.2rem;">Airtel</span>
-                    <span style="font-size: 0.8rem;">Money</span>
-                </button>
-                <button onclick="inputPaymentDetails('Bank Transfer', ${amount})" class="payment-option" style="background: #0056b3; color: #fff; padding: 15px; border-radius: 12px; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    <i class="fas fa-university" style="font-size: 1.5rem;"></i>
-                    <span style="font-size: 0.8rem;">Bank Transfer</span>
-                </button>
-                <button onclick="inputPaymentDetails('Card', ${amount})" class="payment-option" style="background: #2c3e50; color: #fff; padding: 15px; border-radius: 12px; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    <i class="fas fa-credit-card" style="font-size: 1.5rem;"></i>
-                    <span style="font-size: 0.8rem;">Credit/Debit Card</span>
-                </button>
-                 <button onclick="inputPaymentDetails('Cash', ${amount})" class="payment-option" style="grid-column: 1 / -1; background: #10b981; color: #fff; padding: 15px; border-radius: 12px; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    <i class="fas fa-money-bill-wave" style="font-size: 1.5rem;"></i>
-                    <span style="font-size: 0.8rem;">Cash Payment</span>
-                </button>
-            </div>
-        `;
-
-        Swal.fire({
-            title: `<span style="color: ${isDark ? '#f8fafc' : '#0f172a'};">Choose Payment Method</span>`,
-            html: html,
-            showConfirmButton: false,
-            showCloseButton: true,
-            background: bgColor,
-            width: 500,
-            didOpen: () => {
-                Swal.getPopup().style.borderRadius = '20px';
-            }
-        });
-    }
-
-    function inputPaymentDetails(method, amount) {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const bgColor = isDark ? '#1e293b' : '#ffffff';
-        const textColor = isDark ? '#e2e8f0' : '#334155';
-        const inputBg = isDark ? '#334155' : '#f1f5f9';
-        const inputBorder = isDark ? '#475569' : '#e2e8f0';
-
-        let formHtml = '';
-        let titleText = `Pay with ${method}`;
-
-        if (method.includes('Mobile') || method.includes('Airtel')) {
-            formHtml = `
-                <div style="text-align: left; margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: ${textColor}; font-size: 0.9rem;">Phone Number</label>
-                    <input type="tel" id="payPhone" placeholder="078..." class="swal2-input" style="width: 100%; margin: 0; background: ${inputBg}; border: 1px solid ${inputBorder}; color: ${textColor};">
-                </div>
-            `;
-        } else if (method === 'Card') {
-            formHtml = `
-                <div style="text-align: left; margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: ${textColor}; font-size: 0.9rem;">Card Number</label>
-                    <input type="text" id="payCardNum" placeholder="**** **** **** ****" class="swal2-input" style="width: 100%; margin: 0 0 15px 0; background: ${inputBg}; border: 1px solid ${inputBorder}; color: ${textColor};">
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1;">
-                            <label style="display: block; margin-bottom: 5px; color: ${textColor}; font-size: 0.9rem;">Expiry</label>
-                            <input type="text" id="payExpiry" placeholder="MM/YY" class="swal2-input" style="width: 100%; margin: 0; background: ${inputBg}; border: 1px solid ${inputBorder}; color: ${textColor};">
-                        </div>
-                         <div style="flex: 1;">
-                            <label style="display: block; margin-bottom: 5px; color: ${textColor}; font-size: 0.9rem;">CVC</label>
-                            <input type="text" id="payCVC" placeholder="123" class="swal2-input" style="width: 100%; margin: 0; background: ${inputBg}; border: 1px solid ${inputBorder}; color: ${textColor};">
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else if (method === 'Bank Transfer') {
-            formHtml = `
-                <div style="text-align: left; margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: ${textColor}; font-size: 0.9rem;">Account Number</label>
-                    <input type="text" id="payAccount" placeholder="Account Number" class="swal2-input" style="width: 100%; margin: 0; background: ${inputBg}; border: 1px solid ${inputBorder}; color: ${textColor};">
-                </div>
-            `;
-        } else {
-            formHtml = `<p style="color: ${textColor}; margin-bottom: 15px;">Please confirm you will pay <strong>${new Intl.NumberFormat().format(amount)} RWF</strong> in cash upon delivery/pickup.</p>`;
-        }
-
-        Swal.fire({
-            title: `<span style="color: ${isDark ? '#f8fafc' : '#0f172a'};">${titleText}</span>`,
-            html: formHtml,
-            showCancelButton: true,
-            confirmButtonText: method === 'Cash' ? 'Confirm Order' : 'Pay Now',
-            background: bgColor,
-            color: textColor,
-            didOpen: () => {
-                Swal.getPopup().style.borderRadius = '20px';
-            },
-            preConfirm: () => {
-                // Strict validation for all payment types
-                if ((method.includes('Mobile') || method.includes('Airtel')) && !document.getElementById('payPhone').value.trim()) {
-                    Swal.showValidationMessage('Please enter a valid phone number');
-                    return false;
-                }
-                if (method === 'Card') {
-                    if (!document.getElementById('payCardNum').value.trim()) Swal.showValidationMessage('Please enter a valid card number');
-                    else if (!document.getElementById('payExpiry').value.trim()) Swal.showValidationMessage('Please enter expiry date');
-                    else if (!document.getElementById('payCVC').value.trim()) Swal.showValidationMessage('Please enter CVC code');
-                    if (Swal.getValidationMessage()) return false;
-                }
-                if (method === 'Bank Transfer' && !document.getElementById('payAccount').value.trim()) {
-                    Swal.showValidationMessage('Please enter a valid account number');
-                    return false;
-                }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                processPaymentTransaction(method, amount);
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                selectPaymentMethod(amount); // Go back
-            }
-        });
-    }
-
-    function processPaymentTransaction(method, amount) {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const bgColor = isDark ? '#1e293b' : '#ffffff';
-        const textColor = isDark ? '#e2e8f0' : '#334155';
-        const formattedAmount = new Intl.NumberFormat().format(amount);
-
-        Swal.fire({
-            title: `Processing ${method}`,
-            text: 'Securing transaction...',
-            icon: 'info',
-            background: bgColor,
-            color: textColor,
-            timer: 2000,
-            timerProgressBar: true,
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        }).then(() => {
-            Swal.fire({
-                title: 'Payment Confirmed',
-                html: `
-                    <div style="font-size: 1.1rem; color: ${textColor}; margin-bottom: 20px;">
-                        Payment of <strong style="color: #10b981;">${formattedAmount} RWF</strong> via <strong>${method}</strong> was successful.
-                    </div>
-                    <div style="font-size: 0.9rem; color: ${isDark ? '#94a3b8' : '#64748b'};">
-                        things are fine. Proceeding to order creation.
-                    </div>
-                `,
-                icon: 'success',
-                background: bgColor,
-                color: textColor,
-                confirmButtonText: 'Complete Order',
-            }).then(() => {
-                window.lastPaymentMethod = method;
+                // Directly process checkout - no payment method selection
                 processCheckout();
-            });
+            }
         });
     }
 
@@ -582,48 +421,72 @@
         });
 
         // Submit each item individually (since backend expects single orders)
-        // Or refactor backend to accept bulk. For now, sequential requests.
         let successCount = 0;
+        let orderIds = [];
 
         for (const item of cart) {
             try {
                 const formData = new FormData();
                 formData.append('product_id', item.id);
                 formData.append('quantity', item.quantity);
-                
-                // Add simulated payment info
-                // In a real app, this would come from a secure payment response.
-                // Since our modal "simulates" success first, we attach the method here.
-                // We'll use a session storage or variable trick since processCheckout is separate.
-                // For simplicity, we'll just check if a payment interaction happened recently or pass it as arg.
-                
-                // Better approach: processCheckout should take payment details
-                if (window.lastPaymentMethod) {
-                    formData.append('payment_method', window.lastPaymentMethod);
-                    formData.append('transaction_ref', 'SIM-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
-                }
 
-                await fetch("{{ route('customer.orders.store') }}", {
+                const response = await fetch("{{ route('customer.orders.store') }}", {
                     method: 'POST',
                     headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                     body: formData
                 });
-                successCount++;
+
+                const data = await response.json();
+
+                if (data.success && data.order_id) {
+                    successCount++;
+                    orderIds.push(data.order_id);
+                }
             } catch (e) {
                 console.error('Order failed for', item.name);
             }
         }
 
-        if (successCount === cart.length) {
+        if (successCount === cart.length && orderIds.length > 0) {
+            // Clear cart
             cart = [];
             saveCart();
+
+            // For multiple orders, process payment for the first one
+            // In a real scenario, you might want to create a combined payment
+            const orderId = orderIds[0];
+
+            // Create a form and submit to payment initiation route
+            const paymentForm = document.createElement('form');
+            paymentForm.method = 'POST';
+            paymentForm.action = "{{ route('payment.initiate') }}";
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+
+            const orderIdInput = document.createElement('input');
+            orderIdInput.type = 'hidden';
+            orderIdInput.name = 'order_id';
+            orderIdInput.value = orderId;
+
+            paymentForm.appendChild(csrfInput);
+            paymentForm.appendChild(orderIdInput);
+            document.body.appendChild(paymentForm);
+
             Swal.fire({
-                title: 'Success',
-                text: 'All items have been ordered!',
+                title: 'Order Created!',
+                text: 'Redirecting to payment page...',
                 icon: 'success',
                 background: bgColor,
-                color: textColor
-            }).then(() => location.reload());
+                color: textColor,
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                paymentForm.submit();
+            });
         } else {
             Swal.fire({
                 title: 'Warning',
@@ -659,7 +522,7 @@
                     ${imageHtml}
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <span class="category-badge" style="position: static; transform: none;">${product.category ? product.category.name : 'General'}</span>
-                        <span style="font-weight: 800; color: var(--success); font-size: 1.2rem;">${new Intl.NumberFormat().format(product.unit_price)} RWF</span>
+                        <span style="font-weight: 800; color: var(--success); font-size: 1.2rem;">${new Intl.NumberFormat().format(product.unit_price)} FRW</span>
                     </div>
                     <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">
                         ${product.description || 'No description available for this item.'}

@@ -604,8 +604,7 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td><span
-                                        class="status-badge status-{{ $order->status }}">
+                                <td><span class="status-badge status-{{ $order->status }}">
                                         {{ $order->status == 'approved' ? 'Paid' : ucfirst($order->status) }}
                                     </span>
                                 </td>
@@ -624,8 +623,9 @@
                                             </form>
                                         @endif
 
-                                        <a href="{{ route('admin.orders.download_invoice', $order->id) }}" class="action-btn" title="Download Invoice"
-                                           style="background: rgba(79, 70, 229, 0.1); color: #4f46e5; text-decoration: none;">
+                                        <a href="{{ route('admin.orders.download_invoice', $order->id) }}"
+                                            class="action-btn" title="Download Invoice"
+                                            style="background: rgba(79, 70, 229, 0.1); color: #4f46e5; text-decoration: none;">
                                             <i class="fas fa-download"></i>
                                         </a>
 
@@ -642,7 +642,7 @@
                                             @csrf @method('PUT')
                                             <select name="status" onchange="this.form.submit()"
                                                 style="padding: 4px; border-radius: 6px; border: 1px solid var(--header-border); font-size: 11px; background: var(--body-bg); color: var(--text-primary); width: 80px;">
-                                                @foreach(['pending', 'processing', 'approved', 'completed', 'cancelled'] as $st)
+                                                @foreach(['pending', 'processing', 'approved'] as $st)
                                                     <option value="{{ $st }}" {{ $order->status == $st ? 'selected' : '' }}>
                                                         {{ $st == 'approved' ? 'Paid' : ucfirst($st) }}
                                                     </option>
