@@ -19,24 +19,100 @@ class LoginController extends Controller
     /**
      * Handle login attempt
      */
-    public function login(Request $request)
+    public function login(Request $request, \App\Services\OtpService $otpService)
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $user = \App\Models\User::where('email', $request->email)->first();
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
+        if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            // Bypass OTP for Admin
+            if ($user->role === 'admin') {
+                \Illuminate\Support\Facades\Log::info('Admin authenticated, bypassing OTP', ['email' => $user->email]);
+                Auth::login($user, $request->filled('remember'));
+                return redirect()->route('admin.dashboard');
+            }
 
-            return $this->redirectBasedOnRole(Auth::user()->role);
+            \Illuminate\Support\Facades\Log::info('User authenticated, triggering OTP', ['email' => $user->email]);
+
+            // Store email in session for OTP phase
+            $request->session()->put('otp_email', $user->email);
+            $request->session()->put('otp_remember', $request->filled('remember'));
+
+            // Send OTP
+            if ($otpService->sendOtp($user)) {
+                \Illuminate\Support\Facades\Log::info('OTP sent successfully, redirecting');
+                return redirect()->route('auth.verify-otp');
+            }
+
+            \Illuminate\Support\Facades\Log::error('OTP service failed to send');
+            return back()->withErrors([
+                'email' => 'Failed to send verification code. Please try again.',
+            ]);
         }
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ]);
+    }
+
+    /**
+     * Show OTP verification form
+     */
+    public function showVerifyOtpForm(Request $request)
+    {
+        if (!$request->session()->has('otp_email')) {
+            return redirect()->route('auth.login');
+        }
+
+        return view('auth.verify-otp');
+    }
+
+    /**
+     * Verify OTP and finalize login
+     */
+    public function verifyOtp(Request $request, \App\Services\OtpService $otpService)
+    {
+        $request->validate([
+            'full_otp' => 'required|digits:6',
+        ]);
+
+        $email = $request->session()->get('otp_email');
+
+        if ($otpService->verifyOtp($email, $request->full_otp)) {
+            $user = \App\Models\User::where('email', $email)->first();
+
+            Auth::login($user, $request->session()->get('otp_remember', false));
+            $request->session()->regenerate();
+
+            // Clean up OTP session
+            $request->session()->forget(['otp_email', 'otp_remember']);
+
+            return $this->redirectBasedOnRole($user->role);
+        }
+
+        return back()->withErrors(['otp' => 'The verification code is invalid or has expired.']);
+    }
+
+    /**
+     * Resend OTP
+     */
+    public function resendOtp(Request $request, \App\Services\OtpService $otpService)
+    {
+        if (!$request->session()->has('otp_email')) {
+            return redirect()->route('auth.login');
+        }
+
+        $user = \App\Models\User::where('email', $request->session()->get('otp_email'))->first();
+
+        if ($otpService->sendOtp($user)) {
+            return back()->with('status', 'Verification code resent successfully.');
+        }
+
+        return back()->withErrors(['email' => 'Failed to resend code.']);
     }
 
     /**
@@ -124,7 +200,7 @@ class LoginController extends Controller
         );
 
         return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
-                    ? back()->with(['status' => __($status)])
-                    : back()->withErrors(['email' => __($status)]);
+            ? back()->with(['status' => __($status)])
+            : back()->withErrors(['email' => __($status)]);
     }
 }

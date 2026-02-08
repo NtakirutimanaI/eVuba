@@ -38,7 +38,7 @@ class AdminBookingController extends Controller
         $stats = [
             'total' => Booking::count(),
             'pending' => Booking::where('status', 'pending')->count(),
-            'approved' => Booking::where('status', 'approved')->where('booking_date', '>=', now())->count(),
+            'approved' => Booking::where('status', 'approved')->count(),
             'completed' => Booking::where('status', 'completed')->count(),
             'cancelled' => Booking::where('status', 'cancelled')->count(),
         ];

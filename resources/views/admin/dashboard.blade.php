@@ -97,16 +97,7 @@
         </div>
     </div>
 
-    {{-- Secondary Charts --}}
-    <div class="main-grid" style="margin-top: 1.5rem; grid-template-columns: 1fr;">
-        <div class="pro-card glass-panel">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-pie"></i> Service Demographics</h3>
-            </div>
-            <div id="serviceChart" class="chart-container"></div>
-        </div>
 
-    </div>
 
     {{-- Live Operations Data --}}
     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr 1fr; margin-top: 1.5rem;">
@@ -316,33 +307,7 @@
     var supportChart = new ApexCharts(document.querySelector("#supportChart"), supportOptions);
     supportChart.render();
 
-    // Service Bar Chart
-    var serviceOptions = {
-        theme: { mode: getThemeMode() },
-        series: [{
-            name: 'Count',
-            data: @json($serviceDistribution['data'])
-        }],
-        chart: {
-            type: 'bar',
-            height: 350,
-            toolbar: { show: false },
-            background: 'transparent'
-        },
-        colors: ['#3b82f6'],
-        plotOptions: {
-            bar: {
-                borderRadius: 8,
-                horizontal: true,
-            }
-        },
-        dataLabels: { enabled: false },
-        xaxis: {
-            categories: @json($serviceDistribution['labels']),
-        }
-    };
-    var serviceChart = new ApexCharts(document.querySelector("#serviceChart"), serviceOptions);
-    serviceChart.render();
+
 
 
 
@@ -355,7 +320,7 @@
 
                 revenueChart.updateOptions(update);
                 supportChart.updateOptions(update);
-                serviceChart.updateOptions(update);
+
 
             }
         });

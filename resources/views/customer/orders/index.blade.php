@@ -47,7 +47,9 @@
                             <div class="fallback-visual"><i class="fas fa-box-open"></i></div>
                         @endif
                         <div class="category-badge">{{ $product->category->name ?? 'General' }}</div>
-                        <div class="price-tag">{{ number_format($product->unit_price) }} FRW</div>
+                        @if($product->unit_price > 0)
+                            <div class="price-tag">{{ number_format($product->unit_price) }} FRW</div>
+                        @endif
                     </div>
                     <div class="product-info">
                         <h3>{{ $product->name }}</h3>
@@ -522,7 +524,7 @@
                     ${imageHtml}
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <span class="category-badge" style="position: static; transform: none;">${product.category ? product.category.name : 'General'}</span>
-                        <span style="font-weight: 800; color: var(--success); font-size: 1.2rem;">${new Intl.NumberFormat().format(product.unit_price)} FRW</span>
+                        <span style="font-weight: 800; color: var(--success); font-size: 1.2rem; display: ${product.unit_price > 0 ? 'inline' : 'none'};">${new Intl.NumberFormat().format(product.unit_price)} FRW</span>
                     </div>
                     <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">
                         ${product.description || 'No description available for this item.'}

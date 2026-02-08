@@ -36,10 +36,10 @@ class UserController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('role', 'like', "%{$search}%")
-                  ->orWhereRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') LIKE ?", ["%{$search}%"])
-                  ->orWhereRaw("IF(email_verified_at IS NOT NULL, 'Verified', 'Pending') LIKE ?", ["%{$search}%"]);
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('role', 'like', "%{$search}%")
+                    ->orWhereRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') LIKE ?", ["%{$search}%"])
+                    ->orWhereRaw("IF(email_verified_at IS NOT NULL, 'Verified', 'Pending') LIKE ?", ["%{$search}%"]);
             });
         }
 
@@ -88,16 +88,16 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'role'     => 'nullable|exists:roles,name',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'nullable|exists:roles,name',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
         $user = User::create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
             'is_active' => true,
         ]);
 
@@ -129,9 +129,9 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $user->id,
-            'role'     => 'nullable|exists:roles,name',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'nullable|exists:roles,name',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
 
@@ -224,7 +224,7 @@ class UserController extends Controller
     {
         $request->validate([
             'from_date' => 'required|date',
-            'to_date'   => 'required|date|after_or_equal:from_date',
+            'to_date' => 'required|date|after_or_equal:from_date',
         ]);
     }
 

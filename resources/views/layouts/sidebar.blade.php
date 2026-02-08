@@ -113,8 +113,8 @@
                             @endif
                         </a>
                     </li>
-                    <li><a href="{{ route('admin.performance.index') }}"><i class="fas fa-tasks"></i> Employee
-                            Performance</a></li>
+                    <li><a href="{{ route('admin.performance.index') }}"><i class="fas fa-tasks"></i> Employee Performance</a></li>
+                    <li><a href="{{ route('admin.employee.reports.index') }}"><i class="fas fa-file-invoice"></i> Employee Reports</a></li>
                 </ul>
             </li>
 

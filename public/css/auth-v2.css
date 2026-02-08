@@ -1,0 +1,438 @@
+/* =========================================
+   AUTH V2 DESIGN SYSTEM
+   Premium, Responsive, and Spacious
+   ========================================= */
+
+:root {
+    /* Brand Colors */
+    --brand-dark: #090e24;
+    --brand-primary: #1e3a8a;
+    --brand-accent: #2563eb;
+    --brand-light: #93c5fd;
+
+    /* Neutrals */
+    --slate-900: #0f172a;
+    --slate-800: #1e293b;
+    --slate-600: #475569;
+    --slate-500: #64748b;
+    --slate-400: #94a3b8;
+    --slate-300: #cbd5e1;
+    --slate-200: #e2e8f0;
+    --slate-50: #f8fafc;
+    --white: #ffffff;
+
+    /* Status */
+    --error-bg: #fef2f2;
+    --error-text: #dc2626;
+    --success-bg: #f0fdf4;
+    --success-text: #16a34a;
+
+    /* Spacing & Sizes */
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--slate-50);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--slate-600);
+    padding: 20px;
+    /* Prevent edge touching on small screens */
+}
+
+/* MAIN WRAPPER */
+.login-main-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    /* Increased max-width for better spacing */
+    min-height: 600px;
+    /* Increased height */
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* LEFT SIDE - BLUE PANEL */
+.left-panel {
+    flex: 1;
+    background: linear-gradient(135deg, var(--brand-dark), var(--brand-primary), #1d4ed8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+    color: var(--white);
+    overflow: hidden;
+}
+
+.left-panel::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+}
+
+.brand-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 40px;
+    width: fit-content;
+    text-transform: uppercase;
+}
+
+.panel-heading {
+    font-size: 32px;
+    /* 32px for impact */
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.panel-heading span {
+    color: var(--brand-light);
+}
+
+.panel-text {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--slate-300);
+    margin-bottom: 50px;
+    max-width: 90%;
+}
+
+/* STEPS LIST */
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.step-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--white);
+    color: var(--brand-primary);
+    font-weight: 700;
+    border-radius: 10px;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.step-content p {
+    font-size: 14px;
+    color: var(--slate-400);
+    line-height: 1.5;
+}
+
+/* RIGHT SIDE - FORM */
+.right-panel {
+    flex: 1.1;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--white);
+    overflow-y: auto;
+    /* Allow scroll if form is tall */
+}
+
+.form-header {
+    margin-bottom: 40px;
+}
+
+.form-header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--slate-900);
+    margin-bottom: 10px;
+}
+
+.form-header p {
+    color: var(--slate-500);
+    font-size: 16px;
+}
+
+/* FORM ELEMENTS */
+.input-group {
+    margin-bottom: 24px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slate-800);
+}
+
+.input-field {
+    width: 100%;
+    padding: 16px 18px;
+    /* Larger padding for touch */
+    background: var(--white);
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    color: var(--slate-800);
+    font-size: 15px;
+    /* Larger font */
+    transition: all 0.2s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.input-field::placeholder {
+    color: var(--slate-400);
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--slate-900);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background: var(--slate-800);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-google {
+    background: var(--white);
+    color: var(--slate-600);
+    border: 1px solid var(--slate-200);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: none;
+}
+
+.btn-google:hover {
+    background: var(--slate-50);
+    transform: translateY(-1px);
+    border-color: var(--slate-300);
+}
+
+/* UTILITIES & LINKS */
+.options-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: var(--slate-500);
+    user-select: none;
+}
+
+.remember-me input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--brand-accent);
+}
+
+.forgot-link {
+    color: var(--brand-accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: var(--slate-400);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}
+
+.toggle-password:hover {
+    color: var(--slate-600);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 30px 0;
+    color: var(--slate-400);
+    font-size: 14px;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--slate-200);
+}
+
+.footer-text {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 15px;
+    color: var(--slate-500);
+}
+
+.footer-text a {
+    color: var(--brand-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.back-link {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.back-link a {
+    color: var(--slate-500);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.back-link a:hover {
+    color: var(--slate-900);
+}
+
+/* ALERTS */
+.alert {
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    margin-bottom: 24px;
+    border-left: 4px solid transparent;
+}
+
+.alert-error {
+    background: var(--error-bg);
+    color: var(--error-text);
+    border-left-color: var(--error-text);
+}
+
+.alert-success {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border-left-color: var(--success-text);
+}
+
+.error-msg {
+    color: var(--error-text);
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 900px) {
+    .login-main-wrapper {
+        flex-direction: column;
+        max-width: 500px;
+        height: auto;
+    }
+
+    .left-panel {
+        padding: 40px 30px;
+        min-height: auto;
+    }
+
+    .right-panel {
+        padding: 40px 30px;
+        flex: auto;
+    }
+
+    .panel-heading {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+        align-items: flex-start;
+        /* Better scrolling on small phones */
+    }
+
+    .login-main-wrapper {
+        border-radius: 16px;
+        margin-top: 20px;
+    }
+
+    .left-panel {
+        padding: 30px 20px;
+        display: none;
+        /* Hide info panel on very small screens to save space? Or just compact it. Keeping it for now. */
+        display: flex;
+    }
+
+    .right-panel {
+        padding: 30px 20px;
+    }
+
+    .form-header h2 {
+        font-size: 24px;
+    }
+}

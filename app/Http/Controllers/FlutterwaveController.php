@@ -203,6 +203,7 @@ class FlutterwaveController extends Controller
             $order->update([
                 'payment_status' => 'paid',
                 'status' => 'processing',
+                'payment_method' => 'Flutterwave',
             ]);
 
             // Create or update invoice
@@ -216,11 +217,24 @@ class FlutterwaveController extends Controller
                     'payment_method' => 'Flutterwave',
                 ]);
             } else {
+                // Ensure customer exists to avoid foreign key errors
+                $customer = \App\Models\Customer::firstOrCreate(
+                    ['id' => $order->user_id],
+                    [
+                        'name' => $order->user->name,
+                        'email' => $order->user->email,
+                        'phone' => $order->user->phone,
+                        'address' => $order->user->address,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+
                 // Create new invoice
                 Invoice::create([
                     'invoice_number' => 'INV-' . time() . '-' . $order->id,
                     'invoice_date' => now(),
-                    'customer_id' => $order->user_id,
+                    'customer_id' => $customer->id,
                     'customer_name' => $order->user->name ?? 'N/A',
                     'description' => "Order #{$order->id} - {$order->product_name}",
                     'subtotal' => ($order->price * $order->quantity) / 1.18,

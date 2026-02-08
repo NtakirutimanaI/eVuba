@@ -94,6 +94,10 @@ Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('auth
 Route::post('/auth/login', [LoginController::class, 'login'])->name('auth.login.submit');
 Route::post('/auth/logout', [LoginController::class, 'logout'])->name('auth.logout');
 
+Route::get('/auth/verify-otp', [LoginController::class, 'showVerifyOtpForm'])->name('auth.verify-otp');
+Route::post('/auth/verify-otp', [LoginController::class, 'verifyOtp'])->name('auth.verify-otp.submit');
+Route::get('/auth/resend-otp', [LoginController::class, 'resendOtp'])->name('auth.resend-otp');
+
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
@@ -207,6 +211,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Extra Admin appointment actions
     Route::post('appointments/generate-report', [AdminAppointmentController::class, 'generateReport'])->name('appointments.generateReport');
     Route::post('appointments/assign-employee/{appointment}', [AdminAppointmentController::class, 'assignEmployee'])->name('appointments.assignEmployee');
+    Route::post('appointments/{appointment}/status', [AdminAppointmentController::class, 'updateStatus'])->name('appointments.updateStatus');
 });
 
 // Roles & Permissions routes moved to main admin group or unified here
@@ -811,6 +816,13 @@ use App\Http\Controllers\Manager\ManagerEmployeePerformanceController;
 
 Route::get('manager/employee/performance', [ManagerEmployeePerformanceController::class, 'index'])
     ->name('manager.performance.index');
+
+use App\Http\Controllers\Admin\AdminEmployeeReportController;
+Route::prefix('admin/employee/reports')->name('admin.employee.reports.')->middleware(['auth'])->group(function () {
+    Route::get('/', [AdminEmployeeReportController::class, 'index'])->name('index');
+    Route::get('/{id}/details', [AdminEmployeeReportController::class, 'details'])->name('details');
+    Route::post('/{id}/status', [AdminEmployeeReportController::class, 'updateStatus'])->name('status');
+});
 
 Route::get('/admin/orders/report', [AdminOrderController::class, 'generateReport'])->name('admin.orders.report');
 Route::get('/admin/orders/report/pdf', [AdminOrderController::class, 'generateReportPDF'])->name('admin.orders.report.pdf');

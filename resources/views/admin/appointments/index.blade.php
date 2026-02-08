@@ -161,18 +161,13 @@
                                 </select>
                             </td>
                             <td>
-                                <select class="status-select status-{{ $task->status }}"
-                                    onchange="updateStatus({{ $task->id }}, this.value)"
-                                    style="border:none; background:transparent; font-weight:700; cursor:pointer; padding:5px; border-radius:12px;">
-                                    <option value="pending" {{ $task->status == 'pending' ? 'selected' : '' }}
-                                        style="color:black">Pending</option>
-                                    <option value="confirmed" {{ $task->status == 'confirmed' ? 'selected' : '' }}
-                                        style="color:black">In Progress</option>
-                                    <option value="completed" {{ $task->status == 'completed' ? 'selected' : '' }}
-                                        style="color:black">Completed</option>
-                                    <option value="cancelled" {{ $task->status == 'cancelled' ? 'selected' : '' }}
-                                        style="color:black">Cancelled</option>
-                                </select>
+                                <span class="status-badge status-{{ $task->status }}">
+                                    @if($task->status == 'confirmed')
+                                        In Progress
+                                    @else
+                                        {{ ucfirst($task->status) }}
+                                    @endif
+                                </span>
                             </td>
                             <td>
                                 <div class="progress-cell">
@@ -195,10 +190,16 @@
                                         title="Edit Task">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn-action delete" onclick="deleteTask({{ $task->id }})"
-                                        title="Delete Task">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <form action="{{ route('admin.appointments.destroy', $task->id) }}" method="POST"
+                                        style="display:inline;"
+                                        onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-action delete" title="Delete Task"
+                                            style="background:none; border:none; cursor:pointer; color:#ef4444;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -560,8 +561,8 @@
     }
 
     .icon-bg.blue {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--primary);
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
     }
 
     .icon-bg.orange {
@@ -570,8 +571,8 @@
     }
 
     .icon-bg.purple {
-        background: rgba(139, 92, 246, 0.1);
-        color: #8b5cf6;
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
     }
 
     .icon-bg.green {
@@ -775,7 +776,7 @@
     }
 
     .badge-auto {
-        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        background: #6b7280;
         color: white;
         font-size: 10px;
         padding: 2px 6px;
@@ -798,7 +799,7 @@
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #6b7280;
         color: white;
         display: flex;
         align-items: center;
@@ -1283,8 +1284,8 @@
 </style>
 
 <script>
-    // Alert Hel    per
-    function showAlert(type, mes        sage) {
+    // Alert Helper
+    function showAlert(type, message) {
         const container = document.getElementById('alertContainer');
         const alert = document.createElement('div');
         alert.className = `glass-alert ${type}`;
@@ -1359,19 +1360,55 @@
     function deleteTask(id) {
         if (!confirm('Are you sure you want to delete this task?')) return;
 
-        fetch(`/admin/appointments/${id}`, {
-            method: 'DELETE',
+        console.log('Attempting to delete task:', id);
+
+        // Use Blade to generate the base URL
+        const url = "{{ route('admin.appointments.destroy', 'PLACEHOLDER') }}".replace('PLACEHOLDER', id);
+
+        fetch(url, {
+            method: 'POST', // Use POST with _method spoofing for better server compatibility
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest' // Explicitly mark as AJAX
+            },
+            body: JSON.stringify({
+                _method: 'DELETE'
+            })
         })
-            .then(() => {
-                showAlert('success', 'Task deleted successfully!');
-                setTimeout(() => location.reload(), 1000);
+            .then(async response => {
+                const contentType = response.headers.get('content-type');
+                const isJson = contentType && contentType.includes('application/json');
+                const data = isJson ? await response.json() : null;
+
+                if (!response.ok) {
+                    const errorMsg = (data && data.message) || response.statusText || 'Server Error';
+                    throw new Error(errorMsg);
+                }
+
+                return data;
+            })
+            .then(data => {
+                if (data && data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Task has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', (data && data.message) || 'Failed to delete task', 'error');
+                }
             })
             .catch(err => {
-                console.error('Error:', err);
-                showAlert('error', 'Failed to delete task');
+                console.error('Delete Error Details:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Action Failed',
+                    text: err.message || 'An unexpected network error occurred.'
+                });
             });
     }
 
@@ -1597,8 +1634,13 @@
     });
 
     function updateStatus(id, newStatus) {
-        fetch(`/admin/appointments/${id}/status`, {
-            method: 'PATCH',
+        // Use Blade to generate the base URL
+        const url = "{{ route('admin.appointments.updateStatus', 'PLACEHOLDER') }}".replace('PLACEHOLDER', id);
+
+        console.log('Updating status via:', url);
+
+        fetch(url, {
+            method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Accept': 'application/json',
@@ -1606,7 +1648,15 @@
             },
             body: JSON.stringify({ status: newStatus })
         })
-            .then(r => r.json())
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const d = isJson ? await response.json() : null;
+
+                if (!response.ok) {
+                    throw new Error((d && d.message) || response.statusText || 'Update Failed');
+                }
+                return d;
+            })
             .then(d => {
                 if (d.success) {
                     showAlert('success', 'Status updated successfully!');
@@ -1617,7 +1667,7 @@
             })
             .catch(err => {
                 console.error('Error:', err);
-                showAlert('error', 'Failed to update status');
+                showAlert('error', err.message || 'Failed to update status');
             });
     }
 </script>

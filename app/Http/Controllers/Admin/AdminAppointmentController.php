@@ -190,8 +190,20 @@ class AdminAppointmentController extends Controller
     // Delete
     public function destroy(Appointment $appointment)
     {
-        $appointment->delete();
-        return redirect()->back()->with('success', 'Appointment deleted successfully.');
+        try {
+            $appointment->delete();
+
+            if (request()->expectsJson()) {
+                return response()->json(['success' => true, 'message' => 'Task deleted successfully.']);
+            }
+
+            return redirect()->back()->with('success', 'Appointment deleted successfully.');
+        } catch (\Exception $e) {
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Failed to delete task.'], 500);
+            }
+            return redirect()->back()->with('error', 'Failed to delete task.');
+        }
     }
 
     // Assign employee

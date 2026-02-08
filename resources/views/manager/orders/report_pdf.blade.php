@@ -188,7 +188,8 @@
                     <td style="font-weight: bold;">{{ $order->quantity }}</td>
                     <td class="text-right">{{ number_format($order->price, 0) }}</td>
                     <td class="text-right" style="font-weight: bold;">
-                        {{ number_format($order->quantity * $order->price, 0) }}</td>
+                        {{ number_format($order->quantity * $order->price, 0) }}
+                    </td>
                     <td>
                         <span class="status-badge status-{{ $order->status }}">
                             {{ $order->status }}
@@ -204,13 +205,29 @@
         </tbody>
     </table>
 
-    <div class="summary-box">
-        <div class="summary-item">
-            <span style="color: #64748b; font-size: 12px; font-weight: normal; margin-right: 15px;">TOTAL LEDGER
-                REVENUE</span>
-            FRW {{ number_format($totalRevenue, 0) }}
-        </div>
-    </div>
+    <table style="width: 100%; margin-top: 30px; border: none;">
+        <tr>
+            <td style="width: 60%; vertical-align: bottom; border: none; padding: 0;">
+                <div style="font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase;">Generated
+                    By:</div>
+                <div style="font-size: 14px; font-weight: bold; color: #1e293b;">
+                    {{ auth()->user()->name ?? 'System Manager' }}</div>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 20px;">
+                    {{ auth()->user()->role ?? 'Official' }}</div>
+                <div style="border-bottom: 1px solid #e2e8f0; width: 200px; margin-bottom: 5px;"></div>
+                <div style="font-size: 10px; color: #94a3b8;">Authorized Signature</div>
+            </td>
+            <td style="width: 40%; vertical-align: top; border: none; padding: 0;">
+                <div class="summary-box" style="margin-top: 0; border-top: none;">
+                    <div class="summary-item" style="border-top: 2px solid #e2e8f0; padding-top: 15px;">
+                        <span style="color: #64748b; font-size: 12px; font-weight: normal; margin-right: 15px;">TOTAL
+                            LEDGER REVENUE</span>
+                        <div style="margin-top: 5px;">FRW {{ number_format($totalRevenue, 0) }}</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     <div class="footer">
         This document is an official revenue record. Generated via eVuba Intelligence Dashboard. &copy; {{ date('Y') }}

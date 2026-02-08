@@ -74,7 +74,7 @@ class CustomerBookingController extends Controller
             'service_id' => $service->id,
             'title' => $service->name,
             'description' => $service->description,
-            'employee_id' => $service->employee_id,
+            'employee_id' => $service->employee ? $service->employee_id : null,
             'booking_date' => $request->booking_date,
             'status' => 'pending',
         ]);

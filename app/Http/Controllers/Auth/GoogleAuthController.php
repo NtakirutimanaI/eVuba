@@ -38,14 +38,20 @@ class GoogleAuthController extends Controller
             );
 
             // Assign role if using Spatie roles package
-            if (method_exists($user, 'assignRole')) {
+            if (method_exists($user, 'assignRole') && !$user->hasAnyRole(['admin', 'manager', 'employee', 'customer'])) {
                 $user->assignRole('customer');
             }
 
             // Log in the user
             Auth::login($user);
 
-            // Redirect to dashboard
+            // Redirect based on role
+            $role = $user->role ?? 'customer';
+
+            if (in_array($role, ['admin', 'manager', 'employee', 'customer'])) {
+                return redirect()->route($role . '.dashboard');
+            }
+
             return redirect()->route('dashboard');
 
         } catch (\Exception $e) {

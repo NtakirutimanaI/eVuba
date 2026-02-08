@@ -18,7 +18,7 @@
             <div class="metric-label">Top Performer</div>
             <div class="flex-center mt-2" style="display: flex; align-items: center;">
                 <div class="employee-avatar"
-                    style="width: 40px; height: 40px; border-radius: 50%; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: 600;">
+                    style="width: 40px; height: 40px; border-radius: 50%; background: #6b7280; color: white; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: 600;">
                     {{ substr($performance[0]['name'], 0, 1) }}
                 </div>
                 <div>
@@ -94,7 +94,7 @@
                             <td>
                                 <div class="flex-center" style="display: flex; align-items: center;">
                                     <div class="employee-avatar"
-                                        style="width: 32px; height: 32px; border-radius: 50%; background: hsl({{ $loop->index * 40 % 360 }}, 70%, 60%); color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 0.8rem; font-weight: 600;">
+                                        style="width: 32px; height: 32px; border-radius: 50%; background: #6b7280; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 0.8rem; font-weight: 600;">
                                         {{ substr($p['name'], 0, 1) }}
                                     </div>
                                     <div>

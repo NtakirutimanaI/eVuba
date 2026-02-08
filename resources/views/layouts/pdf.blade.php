@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Report</title>
     <style>
         /* RESET & BASICS */
         /* RESET & BASICS */
-        @page { 
-            margin: 160px 40px 100px 40px; /* MAJOR MARGIN INCREASE for header clearance */
+        @page {
+            margin: 160px 40px 100px 40px;
+            /* MAJOR MARGIN INCREASE for header clearance */
         }
+
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 12px; /* Increased from 10px for visibility */
+            font-size: 12px;
+            /* Increased from 10px for visibility */
             color: #333;
             line-height: 1.5;
         }
@@ -43,7 +47,7 @@
             max-height: 75px;
             max-width: 180px;
         }
-        
+
         .logo-text {
             font-size: 24px;
             font-weight: 800;
@@ -122,8 +126,10 @@
         .footer-text.meta {
             color: #94a3b8;
         }
-        
-        .page-number:after { content: counter(page); }
+
+        .page-number:after {
+            content: counter(page);
+        }
 
         /* CONTENT AREA */
         .content {
@@ -133,29 +139,42 @@
         }
 
         /* UTILITY: Tables */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
             /* Remove table-layout: fixed if column content varies wildly, 
                but keep auto to allow browser to size based on content */
-            table-layout: auto; 
+            table-layout: auto;
         }
-        th, td { 
-            border: 1px solid #ccc; 
-            padding: 10px 8px; /* More breathing room */
-            text-align: left; 
-            vertical-align: top; /* Align top so multi-line text looks good */
-            font-size: 11px; /* Readable table text */
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px 8px;
+            /* More breathing room */
+            text-align: left;
+            vertical-align: top;
+            /* Align top so multi-line text looks good */
+            font-size: 11px;
+            /* Readable table text */
         }
-        th { 
-            background-color: #f1f5f9; 
+
+        th {
+            background-color: #f1f5f9;
             color: #1e293b;
             font-weight: 700;
             text-transform: uppercase;
         }
-        tr { page-break-inside: avoid; } /* Try to keep rows together */
-        tr:nth-child(even) { background-color: #f8fafc; }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        /* Try to keep rows together */
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
 
         /* SUMMARY BOXES */
         .summary-box {
@@ -166,23 +185,94 @@
             background: #fff;
             page-break-inside: avoid;
         }
+
         .summary-row {
             display: block;
             padding: 10px 15px;
             border-bottom: 1px solid #eee;
         }
-        .summary-row:last-child { border-bottom: none; }
-        .summary-label { font-weight: 600; font-size: 12px; }
-        .summary-val { float: right; font-weight: 700; font-size: 12px; }
-        
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .summary-val {
+            float: right;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
         .total-highlight {
-            background: #e0e7ff !important; /* Lighter blue for better print contrast */
+            background: #e0e7ff !important;
+            /* Lighter blue for better print contrast */
             border-top: 2px solid #4f46e5;
         }
-        .total-highlight .summary-label { color: #000; }
-        .total-highlight .summary-val { color: #000; }
+
+        .total-highlight .summary-label {
+            color: #000;
+        }
+
+        .total-highlight .summary-val {
+            color: #000;
+        }
+
+        /* Signature & Summary Layout */
+        .bottom-container {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            /* Ensure standard table behavior */
+            page-break-inside: avoid;
+        }
+
+        .bottom-container td {
+            border: none;
+            padding: 0;
+            vertical-align: top;
+        }
+
+        /* Override summary-box when inside the bottom table to prevent layout issues */
+        .bottom-container .summary-box {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            float: none !important;
+        }
+
+        .signature-box {
+            padding-right: 20px;
+            padding-top: 10px;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #ccc;
+            width: 200px;
+            margin-bottom: 8px;
+            margin-top: 30px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #1e293b;
+        }
+
+        .signature-role {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
+
 <body>
     <header>
         <div class="header-container">
@@ -193,7 +283,7 @@
                     <div class="logo-text">eVuba</div>
                 @endif
             </div>
-            
+
             <div class="header-right">
                 <div class="company-wrapper">
                     <div class="company-name">eVuba Connect</div>
@@ -215,7 +305,8 @@
                 This report is for the company internal use only or other permitted parties
             </div>
             <div class="footer-text meta">
-                Secure System Generated Report &bull; Page <span class="page-number"></span> &bull; &copy; {{ date('Y') }} eVuba Connect
+                Secure System Generated Report &bull; Page <span class="page-number"></span> &bull; &copy;
+                {{ date('Y') }} eVuba Connect
             </div>
         </div>
     </footer>
@@ -225,4 +316,5 @@
         @yield('content')
     </div>
 </body>
+
 </html>

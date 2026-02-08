@@ -24,7 +24,7 @@ class DashboardController extends Controller
         $customersCount = Customer::count();
         $ordersCount = Order::count();
         $supportCount = Ticket::count();
-        
+
         // Sales Stats
         $totalSalesAmount = Sale::sum('total_amount');
         $thisMonthSales = Sale::whereMonth('created_at', Carbon::now()->month)->sum('total_amount');
@@ -32,7 +32,7 @@ class DashboardController extends Controller
         $salesGrowth = $lastMonthSales > 0 ? (($thisMonthSales - $lastMonthSales) / $lastMonthSales) * 100 : 0;
 
         // Inventory Stats
-        $lowStockCount = Product::all()->filter(function($product) {
+        $lowStockCount = Product::all()->filter(function ($product) {
             return $product->remaining_stock < 10;
         })->count();
 
@@ -48,10 +48,10 @@ class DashboardController extends Controller
             DB::raw('MONTH(created_at) as month'),
             DB::raw('COUNT(*) as count')
         )
-        ->where('created_at', '>=', Carbon::now()->subMonths(6))
-        ->groupBy('month')
-        ->orderBy('month')
-        ->get();
+            ->where('created_at', '>=', Carbon::now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
 
         $customersByMonth = ['labels' => [], 'data' => []];
         foreach ($customersByMonthData as $row) {
@@ -64,10 +64,10 @@ class DashboardController extends Controller
             DB::raw('DATE(created_at) as date'),
             DB::raw('COUNT(*) as count')
         )
-        ->where('created_at', '>=', Carbon::now()->subDays(14))
-        ->groupBy('date')
-        ->orderBy('date')
-        ->get();
+            ->where('created_at', '>=', Carbon::now()->subDays(14))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
 
         $ordersOverTime = ['labels' => [], 'data' => []];
         foreach ($ordersOverTimeData as $row) {
@@ -80,28 +80,16 @@ class DashboardController extends Controller
             DB::raw('DATE(created_at) as date'),
             DB::raw('SUM(total_amount) as total')
         )
-        ->where('created_at', '>=', Carbon::now()->subDays(14))
-        ->groupBy('date')
-        ->orderBy('date')
-        ->get();
+            ->where('created_at', '>=', Carbon::now()->subDays(14))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
 
         $revenueOverTime = ['labels' => [], 'data' => []];
         foreach ($revenueOverTimeData as $row) {
             $revenueOverTime['labels'][] = Carbon::parse($row->date)->format('M d');
-            $revenueOverTime['data'][] = (float)$row->total;
+            $revenueOverTime['data'][] = (float) $row->total;
         }
-
-        // Service/Category Distribution (Orders by Category)
-        $categoriesData = Product::select('category_id', DB::raw('count(*) as total'))
-            ->join('orders', 'products.name', '=', 'orders.product_name') // Approximating if order doesn't have product_id
-            ->groupBy('category_id')
-            ->with('category')
-            ->get();
-        
-        $serviceDistribution = [
-            'labels' => $categoriesData->pluck('category.name')->filter()->toArray() ?: ['General'],
-            'data' => $categoriesData->pluck('total')->toArray() ?: [0]
-        ];
 
         // Support Status Distribution
         $supportStatusData = Ticket::select('status', DB::raw('COUNT(*) as total'))
@@ -139,7 +127,6 @@ class DashboardController extends Controller
             'customersByMonth',
             'ordersOverTime',
             'revenueOverTime',
-            'serviceDistribution',
             'supportStatus',
             'topProducts'
         ));

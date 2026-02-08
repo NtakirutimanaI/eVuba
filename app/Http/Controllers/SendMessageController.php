@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\MessageUs;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\MessageReplyMail;
@@ -13,28 +14,30 @@ class SendMessageController extends Controller
     public function index(Request $request)
     {
         $query = MessageUs::orderBy('created_at', 'desc');
-        
+
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('message', 'like', "%{$search}%");
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('message', 'like', "%{$search}%");
             });
         }
 
         if ($request->has('status')) {
-            if ($request->status == 'unread') $query->where('read', false);
-            if ($request->status == 'read') $query->where('read', true);
+            if ($request->status == 'unread')
+                $query->where('read', false);
+            if ($request->status == 'read')
+                $query->where('read', true);
         }
 
         $messages = $query->withCount('replies')->paginate(15)->withQueryString();
-        
+
         $stats = [
-            'total'  => MessageUs::count(),
+            'total' => MessageUs::count(),
             'unread' => MessageUs::where('read', false)->count(),
-            'read'   => MessageUs::where('read', true)->count(),
+            'read' => MessageUs::where('read', true)->count(),
         ];
 
         return view('admin.messages.index', compact('messages', 'stats'));
@@ -72,10 +75,10 @@ class SendMessageController extends Controller
         ]);
 
         $message = MessageUs::findOrFail($id);
-        
+
         $reply = \App\Models\MessageReply::create([
             'message_us_id' => $message->id,
-            'user_id'       => auth()->id(),
+            'user_id' => auth()->id(),
             'reply_content' => $request->reply_content,
         ]);
 
@@ -89,9 +92,9 @@ class SendMessageController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Reply sent successfully!',
-            'reply'   => [
-                'content'    => $reply->reply_content,
-                'user_name'  => auth()->user()->name,
+            'reply' => [
+                'content' => $reply->reply_content,
+                'user_name' => auth()->user()->name,
                 'created_at' => $reply->created_at->diffForHumans()
             ]
         ]);
@@ -113,27 +116,31 @@ class SendMessageController extends Controller
     {
         $request->validate([
             'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'email'      => 'required|email|max:255',
-            'message'    => 'required|string',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string',
         ]);
 
         $messageUs = MessageUs::create([
             'first_name' => $request->first_name,
-            'last_name'  => $request->last_name,
-            'email'      => $request->email,
-            'message'    => $request->message,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'message' => $request->message,
         ]);
 
         // Notify Admins
-        $admins = User::role('admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new \App\Notifications\SystemAlert([
-                'title' => 'New Contact Message',
-                'message' => 'New inquiry from '.$request->first_name.' '.$request->last_name.'.',
-                'icon' => 'fa-envelope',
-                'action_url' => route('admin.messages.index')
-            ]));
+        try {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\SystemAlert([
+                    'title' => 'New Contact Message',
+                    'message' => 'New inquiry from ' . $request->first_name . ' ' . $request->last_name . '.',
+                    'icon' => 'fa-envelope',
+                    'action_url' => route('admin.messages.index')
+                ]));
+            }
+        } catch (\Exception $e) {
+            Log::error("Admin notification error: " . $e->getMessage());
         }
 
         if ($request->ajax()) {
@@ -156,7 +163,7 @@ class SendMessageController extends Controller
         }
 
         return redirect()->route('admin.messages.index')
-                         ->with('success', 'Message deleted successfully.');
+            ->with('success', 'Message deleted successfully.');
     }
 
     /**

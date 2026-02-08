@@ -20,7 +20,7 @@
     </div>
 
     {{-- Command Metrics --}}
-    <div class="dashboard-grid">
+    <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr);">
         <div class="pro-card metric-card">
             <div class="metric-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
                 <i class="fas fa-book-open"></i>
@@ -43,16 +43,7 @@
             </div>
         </div>
 
-        <div class="pro-card metric-card">
-            <div class="metric-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
-                <i class="fas fa-wallet"></i>
-            </div>
-            <div class="metric-content">
-                <div class="metric-label">Liquid Investment</div>
-                <div class="metric-value" style="font-size: 1.4rem;">{{ number_format($totalSpent) }} FRW</div>
-                <div class="metric-trend up"><i class="fas fa-file-invoice-dollar"></i> Confirmed Capital</div>
-            </div>
-        </div>
+
 
         <div class="pro-card metric-card">
             <div class="metric-icon" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);">
@@ -66,24 +57,7 @@
         </div>
     </div>
 
-    {{-- Analytical Intelligence --}}
-    <div class="main-grid" style="margin-top: 1.5rem;">
-        <div class="pro-card glass-panel analytical-card">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-bar"></i> Investment Intelligence</h3>
-                <span class="header-pill">Last 6 Months</span>
-            </div>
-            <div id="spendingChart" class="chart-container"></div>
-        </div>
 
-        <div class="pro-card glass-panel analytical-card">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-pie"></i> Engagement Lifecycle</h3>
-                <span class="header-pill">Distribution</span>
-            </div>
-            <div id="bookingChart" class="chart-container"></div>
-        </div>
-    </div>
 
     {{-- Activity Feed --}}
     <div class="main-grid" style="margin-top: 1.5rem; margin-bottom: 3rem;">
@@ -131,32 +105,42 @@
             </div>
         </div>
 
-        <div class="pro-card glass-panel activity-card">
-            <div class="card-header">
-                <h3><i class="fas fa-stream"></i> Engagement Pipeline</h3>
-                <a href="{{ route('customer.bookings.index') }}" class="view-all-link">Commands <i
-                        class="fas fa-arrow-right"></i></a>
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="pro-card glass-panel analytical-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-pie"></i> Engagement Lifecycle</h3>
+                    <span class="header-pill">Distribution</span>
+                </div>
+                <div id="bookingChart" class="chart-container"></div>
             </div>
-            <div class="activity-list">
-                @forelse($recentBookings as $booking)
-                    <div class="activity-item">
-                        <div class="item-visual">
-                            <i class="fas fa-concierge-bell"></i>
+
+            <div class="pro-card glass-panel activity-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-stream"></i> Engagement Pipeline</h3>
+                    <a href="{{ route('customer.bookings.index') }}" class="view-all-link">Commands <i
+                            class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="activity-list">
+                    @forelse($recentBookings as $booking)
+                        <div class="activity-item">
+                            <div class="item-visual">
+                                <i class="fas fa-concierge-bell"></i>
+                            </div>
+                            <div class="item-info">
+                                <div class="item-title">{{ $booking->service->name ?? $booking->title }}</div>
+                                <div class="item-meta"><i class="far fa-calendar-alt"></i>
+                                    {{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}</div>
+                            </div>
+                            <span class="status-badge status-{{ $booking->status }}">{{ ucfirst($booking->status) }}</span>
                         </div>
-                        <div class="item-info">
-                            <div class="item-title">{{ $booking->service->name ?? $booking->title }}</div>
-                            <div class="item-meta"><i class="far fa-calendar-alt"></i>
-                                {{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}</div>
+                    @empty
+                        <div style="text-align:center; padding:3rem; color: var(--secondary);">
+                            <i class="fas fa-terminal"
+                                style="display:block; font-size: 2rem; opacity: 0.2; margin-bottom: 10px;"></i>
+                            No active pipeline.
                         </div>
-                        <span class="status-badge status-{{ $booking->status }}">{{ ucfirst($booking->status) }}</span>
-                    </div>
-                @empty
-                    <div style="text-align:center; padding:3rem; color: var(--secondary);">
-                        <i class="fas fa-terminal"
-                            style="display:block; font-size: 2rem; opacity: 0.2; margin-bottom: 10px;"></i>
-                        No active pipeline.
-                    </div>
-                @endforelse
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
@@ -165,42 +149,7 @@
 
 
 <script>
-    // Spending Chart
-    var spendingOptions = {
-        series: [{
-            name: 'Capital Investment',
-            data: @json($spendingValues)
-        }],
-        chart: {
-            height: 300,
-            type: 'area',
-            toolbar: { show: false },
-            zoom: { enabled: false },
-            fontFamily: 'inherit'
-        },
-        dataLabels: { enabled: false },
-        stroke: { curve: 'smooth', width: 3, colors: ['#6366f1'] },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shadeIntensity: 1,
-                opacityFrom: 0.45,
-                opacityTo: 0.05,
-                stops: [20, 100],
-                colorStops: [{ offset: 0, color: '#6366f1', opacity: 0.4 }, { offset: 100, color: '#6366f1', opacity: 0 }]
-            }
-        },
-        colors: ['#6366f1'],
-        xaxis: {
-            categories: @json($spendingLabels),
-            axisBorder: { show: false },
-            axisTicks: { show: false },
-            labels: { style: { colors: '#94a3b8', fontWeight: 600 } }
-        },
-        yaxis: { labels: { style: { colors: '#94a3b8', fontWeight: 600 } } },
-        grid: { borderColor: 'rgba(226, 232, 240, 0.3)', strokeDashArray: 4 }
-    };
-    new ApexCharts(document.querySelector("#spendingChart"), spendingOptions).render();
+
 
     // Booking Chart
     var bookingOptions = {

@@ -640,7 +640,9 @@
                                 <h4 style="margin: 0 0 5px; font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
                                     {{ $service->name }}
                                 </h4>
-                                <div class="catalog-price">{{ number_format($service->price) }} FRW</div>
+                                @if($service->price > 0)
+                                    <div class="catalog-price">{{ number_format($service->price) }} FRW</div>
+                                @endif
                             </div>
                             <div class="book-btn-mini"><i class="fas fa-arrow-right"></i></div>
                         </div>
