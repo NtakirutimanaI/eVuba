@@ -295,7 +295,17 @@ Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(functi
     Route::resource('support', CustomerSupportController::class)->except(['index']);
     Route::get('/appointments/{appointment}', [CustomerAppointmentController::class, 'show'])
         ->name('appointments.show');
+        
+    // Feedback
+    Route::get('/feedback', [\App\Http\Controllers\Customer\FeedbackController::class, 'index'])->name('feedback.index');
+    Route::get('/feedback/{feedback}/submit', [\App\Http\Controllers\Customer\FeedbackController::class, 'submit'])->name('feedback.submit');
+    Route::post('/feedback/{feedback}', [\App\Http\Controllers\Customer\FeedbackController::class, 'store'])->name('feedback.store');
 
+});
+
+// Admin Feedback Routes
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('/feedback-analytics', [\App\Http\Controllers\Admin\FeedbackAnalyticsController::class, 'index'])->name('feedback.dashboard');
 });
 
 // ------------------ Password Change ------------------

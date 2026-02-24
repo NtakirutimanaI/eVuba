@@ -33,6 +33,12 @@ class Ticket extends Model
                 $ticket->ticket_no = 'TCK-' . strtoupper(uniqid());
             }
         });
+
+        static::updated(function ($ticket) {
+            if ($ticket->isDirty('status') && strtolower($ticket->status) === 'completed') {
+                $ticket->generateFeedbackRequest();
+            }
+        });
     }
 
     // Relationships
@@ -80,5 +86,27 @@ class Ticket extends Model
     public function assigned()
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /** Feedback for this ticket */
+    public function feedback()
+    {
+        return $this->morphOne(Feedback::class, 'feedbackable');
+    }
+
+    public function generateFeedbackRequest()
+    {
+        if (!$this->feedback) {
+            $actualTime = $this->created_at->diffInMinutes($this->updated_at);
+            $slaThreshold = 24 * 60; // 24 hours SLA threshold for tickets
+
+            $this->feedback()->create([
+                'customer_id' => $this->customer_id,
+                'status' => 'pending',
+                'actual_completion_time' => $actualTime,
+                'sla_threshold' => $slaThreshold,
+                'sla_compliant' => $actualTime <= $slaThreshold,
+            ]);
+        }
     }
 }

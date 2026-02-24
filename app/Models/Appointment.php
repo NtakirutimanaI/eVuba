@@ -29,6 +29,17 @@ class Appointment extends Model
         'scheduled_at' => 'datetime',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function ($appointment) {
+            if ($appointment->isDirty('status') && strtolower($appointment->status) === 'completed') {
+                $appointment->generateFeedbackRequest();
+            }
+        });
+    }
+
     /**
      * The customer who created the appointment (Business Entity)
      */
@@ -99,5 +110,27 @@ class Appointment extends Model
     public function scopeForEmployee($query, $employeeId)
     {
         return $query->where('employee_id', $employeeId);
+    }
+
+    /** Feedback for this appointment */
+    public function feedback()
+    {
+        return $this->morphOne(Feedback::class, 'feedbackable');
+    }
+
+    public function generateFeedbackRequest()
+    {
+        if (!$this->feedback) {
+            $actualTime = $this->scheduled_at ? $this->scheduled_at->diffInMinutes($this->updated_at) : 0;
+            $slaThreshold = 60; // 1 hour threshold
+
+            $this->feedback()->create([
+                'customer_id' => $this->user_id,
+                'status' => 'pending',
+                'actual_completion_time' => $actualTime,
+                'sla_threshold' => $slaThreshold,
+                'sla_compliant' => $actualTime <= $slaThreshold,
+            ]);
+        }
     }
 }
