@@ -11,35 +11,67 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminAppointmentController extends Controller
 {
-    // Employee view of their appointments
+    // Admin unified appointments index — split into Tasks tab and Customer Requests tab
     public function index()
     {
-        $employeeId = auth()->id();
         $user = auth()->user();
 
+        // Redirect employees to their own view
         if ($user->role === 'employee') {
-            $appointments = Appointment::where('employee_id', $employeeId)
+            $appointments = Appointment::where('employee_id', $user->id)
                 ->with('user')
                 ->orderBy('scheduled_at', 'desc')
-                ->paginate(5); // Pagination reduced to 5
-
+                ->paginate(10);
             return view('employee.appointments.index', compact('appointments'));
         }
 
-        $user = Auth::user();
-
+        // Redirect customers to their portal
         if ($user && method_exists($user, 'hasRole') && $user->hasRole('Customer')) {
             return redirect()->route('customer.appointments.index');
         }
 
-        $appointments = Appointment::with('user', 'employee')
+        // --- Tab 1: Internal Tasks (admin/manager-created, not customer requests) ---
+        $tasks = Appointment::with('user', 'employee')
+            ->where(function ($q) {
+                $q->whereNull('source_type')
+                    ->orWhere('source_type', '!=', 'customer_request');
+            })
             ->orderBy('scheduled_at', 'desc')
-            ->paginate(5); // Pagination reduced to 5
+            ->paginate(10, ['*'], 'tasks_page');
+
+        // --- Tab 2: Customer Appointment Requests ---
+        $customerRequests = Appointment::with('user', 'employee')
+            ->where('source_type', 'customer_request')
+            ->orderBy('scheduled_at', 'desc')
+            ->paginate(10, ['*'], 'requests_page');
+
+        // --- Stats for Tasks tab ---
+        $taskStats = [
+            'total' => Appointment::where(fn($q) => $q->whereNull('source_type')->orWhere('source_type', '!=', 'customer_request'))->count(),
+            'pending' => Appointment::where('status', 'pending')->where(fn($q) => $q->whereNull('source_type')->orWhere('source_type', '!=', 'customer_request'))->count(),
+            'confirmed' => Appointment::where('status', 'confirmed')->where(fn($q) => $q->whereNull('source_type')->orWhere('source_type', '!=', 'customer_request'))->count(),
+            'completed' => Appointment::where('status', 'completed')->where(fn($q) => $q->whereNull('source_type')->orWhere('source_type', '!=', 'customer_request'))->count(),
+        ];
+
+        // --- Stats for Customer Requests tab ---
+        $requestStats = [
+            'total' => Appointment::where('source_type', 'customer_request')->count(),
+            'pending' => Appointment::where('source_type', 'customer_request')->where('status', 'pending')->count(),
+            'confirmed' => Appointment::where('source_type', 'customer_request')->where('status', 'confirmed')->count(),
+            'completed' => Appointment::where('source_type', 'customer_request')->where('status', 'completed')->count(),
+        ];
 
         $employees = User::where('role', 'employee')->get();
         $customers = User::where('role', 'customer')->get();
 
-        return view('admin.appointments.index', compact('appointments', 'employees', 'customers'));
+        return view('admin.appointments.index', compact(
+            'tasks',
+            'customerRequests',
+            'taskStats',
+            'requestStats',
+            'employees',
+            'customers'
+        ));
     }
 
     // ... (edit, update, showJson methods remain same, skipping to report)
@@ -184,7 +216,9 @@ class AdminAppointmentController extends Controller
             ]));
         }
 
-        return redirect()->back()->with('success', 'Status updated successfully.');
+        return redirect()
+            ->route('admin.appointments.index', ['tab' => $appointment->source_type === 'customer_request' ? 'requests' : 'tasks'])
+            ->with('success', 'Status updated to ' . ucfirst($request->status) . '.');
     }
 
     // Delete

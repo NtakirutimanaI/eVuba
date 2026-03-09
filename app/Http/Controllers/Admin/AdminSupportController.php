@@ -48,8 +48,11 @@ class AdminSupportController extends Controller
         // Correcting category fetch to use SupportCategory
         $categories = SupportCategory::orderBy('name')->get();
 
-        // Fetching agents (users with specific roles like admin, manager, employee)
-        $agents = User::role(['admin', 'manager', 'employee'])->get();
+        // Fetching agents — using plain role column (not Spatie roles)
+        $agents = User::whereIn('role', ['admin', 'manager', 'employee'])
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.support.index', compact('tickets', 'customers', 'categories', 'stats', 'agents'));
     }
@@ -95,9 +98,9 @@ class AdminSupportController extends Controller
 
         TicketLog::create([
             'ticket_id' => $ticket->id,
-            'old_status' => $oldStatus,
-            'new_status' => $ticket->status,
-            'changed_by' => Auth::user()->name,
+            'user_id' => Auth::id(),
+            'action' => 'status_changed',
+            'description' => 'Status changed from ' . $oldStatus . ' to ' . $ticket->status . ' by ' . Auth::user()->name,
         ]);
 
         // Notify Customer
@@ -232,9 +235,9 @@ class AdminSupportController extends Controller
 
         TicketLog::create([
             'ticket_id' => $ticket->id,
-            'old_status' => $oldStatus,
-            'new_status' => $oldStatus,
-            'changed_by' => Auth::user()->name,
+            'user_id' => Auth::id(),
+            'action' => 'assigned',
+            'description' => 'Ticket assigned to ' . optional(User::find($request->assigned_to))->name . ' by ' . Auth::user()->name,
         ]);
 
         // Notify Assigned Agent

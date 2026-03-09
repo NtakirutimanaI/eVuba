@@ -39,9 +39,10 @@
   }
 
   .content {
-    font-size: 16px; /* 🔽 Made text smaller */
+    font-size: 16px;
+    /* 🔽 Made text smaller */
     line-height: 1.6;
-    color:white;
+    color: white;
     font-weight: 500;
     transition: opacity 0.3s ease;
   }
@@ -70,7 +71,8 @@
 
   @media (max-width: 600px) {
     .content {
-      font-size: 15px; /* 🔽 Also smaller on mobile */
+      font-size: 15px;
+      /* 🔽 Also smaller on mobile */
     }
 
     .arrow-btn {
@@ -85,7 +87,9 @@
   <div class="label">Stay Connected</div>
   <div class="heading">What is eVuba Connect</div>
   <div class="content" id="evuba-text">
-    eVubaConnect saves you invaluable time streamlining processes that once took days into just minutes. Even first-time users can navigate the system effortlessly, enabling your team to focus on what truly matters: delivering exceptional service and growing your business.
+    eVubaConnect saves you invaluable time streamlining processes that once took days into just minutes. Even first-time
+    users can navigate the system effortlessly, enabling your team to focus on what truly matters: delivering
+    exceptional service and growing your business.
   </div>
 
   <div class="controls">

@@ -11,13 +11,36 @@ class FeedbackController extends Controller
 {
     public function index()
     {
+        $customerId = auth()->id();
+
+        // 1. Auto-generate missing feedbacks for completed tickets
+        $completedTickets = \App\Models\Ticket::where('customer_id', $customerId)
+            ->where('status', 'completed')
+            ->doesntHave('feedback')
+            ->get();
+
+        foreach ($completedTickets as $ticket) {
+            $ticket->generateFeedbackRequest();
+        }
+
+        // 2. Auto-generate missing feedbacks for completed appointments
+        $completedAppointments = \App\Models\Appointment::where('user_id', $customerId)
+            ->where('status', 'completed')
+            ->doesntHave('feedback')
+            ->get();
+
+        foreach ($completedAppointments as $appointment) {
+            $appointment->generateFeedbackRequest();
+        }
+
+        // 3. Fetch all pending and submitted feedbacks
         $feedbacks = Feedback::with('feedbackable')
-            ->where('customer_id', auth()->id())
+            ->where('customer_id', $customerId)
             ->where('status', 'pending')
             ->get();
 
         $submitted = Feedback::with('feedbackable')
-            ->where('customer_id', auth()->id())
+            ->where('customer_id', $customerId)
             ->where('status', 'submitted')
             ->get();
 
@@ -53,6 +76,18 @@ class FeedbackController extends Controller
             $attachmentPath = $request->file('attachment')->store('feedbacks', 'public');
         }
 
+        // SLA is met only if ALL customer ratings are >= 3 (acceptable or above).
+        // If any rating is 1 or 2 (poor/very poor), the SLA is considered violated
+        // regardless of the time-based pre-set value.
+        $ratingsAllAcceptable = $request->rating >= 3
+            && $request->response_time_rating >= 3
+            && $request->resolution_quality_rating >= 3
+            && $request->communication_rating >= 3;
+
+        // Also factor in whether it was time-compliant originally.
+        // SLA is only fully met if both time-based AND rating-based criteria pass.
+        $slaCompliant = $ratingsAllAcceptable && (bool) $feedback->sla_compliant;
+
         $feedback->update([
             'rating' => $request->rating,
             'response_time_rating' => $request->response_time_rating,
@@ -61,6 +96,7 @@ class FeedbackController extends Controller
             'comments' => $request->comments,
             'attachment' => $attachmentPath,
             'status' => 'submitted',
+            'sla_compliant' => $slaCompliant,
         ]);
 
         return redirect()->route('customer.feedback.index')->with('success', 'Thank you! Your feedback has been submitted successfully.');

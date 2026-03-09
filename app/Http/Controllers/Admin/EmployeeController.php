@@ -23,15 +23,15 @@ class EmployeeController extends Controller
             $user = User::find($employee->id); // Assuming employee.id = user.id
             if ($user && method_exists($user, 'performanceMetrics')) {
                 $metrics = $user->performanceMetrics();
-                $employee->tasks_assigned  = $metrics['tasks_assigned'] ?? 0;
+                $employee->tasks_assigned = $metrics['tasks_assigned'] ?? 0;
                 $employee->tasks_completed = $metrics['tasks_completed'] ?? 0;
                 $employee->tickets_handled = $metrics['tickets_handled'] ?? 0;
-                $employee->tickets_resolved= $metrics['tickets_resolved'] ?? 0;
+                $employee->tickets_resolved = $metrics['tickets_resolved'] ?? 0;
             } else {
-                $employee->tasks_assigned  = 0;
+                $employee->tasks_assigned = 0;
                 $employee->tasks_completed = 0;
                 $employee->tickets_handled = 0;
-                $employee->tickets_resolved= 0;
+                $employee->tickets_resolved = 0;
             }
         }
 
@@ -59,13 +59,13 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'           => 'required|string|max:255',
-            'email'          => 'required|email|unique:users,email', // Check users table!
-            'phone'          => 'nullable|string|max:20',
-            'position'       => 'nullable|string|max:100',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email', // Check users table!
+            'phone' => 'nullable|string|max:20',
+            'position' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:150',
-            'department'     => 'nullable|string|max:100',
-            'image'          => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'department' => 'nullable|string|max:100',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -81,7 +81,7 @@ class EmployeeController extends Controller
         ]);
 
         // 2. Prepare Employee Data
-        $data = $request->only(['name','email','phone','position','specialization','department']);
+        $data = $request->only(['name', 'email', 'phone', 'position', 'specialization', 'department']);
         $data['id'] = $user->id; // Force ID to match User ID
 
         // Handle optional image upload
@@ -90,11 +90,14 @@ class EmployeeController extends Controller
             $data['image'] = $imagePath;
         }
 
-        // 3. Create Employee Record
-        Employee::create($data);
+        // 3. Update Employee Record (It is already created by User model's 'created' event)
+        Employee::updateOrCreate(
+            ['id' => $user->id],
+            $data
+        );
 
         return redirect()->route('admin.employees.index')
-                         ->with('success', 'Employee created successfully (Linked to User ID: ' . $user->id . ').');
+            ->with('success', 'Employee created successfully (Linked to User ID: ' . $user->id . ').');
     }
 
     /**
@@ -111,20 +114,20 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee)
     {
         $validator = Validator::make($request->all(), [
-            'name'           => 'required|string|max:255',
-            'email'          => 'required|email|unique:employees,email,' . $employee->id,
-            'phone'          => 'nullable|string|max:20',
-            'position'       => 'nullable|string|max:100',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees,email,' . $employee->id,
+            'phone' => 'nullable|string|max:20',
+            'position' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:150',
-            'department'     => 'nullable|string|max:100',
-            'image'          => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'department' => 'nullable|string|max:100',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $data = $request->only(['name','email','phone','position','specialization','department']);
+        $data = $request->only(['name', 'email', 'phone', 'position', 'specialization', 'department']);
 
         // Handle optional image upload
         if ($request->hasFile('image')) {
@@ -156,7 +159,7 @@ class EmployeeController extends Controller
         }
 
         return redirect()->route('admin.employees.index')
-                         ->with('success', 'Employee and associated user account synchronized successfully.');
+            ->with('success', 'Employee and associated user account synchronized successfully.');
     }
 
     /**
@@ -171,7 +174,7 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return redirect()->route('admin.employees.index')
-                         ->with('success', 'Employee deleted successfully.');
+            ->with('success', 'Employee deleted successfully.');
     }
 
     /**
@@ -180,9 +183,9 @@ class EmployeeController extends Controller
     public function appointments(Employee $employee)
     {
         $appointments = Appointment::where('employee_id', $employee->id)
-                                   ->with('user')
-                                   ->orderBy('scheduled_at', 'desc')
-                                   ->get();
+            ->with('user')
+            ->orderBy('scheduled_at', 'desc')
+            ->get();
 
         return view('employee.appointments.index', compact('appointments', 'employee'));
     }
@@ -194,7 +197,7 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'appointment_id' => 'required|exists:appointments,id',
-            'message'        => 'required|string',
+            'message' => 'required|string',
         ]);
 
         $appointment = Appointment::findOrFail($request->appointment_id);
@@ -211,8 +214,8 @@ class EmployeeController extends Controller
     public function saveFeedback(Request $request)
     {
         $request->validate([
-            'appointment_id'  => 'required|exists:appointments,id',
-            'feedback_message'=> 'required|string',
+            'appointment_id' => 'required|exists:appointments,id',
+            'feedback_message' => 'required|string',
         ]);
 
         $appointment = Appointment::findOrFail($request->appointment_id);

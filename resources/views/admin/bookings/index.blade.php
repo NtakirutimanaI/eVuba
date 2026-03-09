@@ -18,14 +18,14 @@
                         style="font-size: 0.7rem; color: var(--secondary); margin-bottom: 0.25rem; display: block;">Start
                         Date</label>
                     <input type="date" name="start_date" value="{{ request('start_date') }}"
-                        style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--glass-border); font-size: 0.85rem;">
+                        style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--glass-border); font-size: 0.85rem; background: var(--bg-main); color: var(--text-main);">
                 </div>
                 <div class="form-group" style="margin: 0;">
                     <label
                         style="font-size: 0.7rem; color: var(--secondary); margin-bottom: 0.25rem; display: block;">End
                         Date</label>
                     <input type="date" name="end_date" value="{{ request('end_date') }}"
-                        style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--glass-border); font-size: 0.85rem;">
+                        style="padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--glass-border); font-size: 0.85rem; background: var(--bg-main); color: var(--text-main);">
                 </div>
                 <button type="submit" class="action-btn btn-primary" style="height: 38px;">
                     <i class="fas fa-filter"></i>
@@ -137,7 +137,7 @@
             <div class="pro-search">
                 <i class="fas fa-search"></i>
                 <input type="text" id="bookingSearch" placeholder="Filter by client, service, or date..."
-                    style="background: transparent; border: none; outline: none; padding: 0.5rem; width: 300px;">
+                    style="background: transparent; border: none; outline: none; padding: 0.5rem; width: 300px; color: var(--text-main);">
             </div>
         </div>
 
@@ -224,6 +224,12 @@
                                         <i class="fas fa-clock"></i>
                                     </a>
 
+                                    <button type="button" class="action-btn" title="Assign Employee"
+                                        onclick="openAssignModal('{{ $booking->id }}')"
+                                        style="background: rgba(168, 85, 247, 0.1); color: #a855f7; border: none;">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+
                                     <form
                                         action="{{ route('admin.bookings.updateStatus', ['booking' => $booking->id, 'status' => 'rejected']) }}"
                                         method="POST">
@@ -269,11 +275,46 @@
     </div>
 </div>
 
+<!-- Assign Employee Modal -->
+<div id="assignModal"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center;">
+    <div
+        style="background: var(--white); padding: 2rem; border-radius: 1rem; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--dark);"><i class="fas fa-user-plus"></i>
+                Assign Employee</h3>
+            <button onclick="closeAssignModal()"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--secondary);">&times;</button>
+        </div>
+
+        <form id="assignForm" method="POST" action="">
+            @csrf
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; color: var(--dark);">Select
+                    Employee <span style="color: red;">*</span></label>
+                <select name="employee_id" required
+                    style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--glass-border); outline: none; background: var(--bg-main); color: var(--text-main);">
+                    <option value="">Choose employee...</option>
+                    @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary"
+                style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: none; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 0.5rem; color: white;">
+                <i class="fas fa-check"></i> Assign Booking
+            </button>
+        </form>
+    </div>
+</div>
+
 <style>
     .dashboard-wrapper {
         margin-left: 250px;
         padding: 30px;
-        background: #f1f5f9;
+        background: var(--bg-main);
         min-height: 100vh;
     }
 
@@ -287,7 +328,7 @@
     .pro-header h1 {
         font-size: 2rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--dark);
         margin: 0;
     }
 
@@ -299,11 +340,11 @@
     }
 
     .pro-card {
-        background: white;
+        background: var(--white);
         border-radius: 1rem;
         padding: 1.5rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--glass-border);
     }
 
     .stat-widget {
@@ -319,7 +360,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
+        color: #fff;
         font-size: 1.25rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
@@ -327,13 +368,13 @@
     .stat-info .value {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--dark);
         line-height: 1.2;
     }
 
     .stat-info .label {
         font-size: 0.8rem;
-        color: #64748b;
+        color: var(--secondary);
         text-transform: uppercase;
         font-weight: 600;
         margin-bottom: 0.25rem;
@@ -346,11 +387,11 @@
     }
 
     .stat-trend.up {
-        color: #10b981;
+        color: var(--success);
     }
 
     .stat-trend.down {
-        color: #ef4444;
+        color: var(--danger);
     }
 
     /* Search & Table */
@@ -358,16 +399,16 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        background: #f8fafc;
+        background: var(--light);
         padding: 0.5rem 1rem;
         border-radius: 0.75rem;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--glass-border);
         transition: all 0.2s;
     }
 
     .pro-search:focus-within {
-        background: white;
-        border-color: #3b82f6;
+        background: var(--white);
+        border-color: var(--info);
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
@@ -382,14 +423,15 @@
         font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
-        color: #64748b;
-        border-bottom: 2px solid #e2e8f0;
+        color: var(--secondary);
+        border-bottom: 2px solid var(--glass-border);
     }
 
     .pro-table td {
         padding: 1.25rem 1rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--glass-border);
         vertical-align: middle;
+        color: var(--text-main);
     }
 
     .action-btn {
@@ -494,10 +536,10 @@
         display: block;
         padding: 0.5rem 0.75rem;
         font-size: 0.875rem;
-        color: var(--primary);
+        color: var(--info);
         text-decoration: none;
-        background-color: #fff;
-        border: 1px solid #e2e8f0;
+        background-color: var(--white);
+        border: 1px solid var(--glass-border);
         border-radius: 0.375rem;
         transition: all 0.2s;
         line-height: 1.25;
@@ -505,27 +547,36 @@
 
     .page-link:hover {
         z-index: 2;
-        color: var(--primary);
-        background-color: #f1f5f9;
-        border-color: #cbd5e1;
+        color: var(--info);
+        background-color: var(--bg-main);
+        border-color: var(--glass-border);
     }
 
     .page-item.active .page-link {
         z-index: 3;
         color: #fff;
-        background-color: var(--primary);
-        border-color: var(--primary);
+        background-color: var(--info);
+        border-color: var(--info);
     }
 
     .page-item.disabled .page-link {
-        color: #94a3b8;
+        color: var(--secondary);
         pointer-events: none;
-        background-color: #fff;
-        border-color: #e2e8f0;
+        background-color: var(--white);
+        border-color: var(--glass-border);
     }
 </style>
 
 <script>
+    function openAssignModal(bookingId) {
+        document.getElementById('assignForm').action = `/admin/bookings/${bookingId}/assign-employee`;
+        document.getElementById('assignModal').style.display = 'flex';
+    }
+
+    function closeAssignModal() {
+        document.getElementById('assignModal').style.display = 'none';
+    }
+
     function updateReportLinks() {
         const startDate = document.querySelector('input[name="start_date"]').value;
         const endDate = document.querySelector('input[name="end_date"]').value;

@@ -16,12 +16,12 @@ class AppointmentController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%")
-                  ->orWhereHas('employee', function($q2) use ($search) {
-                      $q2->where('name', 'LIKE', "%{$search}%");
-                  });
+                    ->orWhere('description', 'LIKE', "%{$search}%")
+                    ->orWhereHas('employee', function ($q2) use ($search) {
+                        $q2->where('name', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
@@ -48,7 +48,13 @@ class AppointmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'scheduled_at' => 'required|date|after:now',
-            'employee_id' => 'nullable|exists:employees,id'
+            'employee_id' => 'nullable|exists:employees,id',
+            // Extra form fields collected in the create view but not stored in appointments table
+            'phone' => 'nullable|string|max:30',
+            'street' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
         ]);
 
         $employeeId = $request->employee_id;
@@ -68,11 +74,13 @@ class AppointmentController extends Controller
             'scheduled_at' => $request->scheduled_at,
             'status' => 'pending',
             'employee_id' => $employeeId,
+            'source_type' => 'customer_request',
+            'priority' => 'medium',
         ]);
 
         return redirect()->route('customer.appointments.index')
-            ->with('success', 'Appointment created successfully! Assigned Employee: ' . 
-                ($employeeId ? Employee::find($employeeId)->name : 'Pending'));
+            ->with('success', 'Appointment request submitted! Assigned Employee: ' .
+                ($employeeId ? Employee::find($employeeId)->name : 'Pending assignment'));
     }
 
     public function update(Request $request, $id)
@@ -92,7 +100,7 @@ class AppointmentController extends Controller
         ]);
 
         return redirect()->route('customer.appointments.index')
-                         ->with('success', 'Appointment updated successfully.');
+            ->with('success', 'Appointment updated successfully.');
     }
 
     public function destroy(Appointment $appointment)
@@ -106,16 +114,20 @@ class AppointmentController extends Controller
 
     public function suggestSchedule()
     {
-        $availableEmployees = Employee::withCount(['appointments as future_appointments_count' => function($q) {
-            $q->where('scheduled_at', '>=', now());
-        }])->orderBy('future_appointments_count')->get();
+        $availableEmployees = Employee::withCount([
+            'appointments as future_appointments_count' => function ($q) {
+                $q->where('scheduled_at', '>=', now());
+            }
+        ])->orderBy('future_appointments_count')->get();
 
         $suggestedEmployee = $availableEmployees->first();
 
         $nextAvailableTime = now()->addHour();
-        while (Appointment::where('employee_id', $suggestedEmployee->id)
-                     ->where('scheduled_at', $nextAvailableTime)
-                     ->exists()) {
+        while (
+            Appointment::where('employee_id', $suggestedEmployee->id)
+                ->where('scheduled_at', $nextAvailableTime)
+                ->exists()
+        ) {
             $nextAvailableTime->addHour();
         }
 

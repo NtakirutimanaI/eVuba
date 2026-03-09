@@ -11,18 +11,23 @@
     /* Theme Variables */
     /* Rely on global variables from app layout */
 
+    * {
+        box-sizing: border-box;
+    }
+
     body {
         background: var(--body-bg);
         font-family: 'Inter', sans-serif;
         color: var(--text-primary);
         margin: 0;
         min-height: 100vh;
+        overflow-x: hidden; /* Prevent horizontal scroll glitch */
     }
 
     .main-content {
-        margin-left: 222px;
-        width: 80%;
-        margin-top: 20px;
+        margin-left: 200px; /* match sidebar width exactly */
+        width: calc(100% - 200px);
+        margin-top: 64px; /* match header height */
         padding: 30px;
         transition: margin-left 0.3s ease;
     }
@@ -290,7 +295,9 @@
 
     /* Table */
     .table-container {
+        width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
     }
 
     .modern-table {

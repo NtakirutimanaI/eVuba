@@ -295,7 +295,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(functi
     Route::resource('support', CustomerSupportController::class)->except(['index']);
     Route::get('/appointments/{appointment}', [CustomerAppointmentController::class, 'show'])
         ->name('appointments.show');
-        
+
     // Feedback
     Route::get('/feedback', [\App\Http\Controllers\Customer\FeedbackController::class, 'index'])->name('feedback.index');
     Route::get('/feedback/{feedback}/submit', [\App\Http\Controllers\Customer\FeedbackController::class, 'submit'])->name('feedback.submit');
@@ -306,6 +306,9 @@ Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(functi
 // Admin Feedback Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/feedback-analytics', [\App\Http\Controllers\Admin\FeedbackAnalyticsController::class, 'index'])->name('feedback.dashboard');
+    Route::get('/feedback', [\App\Http\Controllers\Admin\FeedbackController::class, 'index'])->name('feedback.index');
+    Route::get('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'show'])->name('feedback.show');
+    Route::delete('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'destroy'])->name('feedback.destroy');
 });
 
 // ------------------ Password Change ------------------
@@ -467,12 +470,14 @@ Route::get('/admin/bookings/{booking}/reschedule', [AdminBookingController::clas
 // In routes/web.php
 Route::get('admin/bookings/{booking}/reschedule', [AdminBookingController::class, 'reschedule'])->name('admin.bookings.reschedule');
 Route::patch('admin/bookings/{booking}/reschedule', [AdminBookingController::class, 'updateReschedule'])->name('admin.bookings.updateReschedule');
+Route::post('admin/bookings/{booking}/assign-employee', [AdminBookingController::class, 'assignEmployee'])->name('admin.bookings.assignEmployee');
 
 //
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Manager\ManagerProductController;
 use App\Http\Controllers\Manager\ManagerStockInController;
 use App\Http\Controllers\Manager\ManagerStockOutController;
+use App\Http\Controllers\Admin\AdminStockOutController;
 use App\Http\Controllers\Manager\AdminStockInController;
 // routes/web.php
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {

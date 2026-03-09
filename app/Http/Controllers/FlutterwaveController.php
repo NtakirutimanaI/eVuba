@@ -218,17 +218,21 @@ class FlutterwaveController extends Controller
                 ]);
             } else {
                 // Ensure customer exists to avoid foreign key errors
-                $customer = \App\Models\Customer::firstOrCreate(
-                    ['id' => $order->user_id],
-                    [
+                $customer = \App\Models\Customer::where('id', $order->user_id)
+                    ->orWhere('email', $order->user->email)
+                    ->first();
+
+                if (!$customer) {
+                    $customer = \App\Models\Customer::create([
+                        'id' => $order->user_id,
                         'name' => $order->user->name,
                         'email' => $order->user->email,
                         'phone' => $order->user->phone,
                         'address' => $order->user->address,
                         'updated_at' => now(),
                         'created_at' => now(),
-                    ]
-                );
+                    ]);
+                }
 
                 // Create new invoice
                 Invoice::create([
@@ -245,13 +249,20 @@ class FlutterwaveController extends Controller
                 ]);
             }
 
-            // Notify user
+            // Notify user via DB notification
             $order->user->notify(new \App\Notifications\SystemAlert([
                 'title' => 'Payment Successful',
                 'message' => "Your payment for {$order->product_name} has been confirmed.",
                 'icon' => 'fa-check-circle',
                 'action_url' => route('customer.orders.index')
             ]));
+
+            // Send Mail Invoice Receipt (like before)
+            try {
+                \Illuminate\Support\Facades\Mail::to($order->user)->send(new \App\Mail\InvoicePaid($order));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send Invoice email: ' . $e->getMessage());
+            }
         });
     }
 }

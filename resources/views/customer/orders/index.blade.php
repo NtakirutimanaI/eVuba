@@ -118,6 +118,16 @@
                             </td>
                             <td style="text-align: right; padding-right: 25px;">
                                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    @if(!in_array($order->payment_status, ['paid', 'approved']))
+                                        <form action="{{ route('payment.initiate') }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                            <button type="submit" class="icon-btn" title="Pay Now"
+                                                style="color: #10b981; border: none; background: transparent; cursor: pointer;">
+                                                <i class="fas fa-credit-card"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                     <a href="{{ route('customer.orders.invoice', $order->id) }}" class="icon-btn"
                                         title="Download Invoice"
                                         style="color: var(--primary); display: flex; align-items: center; justify-content: center; text-decoration: none;">
@@ -632,4 +642,35 @@
     window.onclick = (e) => {
         // Modal handlers if any remain standard
     }
+
+    // Flash Messages for Callbacks (like Successful Payment)
+    @if(session('success'))
+        Swal.fire({
+            title: 'Success!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#e2e8f0' : '#334155'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            title: 'Error!',
+            text: "{{ session('error') }}",
+            icon: 'error',
+            background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#e2e8f0' : '#334155'
+        });
+    @endif
+
+    @if(session('warning'))
+        Swal.fire({
+            title: 'Notice',
+            text: "{{ session('warning') }}",
+            icon: 'warning',
+            background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#ffffff',
+            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#e2e8f0' : '#334155'
+        });
+    @endif
 </script>

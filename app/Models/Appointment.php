@@ -13,13 +13,19 @@ class Appointment extends Model
      * Fillable fields for mass assignment
      */
     protected $fillable = [
-        'user_id',        // Customer who booked the appointment
-        'manager_id',     // Manager responsible
-        'employee_id',    // Assigned employee (optional)
+        'user_id',           // Customer who booked the appointment
+        'manager_id',        // Manager responsible
+        'employee_id',       // Assigned employee (optional)
         'title',
         'description',
-        'status',         // e.g., pending, completed, cancelled
-        'scheduled_at',   // Appointment date and time
+        'status',            // pending, confirmed, completed, cancelled
+        'scheduled_at',      // Appointment date and time
+        'priority',          // low, medium, high, urgent
+        'source_type',       // support_ticket, booking, order, message, manual
+        'source_id',
+        'auto_assigned',
+        'assigned_at',
+        'assignment_notes',
     ];
 
     /**

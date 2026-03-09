@@ -13,7 +13,7 @@ return new class extends Migration {
     {
         Schema::table('tickets', function (Blueprint $table) {
             // Drop the existing foreign key constraint
-            // $table->dropForeign(['customer_id']);
+            $table->dropForeign(['customer_id']);
 
             // Add the new foreign key constraint referencing users table
 

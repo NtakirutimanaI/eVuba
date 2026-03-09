@@ -27,7 +27,7 @@ class ManagerBookingController extends Controller
 
         // Clone query for stats to avoid pagination interference
         $statsQuery = clone $query;
-        
+
         $stats = [
             'total' => $statsQuery->count(),
             'approved' => (clone $statsQuery)->where('status', 'approved')->count(),
@@ -74,18 +74,18 @@ class ManagerBookingController extends Controller
 
     // Update booking status (approve, cancel, reject, complete)
     public function updateStatus(Request $request, Booking $booking, $status)
-{
-    $allowedStatuses = ['approved', 'cancelled', 'rejected', 'completed'];
+    {
+        $allowedStatuses = ['approved', 'cancelled', 'rejected', 'completed'];
 
-    if (!in_array($status, $allowedStatuses)) {
-        return redirect()->back()->with('error', 'Invalid status!');
+        if (!in_array($status, $allowedStatuses)) {
+            return redirect()->back()->with('error', 'Invalid status!');
+        }
+
+        $booking->status = $status;
+        $booking->save();
+
+        return redirect()->back()->with('success', 'Booking status updated successfully!');
     }
-
-    $booking->status = $status;
-    $booking->save();
-
-    return redirect()->back()->with('success', 'Booking status updated successfully!');
-}
 
     // Show reschedule form
     public function reschedule(Booking $booking)

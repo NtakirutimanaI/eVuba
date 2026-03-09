@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -13,38 +12,36 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Counts
+        // --- Summary Counts ---
         $bookingsCount = $user->bookings()->count();
         $appointmentsCount = $user->appointments()->count();
         $ordersCount = $user->orders()->count();
 
-
-        // Recent activity
+        // --- Recent Activity ---
         $recentBookings = $user->bookings()->with('service')->latest()->take(5)->get();
         $recentAppointments = $user->appointments()->latest()->take(5)->get();
         $recentOrders = $user->orders()->latest()->take(5)->get();
 
-        // Charts
-
-
-        // Booking Status
+        // --- Chart: Booking Status Distribution ---
         $bookingStatusData = $user->bookings()
             ->select('status', DB::raw('COUNT(*) as total'))
             ->groupBy('status')
             ->get();
 
-        $bookingLabels = $bookingStatusData->pluck('status')->map(fn($s) => ucfirst($s))->toArray();
+        $bookingLabels = $bookingStatusData->pluck('status')
+            ->map(fn($s) => ucfirst($s))
+            ->toArray();
+
         $bookingCounts = $bookingStatusData->pluck('total')->toArray();
 
         return view('customer.dashboard', compact(
+            'user',
             'bookingsCount',
             'appointmentsCount',
             'ordersCount',
-
             'recentBookings',
             'recentAppointments',
             'recentOrders',
-
             'bookingLabels',
             'bookingCounts'
         ));

@@ -264,7 +264,7 @@
                         <option value="">Choose an agent...</option>
                         @foreach($agents as $agent)
                             <option value="{{ $agent->id }}">{{ $agent->name }}
-                                ({{ $agent->roles->pluck('name')->first() }})</option>
+                                ({{ ucfirst($agent->role) }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -1327,10 +1327,10 @@
         };
 
         // NEW: Status Update Logic
-        window.updateTicketStatus = function(id, newStatus) {
+        window.updateTicketStatus = function (id, newStatus) {
             const formData = new FormData();
             formData.append('status', newStatus);
-            
+
             fetch(`/admin/support/status/${id}`, {
                 method: 'POST',
                 headers: {
@@ -1340,22 +1340,22 @@
                 },
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    let displayStatus = newStatus === 'closed' ? 'RESOLVED' : newStatus.replace('_', ' ').toUpperCase();
-                    showToast(`Status updated to ${displayStatus}`, 'success');
-                    
-                    // Reload page to update stats and table (User Request)
-                    setTimeout(() => location.reload(), 800);
-                } else {
-                    showToast('Failed to update status', 'error');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                showToast('Error updating status', 'error');
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        let displayStatus = newStatus === 'closed' ? 'RESOLVED' : newStatus.replace('_', ' ').toUpperCase();
+                        showToast(`Status updated to ${displayStatus}`, 'success');
+
+                        // Reload page to update stats and table (User Request)
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showToast('Failed to update status', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Error updating status', 'error');
+                });
         };
 
         window.closeInspector = () => document.getElementById('inspectorPanel').style.display = 'none';
@@ -1382,10 +1382,11 @@
                     if (data.success) {
                         showToast(data.message, 'success');
                         closeModal('assignModal');
-                        setTimeout(() => location.reload(), 800);
                     } else {
                         showToast(data.message || 'Failed to assign agent.', 'error');
                     }
+                    // Always reload so the Case Worker column reflects the change
+                    setTimeout(() => location.reload(), 900);
                 })
                 .catch(err => {
                     console.error(err);

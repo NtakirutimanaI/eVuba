@@ -29,10 +29,15 @@ class PaymentService
     public function initiatePayment($paymentData)
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->secretKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/payments', $paymentData);
+            $certPath = file_exists(base_path('cacert.pem')) ? base_path('cacert.pem') : true;
+
+            $response = Http::timeout(15)
+                ->withOptions(['verify' => $certPath])
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $this->secretKey,
+                    'Content-Type' => 'application/json',
+                ])
+                ->post($this->baseUrl . '/payments', $paymentData);
 
             $result = $response->json();
 
@@ -69,10 +74,15 @@ class PaymentService
     public function verifyTransaction($transactionId)
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->secretKey,
-                'Content-Type' => 'application/json',
-            ])->get($this->baseUrl . '/transactions/' . $transactionId . '/verify');
+            $certPath = file_exists(base_path('cacert.pem')) ? base_path('cacert.pem') : true;
+
+            $response = Http::timeout(15)
+                ->withOptions(['verify' => $certPath])
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $this->secretKey,
+                    'Content-Type' => 'application/json',
+                ])
+                ->get($this->baseUrl . '/transactions/' . $transactionId . '/verify');
 
             $result = $response->json();
 

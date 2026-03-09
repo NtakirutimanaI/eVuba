@@ -23,37 +23,44 @@ class ManagerEmployeePerformanceController extends Controller
         $employees = Employee::with('user')->get();
 
         // 1. Detailed Performance Matrix
-        $performance = $employees->map(function($employee) {
+        $performance = $employees->map(function ($employee) {
             $userId = $employee->id;
-            
+
             // Core Metrics
             $bookingsCount = Booking::where('employee_id', $userId)->count();
             $appointmentsCount = Appointment::where('employee_id', $userId)->count();
             $salesTotal = Sale::where('user_id', $userId)->sum('total_amount');
-            $ticketsResolved = Ticket::where('assigned_to', $userId)->where('status', 'resolved')->count();
-            
+            $ticketsResolved = Ticket::where('assigned_to', $userId)->whereIn('status', ['resolved', 'completed', 'closed'])->count();
+
             // Task Metrics
-            $tasksAssigned = Task::where('user_id', $userId)->count();
-            $tasksCompleted = Task::where('user_id', $userId)->where('status', 'completed')->count();
+            $tasksAssigned = Appointment::where('employee_id', $userId)
+                ->where(function ($q) {
+                    $q->whereNull('source_type')->orWhere('source_type', '!=', 'customer_request');
+                })->count();
+            $tasksCompleted = Appointment::where('employee_id', $userId)
+                ->where('status', 'completed')
+                ->where(function ($q) {
+                    $q->whereNull('source_type')->orWhere('source_type', '!=', 'customer_request');
+                })->count();
             $taskCompletionRate = $tasksAssigned > 0 ? round(($tasksCompleted / $tasksAssigned) * 100, 1) : 0;
 
             // Efficiency
             $avgResponse = Ticket::where('assigned_to', $userId)
-                                ->where('status', 'resolved')
-                                ->avg(DB::raw('TIMESTAMPDIFF(HOUR, created_at, updated_at)'));
+                ->whereIn('status', ['resolved', 'completed', 'closed'])
+                ->avg(DB::raw('TIMESTAMPDIFF(HOUR, created_at, updated_at)'));
 
             return [
-                'id'                => $userId,
-                'name'              => $employee->name,
-                'position'          => $employee->position,
-                'bookings'          => $bookingsCount,
-                'appointments'      => $appointmentsCount,
-                'sales'             => (float)$salesTotal,
-                'tickets_resolved'  => $ticketsResolved,
-                'tasks_completed'   => $tasksCompleted,
-                'task_rate'         => $taskCompletionRate,
-                'avg_response'      => round($avgResponse ?? 0, 1),
-                'total_score'       => ($bookingsCount * 10) + ($salesTotal / 1000) + ($ticketsResolved * 5) + ($tasksCompleted * 2)
+                'id' => $userId,
+                'name' => $employee->name,
+                'position' => $employee->position,
+                'bookings' => $bookingsCount,
+                'appointments' => $appointmentsCount,
+                'sales' => (float) $salesTotal,
+                'tickets_resolved' => $ticketsResolved,
+                'tasks_completed' => $tasksCompleted,
+                'task_rate' => $taskCompletionRate,
+                'avg_response' => round($avgResponse ?? 0, 1),
+                'total_score' => ($bookingsCount * 10) + ($salesTotal / 1000) + ($ticketsResolved * 5) + ($tasksCompleted * 2)
             ];
         })->sortByDesc('total_score')->values();
 
@@ -63,8 +70,8 @@ class ManagerEmployeePerformanceController extends Controller
             $months->push(Carbon::now()->subMonths($i)->format('M Y'));
         }
 
-        $salesTrends = $employees->map(function($emp) use ($months) {
-            $data = $months->map(function($month) use ($emp) {
+        $salesTrends = $employees->map(function ($emp) use ($months) {
+            $data = $months->map(function ($month) use ($emp) {
                 return Sale::where('user_id', $emp->id)
                     ->whereMonth('created_at', Carbon::parse($month)->month)
                     ->whereYear('created_at', Carbon::parse($month)->year)
@@ -80,18 +87,20 @@ class ManagerEmployeePerformanceController extends Controller
         // 3. Overall Activity Distribution
         $activityDistribution = [
             'labels' => ['Bookings', 'Appointments', 'Tasks', 'Tickets'],
-            'data'   => [
+            'data' => [
                 Booking::count(),
-                Appointment::count(),
-                Task::count(),
+                Appointment::where('source_type', 'customer_request')->count(),
+                Appointment::where(function ($q) {
+                    $q->whereNull('source_type')->orWhere('source_type', '!=', 'customer_request');
+                })->count(),
                 Ticket::count()
             ]
         ];
 
         return view('manager.performance.index', compact(
-            'performance', 
-            'salesTrends', 
-            'months', 
+            'performance',
+            'salesTrends',
+            'months',
             'activityDistribution'
         ));
     }

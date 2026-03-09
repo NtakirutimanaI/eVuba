@@ -18,7 +18,6 @@
         --light: #f8fafc;
         --white: #ffffff;
         --border: #e2e8f0;
-
         /* Semantic Colors (Light Mode Default) */
         --bg-body: #f1f5f9;
         --bg-card: #ffffff;

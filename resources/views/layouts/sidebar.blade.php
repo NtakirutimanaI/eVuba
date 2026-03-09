@@ -80,6 +80,7 @@
                     <li><a href="{{ route('admin.product.index') }}"><i class="fa fa-shopping-bag"></i> Products</a></li>
                     <li><a href="{{ route('admin.stock_in.addSupplier') }}"><i class="fa fa-truck"></i> Suppliers</a></li>
                     <li><a href="{{ route('admin.stock_in.index') }}"><i class="fa fa-arrow-right"></i> Stock In</a></li>
+                    <li><a href="{{ route('admin.stockout.index') }}"><i class="fa fa-arrow-left"></i> Stock Out</a></li>
 
                 </ul>
             </li>
@@ -104,6 +105,8 @@
                 </a>
                 <ul class="crm-dropdown-menu">
                     <li><a href="{{ route('admin.support.index') }}"><i class="fas fa-headset"></i> Support Tickets</a></li>
+                    <li><a href="{{ route('admin.feedback.dashboard') }}"><i class="fas fa-star-half-alt"></i> Customer
+                            Feedback</a></li>
                     <li>
                         <a href="{{ route('admin.messages.index') }}">
                             <i class="fas fa-envelope"></i> Messages
@@ -113,8 +116,10 @@
                             @endif
                         </a>
                     </li>
-                    <li><a href="{{ route('admin.performance.index') }}"><i class="fas fa-tasks"></i> Employee Performance</a></li>
-                    <li><a href="{{ route('admin.employee.reports.index') }}"><i class="fas fa-file-invoice"></i> Employee Reports</a></li>
+                    <li><a href="{{ route('admin.performance.index') }}"><i class="fas fa-tasks"></i> Employee
+                            Performance</a></li>
+                    <li><a href="{{ route('admin.employee.reports.index') }}"><i class="fas fa-file-invoice"></i> Employee
+                            Reports</a></li>
                 </ul>
             </li>
 
@@ -213,27 +218,29 @@
         EMPLOYEE MENU
         ============================ --}}
         @if($role == 'employee')
-             <!-- MY WORK DROPDOWN -->
-             <li class="crm-dropdown">
+            <!-- MY WORK DROPDOWN -->
+            <li class="crm-dropdown">
                 <a class="crm-dropdown-toggle">
                     <i class="fas fa-briefcase"></i> My Work
                     <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
                 <ul class="crm-dropdown-menu">
-                    <li><a href="{{ route('employee.appointments.index') }}"><i class="fa fa-calendar-check"></i> Daily Engagements</a></li>
-                    <li><a href="{{ route('employee.bookings.index') }}"><i class="fas fa-book"></i> Service Bookings</a></li>
+                    <li><a href="{{ route('employee.appointments.index') }}"><i class="fa fa-calendar-check"></i> Daily
+                            Engagements</a></li>
+                    <li><a href="{{ route('employee.bookings.index') }}"><i class="fas fa-book"></i> Service Bookings</a>
+                    </li>
                 </ul>
             </li>
 
-             <!-- RESOURCES DROPDOWN -->
-             <li class="crm-dropdown">
+            <!-- RESOURCES DROPDOWN -->
+            <li class="crm-dropdown">
                 <a class="crm-dropdown-toggle">
                     <i class="fas fa-folder-open"></i> Resources
                     <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
                 <ul class="crm-dropdown-menu">
-                     <li><a href="{{ route('employee.support.index') }}"><i class="fas fa-headset"></i> Support Hub</a></li>
-                     <li><a href="{{ route('employee.reports') }}"><i class="fas fa-file-alt"></i> Report Center</a></li>
+                    <li><a href="{{ route('employee.support.index') }}"><i class="fas fa-headset"></i> Support Hub</a></li>
+                    <li><a href="{{ route('employee.reports') }}"><i class="fas fa-file-alt"></i> Report Center</a></li>
                 </ul>
             </li>
         @endif
@@ -249,8 +256,10 @@
                     <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
                 <ul class="crm-dropdown-menu">
-                     <li><a href="{{ route('customer.bookings.index') }}"><i class="fas fa-book"></i> Booking Command</a></li>
-                     <li><a href="{{ route('customer.appointments.index') }}"><i class="fa fa-calendar-check"></i> Appointments</a></li>
+                    <li><a href="{{ route('customer.bookings.index') }}"><i class="fas fa-book"></i> Booking Command</a>
+                    </li>
+                    <li><a href="{{ route('customer.appointments.index') }}"><i class="fa fa-calendar-check"></i>
+                            Appointments</a></li>
                 </ul>
             </li>
 
@@ -261,22 +270,26 @@
                     <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
                 <ul class="crm-dropdown-menu">
-                     <li><a href="{{ route('customer.orders.index') }}"><i class="fas fa-shopping-basket"></i> Products</a></li>
-                     <li><a href="{{ route('customer.invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i> Invoices</a></li>
-                     <li><a href="{{ route('customer.orders.index', ['section' => 'archive']) }}"><i class="fas fa-history"></i> Order Archive</a></li>
+                    <li><a href="{{ route('customer.orders.index') }}"><i class="fas fa-shopping-basket"></i> Products</a>
+                    </li>
+                    <li><a href="{{ route('customer.invoices.index') }}"><i class="fas fa-file-invoice-dollar"></i>
+                            Invoices</a></li>
+                    <li><a href="{{ route('customer.orders.index', ['section' => 'archive']) }}"><i
+                                class="fas fa-history"></i> Order Archive</a></li>
                 </ul>
             </li>
 
             <!-- ACCOUNT & SUPPORT DROPDOWN -->
-             <li class="crm-dropdown">
+            <li class="crm-dropdown">
                 <a class="crm-dropdown-toggle">
                     <i class="fas fa-user-shield"></i> Account & Support
                     <i class="fa fa-caret-down crm-dropdown-arrow"></i>
                 </a>
                 <ul class="crm-dropdown-menu">
-                     <li><a href="{{ route('notifications.page') }}"><i class="fas fa-bell"></i> Notifications</a></li>
-                     <li><a href="{{ route('customer.support.index') }}"><i class="fas fa-headset"></i> Support Hub</a></li>
-                     <li><a href="{{ route('password.change') }}"><i class="fas fa-user-cog"></i> Account Security</a></li>
+                    <li><a href="{{ route('notifications.page') }}"><i class="fas fa-bell"></i> Notifications</a></li>
+                    <li><a href="{{ route('customer.support.index') }}"><i class="fas fa-headset"></i> Support Hub</a></li>
+                    <li><a href="{{ route('customer.feedback.index') }}"><i class="fas fa-star"></i> My Feedback</a></li>
+                    <li><a href="{{ route('password.change') }}"><i class="fas fa-user-cog"></i> Account Security</a></li>
                 </ul>
             </li>
         @endif
@@ -338,6 +351,8 @@
         /* Full height */
         padding-top: 64px;
         /* Push menu down by header height */
+        padding-bottom: 60px;
+        /* extra space at bottom to match admin */
         background: #0f172a;
         z-index: 1000;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -348,13 +363,18 @@
         /* Prevent horizontal scroll from flyouts */
     }
 
+    /* Custom Scrollbar for Sidebar to match Admin */
     .crm-sidebar::-webkit-scrollbar {
-        width: 5px;
+        width: 6px;
     }
 
     .crm-sidebar::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 10px;
+        background: rgba(0, 123, 255, 0.3);
+        border-radius: 4px;
+    }
+
+    .crm-sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 123, 255, 0.6);
     }
 
     .crm-sidebar-menu {

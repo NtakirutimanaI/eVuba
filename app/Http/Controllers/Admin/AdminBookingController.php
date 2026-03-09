@@ -43,7 +43,9 @@ class AdminBookingController extends Controller
             'cancelled' => Booking::where('status', 'cancelled')->count(),
         ];
 
-        return view('admin.bookings.index', compact('bookings', 'stats'));
+        $employees = \App\Models\User::where('role', 'employee')->get();
+
+        return view('admin.bookings.index', compact('bookings', 'stats', 'employees'));
     }
 
     /**
@@ -132,5 +134,20 @@ class AdminBookingController extends Controller
         return redirect()
             ->route('admin.bookings.index')
             ->with('success', 'Booking rescheduled successfully!');
+    }
+
+    /**
+     * Assign employee to a booking
+     */
+    public function assignEmployee(Request $request, Booking $booking)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:users,id',
+        ]);
+
+        $booking->employee_id = $request->employee_id;
+        $booking->save();
+
+        return back()->with('success', 'Employee assigned successfully!');
     }
 }

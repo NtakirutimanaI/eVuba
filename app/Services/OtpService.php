@@ -31,55 +31,34 @@ class OtpService
         Cache::put('otp_' . $user->email, $otp, $expiresAt);
 
         try {
-            $email = new Mail();
+            $htmlContent = view('emails.otp', ['otp' => $otp, 'name' => $user->name])->render();
+
+            $email = new \SendGrid\Mail\Mail();
             $email->setFrom($this->fromEmail, $this->fromName);
             $email->setSubject("Your Verification Code - " . $this->fromName);
             $email->addTo($user->email, $user->name);
-
-            $htmlContent = view('emails.otp', ['otp' => $otp, 'name' => $user->name])->render();
             $email->addContent("text/html", $htmlContent);
 
             $sendgrid = new \SendGrid($this->apiKey);
 
-            Log::info('Attempting to send OTP via SendGrid', [
-                'user' => $user->email,
-                'from' => $this->fromEmail,
-                'residency' => env('SENDGRID_DATA_RESIDENCY', 'global')
-            ]);
-
-            // Set Data Residency based on configuration
-            $residency = env('SENDGRID_DATA_RESIDENCY', 'global');
-
-            if ($residency === 'eu') {
-                if (method_exists($sendgrid, 'set_sendgrid_data_residency')) {
-                    $sendgrid->set_sendgrid_data_residency("eu");
-                } else {
-                    $sendgrid->client->setHost("https://api.eu.sendgrid.com");
-                }
-            } else {
-                // Ensure global host is used
-                $sendgrid->client->setHost("https://api.sendgrid.com");
-            }
-
             $response = $sendgrid->send($email);
 
             if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
-                Log::info('SendGrid OTP Accepted', [
-                    'status' => $response->statusCode(),
-                    'message_id' => $response->headers()[4] ?? 'unknown'
+                Log::info('SendGrid OTP Accepted successfully', [
+                    'user' => $user->email,
+                    'status' => $response->statusCode()
                 ]);
                 return true;
+            } else {
+                Log::error('SendGrid OTP Failed', [
+                    'user' => $user->email,
+                    'status' => $response->statusCode(),
+                    'body' => $response->body()
+                ]);
+                return false;
             }
-
-            Log::error('SendGrid OTP Delivery Failed', [
-                'status' => $response->statusCode(),
-                'body' => $response->body(),
-                'user' => $user->email
-            ]);
-
-            return false;
         } catch (\Exception $e) {
-            Log::error('SendGrid OTP Exception', [
+            Log::error('OTP Mailer Exception', [
                 'message' => $e->getMessage(),
                 'user' => $user->email
             ]);
